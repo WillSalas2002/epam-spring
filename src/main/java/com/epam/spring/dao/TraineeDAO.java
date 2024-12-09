@@ -1,0 +1,43 @@
+package com.epam.spring.dao;
+
+import com.epam.spring.storage.InMemoryStorage;
+import com.epam.spring.model.Trainee;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.UUID;
+
+@Repository
+public class TraineeDAO implements BaseDAO<Trainee, UUID> {
+
+    private final InMemoryStorage inMemoryStorage;
+
+    @Autowired
+    public TraineeDAO(InMemoryStorage inMemoryStorage) {
+        this.inMemoryStorage = inMemoryStorage;
+    }
+
+    @Override
+    public Trainee create(Trainee trainee) {
+        return inMemoryStorage.createTrainee(trainee);
+    }
+
+    @Override
+    public List<Trainee> findAll() {
+        return inMemoryStorage.findAllTrainees();
+    }
+
+    @Override
+    public Trainee findById(UUID uuid) {
+        return inMemoryStorage.findTraineeById(uuid);
+    }
+
+    public Trainee update(Trainee trainee) {
+        return inMemoryStorage.updateTrainee(trainee);
+    }
+
+    public void delete(Trainee trainee) {
+        inMemoryStorage.deleteTrainee(trainee);
+    }
+}
