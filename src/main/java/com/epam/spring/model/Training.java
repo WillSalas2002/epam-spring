@@ -5,13 +5,16 @@ import java.util.UUID;
 
 public class Training {
 
-    private UUID uuid;
+    private UUID uuid = UUID.randomUUID();
     private Trainee trainee;
     private Trainer trainer;
     private String name;
     private TrainingType type;
     private LocalDateTime date;
     private Integer duration;
+
+    public Training() {
+    }
 
     public Training(Trainee trainee, Trainer trainer, String name, TrainingType type, LocalDateTime date, Integer duration) {
         this.trainee = trainee;
