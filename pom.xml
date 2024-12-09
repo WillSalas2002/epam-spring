@@ -14,6 +14,7 @@
 
         <junit.version>5.11.0</junit.version>
         <spring.version>6.1.14</spring.version>
+        <jakarta.version>2.1.1</jakarta.version>
     </properties>
 
     <dependencies>
@@ -47,6 +48,12 @@
             <artifactId>spring-test</artifactId>
             <version>${spring.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <version>${jakarta.version}</version>
         </dependency>
 
         <dependency>
