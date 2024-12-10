@@ -1,12 +1,15 @@
 package com.epam.spring.model;
 
+import java.util.UUID;
+
 public abstract class User {
 
-    protected String firstName;
-    protected String lastName;
-    protected String username;
-    protected String password;
-    protected boolean isActive;
+    private final UUID userId = UUID.randomUUID();
+    private String firstName;
+    private String lastName;
+    private String username;
+    private String password;
+    private boolean isActive;
 
     public User() {
     }
@@ -15,6 +18,10 @@ public abstract class User {
         this.firstName = firstName;
         this.lastName = lastName;
         this.isActive = isActive;
+    }
+
+    public UUID getUserId() {
+        return userId;
     }
 
     public String getFirstName() {
@@ -60,7 +67,8 @@ public abstract class User {
     @Override
     public String toString() {
         return "User{" +
-                "firstName='" + firstName + '\'' +
+                "userId='" + userId + '\''+
+                ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +

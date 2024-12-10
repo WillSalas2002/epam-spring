@@ -28,6 +28,8 @@ import java.util.logging.Logger;
 @PropertySource("classpath:application.properties")
 public class InMemoryStorage {
 
+    private static final Logger LOGGER = Logger.getLogger(InMemoryStorage.class.getName());
+
     @Value("${storage.trainee.initial-data-path}")
     private String initialDataPath;
 
@@ -36,9 +38,14 @@ public class InMemoryStorage {
     private final Map<UUID, Training> trainingStorage = new ConcurrentHashMap<>();
     private final Set<String> usernames = new HashSet<>();
 
-    private static final Logger LOGGER = Logger.getLogger(InMemoryStorage.class.getName());
-
     private final UsernameGenerator usernameGenerator;
+
+    private final String TRAINEE_CLASS_NAME = "Trainee";
+    private final String TRAINER_CLASS_NAME = "Trainer";
+    private final String TRAINING_CLASS_NAME = "Training";
+    private final String TRUE_STRING = "true";
+    private final String SEPARATOR = ",";
+
     public InMemoryStorage(UsernameGenerator usernameGenerator) {
         this.usernameGenerator = usernameGenerator;
     }
@@ -62,18 +69,18 @@ public class InMemoryStorage {
     }
 
     private void processDataLine(String line) {
-        String[] pieces = line.split(",");
+        String[] pieces = line.split(SEPARATOR);
         String prefix = pieces[0];
         switch (prefix) {
-            case "Trainee" -> {
+            case TRAINEE_CLASS_NAME -> {
                 Trainee trainee = buildTrainee(pieces);
                 createTrainee(trainee);
             }
-            case "Trainer" -> {
+            case TRAINER_CLASS_NAME -> {
                 Trainer trainer = buildTrainer(pieces);
                 createTrainer(trainer);
             }
-            case "Training" -> {
+            case TRAINING_CLASS_NAME -> {
                 Training training = buildTraining(pieces);
                 createTraining(training);
             }
@@ -111,7 +118,7 @@ public class InMemoryStorage {
         trainer.setUsername(pieces[3]);
         trainer.setPassword(pieces[4]);
         trainer.setSpecialization(pieces[5]);
-        trainer.setActive(pieces[6].equals("true"));
+        trainer.setActive(pieces[6].equals(TRUE_STRING));
         return trainer;
     }
 
@@ -123,7 +130,7 @@ public class InMemoryStorage {
         trainee.setPassword(pieces[4]);
         trainee.setDataOfBirth(LocalDate.parse(pieces[5]));
         trainee.setAddress(pieces[6]);
-        trainee.setActive(pieces[7].equals("true"));
+        trainee.setActive(pieces[7].equals(TRUE_STRING));
         return trainee;
     }
 
@@ -134,7 +141,7 @@ public class InMemoryStorage {
     }
 
     public Trainee createTrainee(Trainee trainee) {
-        LOGGER.info("Adding Trainee: " + trainee.getUsername());
+        LOGGER.info("Creating Trainee: " + trainee.getUsername());
         makeUsernameUnique(trainee);
         traineeStorage.put(trainee.getUserId(), trainee);
         return trainee;
@@ -165,7 +172,7 @@ public class InMemoryStorage {
     }
 
     public Trainer createTrainer(Trainer trainer) {
-        LOGGER.info("Adding Trainer: " + trainer.getUsername());
+        LOGGER.info("Creating Trainer: " + trainer.getUsername());
         makeUsernameUnique(trainer);
         trainerStorage.put(trainer.getUserId(), trainer);
         return trainer;
@@ -183,6 +190,12 @@ public class InMemoryStorage {
         return trainer;
     }
 
+    public void deleteTrainer(Trainer trainer) {
+        LOGGER.info("Deleting Trainee with username: " + trainer.getUsername());
+        usernames.remove(trainer.getUsername());
+        trainerStorage.remove(trainer.getUserId());
+    }
+
     // Methods related to Training
     public List<Training> findAllTrainings() {
         LOGGER.info("Fetching all trainings.");
@@ -195,7 +208,7 @@ public class InMemoryStorage {
     }
 
     public Training createTraining(Training training) {
-        LOGGER.info("Adding Training: " + training.getName());
+        LOGGER.info("Creating Training: " + training.getName());
         trainingStorage.put(training.getUuid(), training);
         return training;
     }

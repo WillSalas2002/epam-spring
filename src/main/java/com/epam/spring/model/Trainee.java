@@ -1,11 +1,9 @@
 package com.epam.spring.model;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 public class Trainee extends User {
 
-    private final UUID userId = UUID.randomUUID();
     private LocalDate dataOfBirth;
     private String address;
 
@@ -20,10 +18,6 @@ public class Trainee extends User {
         super(firstName, lastName, isActive);
         this.dataOfBirth = dataOfBirth;
         this.address = address;
-    }
-
-    public UUID getUserId() {
-        return userId;
     }
 
     public LocalDate getDataOfBirth() {
@@ -45,9 +39,8 @@ public class Trainee extends User {
     @Override
     public String toString() {
         return super.toString() +
-                "Trainee{" +
-                "userId=" + userId +
-                ", dataOfBirth=" + dataOfBirth +
+                ", Trainee{" +
+                "dataOfBirth=" + dataOfBirth +
                 ", address='" + address + '\'' +
                 '}';
     }

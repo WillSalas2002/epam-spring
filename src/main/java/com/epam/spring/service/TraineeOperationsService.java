@@ -1,6 +1,6 @@
 package com.epam.spring.service;
 
-import com.epam.spring.dao.TraineeDAO;
+import com.epam.spring.dao.TraineeOperationsDAO;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.util.PasswordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,13 +10,13 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class TraineeService implements BaseService<Trainee, UUID> {
+public class TraineeOperationsService implements BaseOperationsService<Trainee, UUID>, ExtendedOperationsService<Trainee> {
 
-    private final TraineeDAO traineeDAO;
+    private final TraineeOperationsDAO traineeDAO;
     private PasswordGenerator passwordGenerator;
 
     @Autowired
-    public TraineeService(TraineeDAO traineeDAO) {
+    public TraineeOperationsService(TraineeOperationsDAO traineeDAO) {
         this.traineeDAO = traineeDAO;
     }
 
@@ -42,10 +42,12 @@ public class TraineeService implements BaseService<Trainee, UUID> {
         return traineeDAO.findById(uuid);
     }
 
+    @Override
     public Trainee update(Trainee trainee) {
         return traineeDAO.update(trainee);
     }
 
+    @Override
     public void delete(Trainee trainee) {
         traineeDAO.delete(trainee);
     }

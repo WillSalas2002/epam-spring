@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public class TraineeDAO implements BaseDAO<Trainee, UUID> {
+public class TraineeOperationsDAO implements BaseOperationsDAO<Trainee, UUID>, ExtendedOperationsDAO<Trainee> {
 
     private final InMemoryStorage inMemoryStorage;
 
     @Autowired
-    public TraineeDAO(InMemoryStorage inMemoryStorage) {
+    public TraineeOperationsDAO(InMemoryStorage inMemoryStorage) {
         this.inMemoryStorage = inMemoryStorage;
     }
 
@@ -33,10 +33,12 @@ public class TraineeDAO implements BaseDAO<Trainee, UUID> {
         return inMemoryStorage.findTraineeById(uuid);
     }
 
+    @Override
     public Trainee update(Trainee trainee) {
         return inMemoryStorage.updateTrainee(trainee);
     }
 
+    @Override
     public void delete(Trainee trainee) {
         inMemoryStorage.deleteTrainee(trainee);
     }

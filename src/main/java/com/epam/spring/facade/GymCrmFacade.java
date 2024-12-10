@@ -3,9 +3,9 @@ package com.epam.spring.facade;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
-import com.epam.spring.service.TraineeService;
-import com.epam.spring.service.TrainerService;
-import com.epam.spring.service.TrainingService;
+import com.epam.spring.service.TraineeOperationsService;
+import com.epam.spring.service.TrainerOperationsService;
+import com.epam.spring.service.TrainingOperationsService;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -15,13 +15,13 @@ import java.util.logging.Logger;
 @Component
 public class GymCrmFacade {
 
-    private final TraineeService traineeService;
-    private final TrainerService trainerService;
-    private final TrainingService trainingService;
-
     private static final Logger LOGGER = Logger.getLogger(GymCrmFacade.class.getName());
 
-    public GymCrmFacade(TraineeService traineeService, TrainerService trainerService, TrainingService trainingService) {
+    private final TraineeOperationsService traineeService;
+    private final TrainerOperationsService trainerService;
+    private final TrainingOperationsService trainingService;
+
+    public GymCrmFacade(TraineeOperationsService traineeService, TrainerOperationsService trainerService, TrainingOperationsService trainingService) {
         this.traineeService = traineeService;
         this.trainerService = trainerService;
         this.trainingService = trainingService;
@@ -35,9 +35,9 @@ public class GymCrmFacade {
     }
 
     public Trainee createTrainee(Trainee trainee) {
-        LOGGER.info("Creating Trainee: " + trainee.getUsername());
+        LOGGER.info("Creating Trainee with name: " + trainee.getFirstName());
         Trainee createdTrainee = traineeService.create(trainee);
-        LOGGER.info("Trainee created with ID: " + createdTrainee.getUserId());
+        LOGGER.info("Trainee created: " + createdTrainee);
         return createdTrainee;
     }
 
@@ -73,9 +73,9 @@ public class GymCrmFacade {
     }
 
     public Trainer createTrainer(Trainer trainer) {
-        LOGGER.info("Creating Trainer: " + trainer.getUsername());
+        LOGGER.info("Creating Trainer with name: " + trainer.getFirstName());
         Trainer createdTrainer = trainerService.create(trainer);
-        LOGGER.info("Trainer created with ID: " + createdTrainer.getUserId());
+        LOGGER.info("Trainer created: " + createdTrainer);
         return createdTrainer;
     }
 
@@ -118,7 +118,7 @@ public class GymCrmFacade {
     public Training createTraining(Training training) {
         LOGGER.info("Creating Training: " + training.getName());
         Training createdTraining = trainingService.create(training);
-        LOGGER.info("Training created with ID: " + createdTraining.getUuid());
+        LOGGER.info("Training created: " + createdTraining);
         return createdTraining;
     }
 }

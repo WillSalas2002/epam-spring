@@ -1,10 +1,7 @@
 package com.epam.spring.model;
 
-import java.util.UUID;
-
 public class Trainer extends User {
 
-    private final UUID userId = UUID.randomUUID();
     private String specialization;
 
     public Trainer() {
@@ -19,10 +16,6 @@ public class Trainer extends User {
         this.specialization = specialization;
     }
 
-    public UUID getUserId() {
-        return userId;
-    }
-
     public String getSpecialization() {
         return specialization;
     }
@@ -34,9 +27,8 @@ public class Trainer extends User {
     @Override
     public String toString() {
         return super.toString() +
-                "Trainer{" +
-                "userId=" + userId +
-                ", specialization='" + specialization + '\'' +
+                ", Trainer{" +
+                "specialization='" + specialization + '\'' +
                 '}';
     }
 }
