@@ -16,12 +16,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 @Component
@@ -33,9 +33,9 @@ public class InMemoryStorage {
     @Value("${storage.trainee.initial-data-path}")
     private String initialDataPath;
 
-    private final Map<UUID, Trainee> traineeStorage = new ConcurrentHashMap<>();
-    private final Map<UUID, Trainer> trainerStorage = new ConcurrentHashMap<>();
-    private final Map<UUID, Training> trainingStorage = new ConcurrentHashMap<>();
+    private final Map<UUID, Trainee> traineeStorage = new HashMap<>();
+    private final Map<UUID, Trainer> trainerStorage = new HashMap<>();
+    private final Map<UUID, Training> trainingStorage = new HashMap<>();
     private final Set<String> usernames = new HashSet<>();
 
     private final UsernameGenerator usernameGenerator;
