@@ -55,7 +55,7 @@ public class InMemoryStorage {
         loadInitialData(initialDataPath);
     }
 
-    private void loadInitialData(String path) {
+    public void loadInitialData(String path) {
         try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
             LOGGER.info("Initializing storage from file: " + initialDataPath);
             String line;
@@ -216,5 +216,12 @@ public class InMemoryStorage {
     private void makeUsernameUnique(User user) {
         String username = usernameGenerator.generateUniqueUsername(user.getUsername(), usernames);
         user.setUsername(username);
+    }
+
+    public void clearDB() {
+        traineeStorage.clear();
+        trainerStorage.clear();
+        trainingStorage .clear();
+        usernames.clear();
     }
 }
