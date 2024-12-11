@@ -1,6 +1,6 @@
 package com.epam.spring.service;
 
-import com.epam.spring.dao.TrainingOperationsDAO;
+import com.epam.spring.dao.TrainingDAO;
 import com.epam.spring.model.Training;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class TrainingOperationsService implements BaseOperationsService<Training, UUID> {
+public class TrainingService implements BaseOperationsService<Training, UUID> {
 
-    private final TrainingOperationsDAO trainingDAO;
+    private final TrainingDAO trainingDAO;
 
     @Autowired
-    public TrainingOperationsService(TrainingOperationsDAO trainingDAO) {
+    public TrainingService(TrainingDAO trainingDAO) {
         this.trainingDAO = trainingDAO;
     }
 

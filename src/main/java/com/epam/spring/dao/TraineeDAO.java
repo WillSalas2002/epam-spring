@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public class TraineeOperationsDAO implements BaseOperationsDAO<Trainee, UUID>, ExtendedOperationsDAO<Trainee> {
+public class TraineeDAO implements BaseOperationsDAO<Trainee, UUID>, ExtendedOperationsDAO<Trainee> {
 
     private final InMemoryStorage inMemoryStorage;
 
     @Autowired
-    public TraineeOperationsDAO(InMemoryStorage inMemoryStorage) {
+    public TraineeDAO(InMemoryStorage inMemoryStorage) {
         this.inMemoryStorage = inMemoryStorage;
     }
 

@@ -3,9 +3,9 @@ package com.epam.spring.facade;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
-import com.epam.spring.service.TraineeOperationsService;
-import com.epam.spring.service.TrainerOperationsService;
-import com.epam.spring.service.TrainingOperationsService;
+import com.epam.spring.service.TraineeService;
+import com.epam.spring.service.TrainerService;
+import com.epam.spring.service.TrainingService;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -17,11 +17,11 @@ public class GymCrmFacade {
 
     private static final Logger LOGGER = Logger.getLogger(GymCrmFacade.class.getName());
 
-    private final TraineeOperationsService traineeService;
-    private final TrainerOperationsService trainerService;
-    private final TrainingOperationsService trainingService;
+    private final TraineeService traineeService;
+    private final TrainerService trainerService;
+    private final TrainingService trainingService;
 
-    public GymCrmFacade(TraineeOperationsService traineeService, TrainerOperationsService trainerService, TrainingOperationsService trainingService) {
+    public GymCrmFacade(TraineeService traineeService, TrainerService trainerService, TrainingService trainingService) {
         this.traineeService = traineeService;
         this.trainerService = trainerService;
         this.trainingService = trainingService;
