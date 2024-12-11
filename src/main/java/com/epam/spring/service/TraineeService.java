@@ -12,6 +12,7 @@ import java.util.UUID;
 @Service
 public class TraineeService implements BaseOperationsService<Trainee, UUID>, ExtendedOperationsService<Trainee> {
 
+    public static final String DOT = ".";
     private final TraineeDAO traineeDAO;
     private PasswordGenerator passwordGenerator;
 
@@ -27,7 +28,7 @@ public class TraineeService implements BaseOperationsService<Trainee, UUID>, Ext
 
     @Override
     public Trainee create(Trainee trainee) {
-        trainee.setUsername(trainee.getFirstName() + "." + trainee.getLastName());
+        trainee.setUsername(trainee.getFirstName() + DOT + trainee.getLastName());
         trainee.setPassword(passwordGenerator.generatePassword());
         return traineeDAO.create(trainee);
     }
@@ -44,6 +45,7 @@ public class TraineeService implements BaseOperationsService<Trainee, UUID>, Ext
 
     @Override
     public Trainee update(Trainee trainee) {
+        trainee.setUsername(trainee.getFirstName() + DOT + trainee.getLastName());
         return traineeDAO.update(trainee);
     }
 
