@@ -4,6 +4,7 @@ import com.epam.spring.config.AppConfig;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
+import com.epam.spring.utils.StorageClearer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +28,15 @@ class InMemoryStorageTest {
     @Autowired
     private InMemoryStorage inMemoryStorage;
 
+    @Autowired
+    private StorageClearer storageClearer;
+
     @Value("${storage.trainee.initial-data-path}")
     private String filePath;
 
     @BeforeEach
-    void setupTestProperties() {
-        inMemoryStorage.clearDB();
+    void setUp() {
+        storageClearer.clear();
     }
 
     @Test
@@ -50,30 +54,24 @@ class InMemoryStorageTest {
 
     @Test
     public void testCreateTrainee() {
-        // given
         Trainee trainee = buildTrainee();
 
-        // when
         Trainee createdTrainee = inMemoryStorage.createTrainee(trainee);
 
-        // then
-        assertNotNull(createdTrainee.getUserId());
+        assertNotNull(createdTrainee.getUuid());
         assertEquals(1, inMemoryStorage.findAllTrainees().size());
-        assertEquals(createdTrainee, inMemoryStorage.findTraineeById(createdTrainee.getUserId()));
+        assertEquals(createdTrainee, inMemoryStorage.findTraineeById(createdTrainee.getUuid()));
     }
 
     @Test
     public void testUpdateTrainee() {
-        // given
         Trainee trainee = buildTrainee();
         Trainee createdTrainee = inMemoryStorage.createTrainee(trainee);
 
-        // when
         createdTrainee.setFirstName("Jane");
         createdTrainee.setAddress("456 Updated St");
         Trainee updatedTrainee = inMemoryStorage.updateTrainee(createdTrainee);
 
-        // then
         assertEquals("Jane", updatedTrainee.getFirstName());
         assertEquals("456 Updated St", updatedTrainee.getAddress());
         assertEquals(1, inMemoryStorage.findAllTrainees().size());
@@ -81,67 +79,54 @@ class InMemoryStorageTest {
 
     @Test
     public void testDeleteTrainee() {
-        // given
         Trainee trainee = buildTrainee();
         Trainee createdTrainee = inMemoryStorage.createTrainee(trainee);
 
-        // when
         inMemoryStorage.deleteTrainee(createdTrainee);
 
-        // then
         assertEquals(0, inMemoryStorage.findAllTrainees().size());
-        assertNull(inMemoryStorage.findTraineeById(createdTrainee.getUserId()));
+        assertNull(inMemoryStorage.findTraineeById(createdTrainee.getUuid()));
     }
 
     @Test
     public void testCreateTrainer() {
-        // given
         Trainer trainer = buildTrainer();
 
-        // when
         Trainer createdTrainer = inMemoryStorage.createTrainer(trainer);
 
-        // then
-        assertNotNull(createdTrainer.getUserId());
+        assertNotNull(createdTrainer.getUuid());
         assertEquals(1, inMemoryStorage.findAllTrainers().size());
-        assertEquals(createdTrainer, inMemoryStorage.findTrainerById(createdTrainer.getUserId()));
+        assertEquals(createdTrainer, inMemoryStorage.findTrainerById(createdTrainer.getUuid()));
     }
 
     @Test
     public void testUpdateTrainer() {
-        // given
         Trainer trainer = buildTrainer();
         Trainer createdTrainer = inMemoryStorage.createTrainer(trainer);
 
-        // when
         String expectedFirstName = "Will";
         createdTrainer.setFirstName(expectedFirstName);
         createdTrainer.setActive(false);
         Trainer updatedTrainer = inMemoryStorage.updateTrainer(createdTrainer);
 
-        // then
-        assertNotNull(updatedTrainer.getUserId());
+        assertNotNull(updatedTrainer.getUuid());
         assertEquals(expectedFirstName, updatedTrainer.getFirstName());
         assertFalse(updatedTrainer.isActive());
     }
 
     @Test
     public void testDeleteTrainer() {
-        // given
         Trainer trainer = buildTrainer();
         Trainer createdTrainer = inMemoryStorage.createTrainer(trainer);
 
-        // when
         inMemoryStorage.deleteTrainer(createdTrainer);
 
-        // then
         assertEquals(0, inMemoryStorage.findAllTrainers().size());
-        assertNull(inMemoryStorage.findTraineeById(createdTrainer.getUserId()));
+        assertNull(inMemoryStorage.findTraineeById(createdTrainer.getUuid()));
     }
 
     @Test
     public void testCreateTraining() {
-        // given
         Trainee trainee = buildTrainee();
         Trainee createdTrainee = inMemoryStorage.createTrainee(trainee);
 
@@ -155,10 +140,8 @@ class InMemoryStorageTest {
         training.setDate(LocalDateTime.now());
         training.setDuration(60);
 
-        // when
         Training createdTraining = inMemoryStorage.createTraining(training);
 
-        // then
         assertNotNull(createdTraining.getUuid());
         assertEquals(1, inMemoryStorage.findAllTrainings().size());
         assertEquals(createdTraining, inMemoryStorage.findTrainingById(createdTraining.getUuid()));

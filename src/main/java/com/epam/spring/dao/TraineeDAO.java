@@ -1,15 +1,16 @@
 package com.epam.spring.dao;
 
-import com.epam.spring.storage.InMemoryStorage;
 import com.epam.spring.model.Trainee;
+import com.epam.spring.storage.InMemoryStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Repository
-public class TraineeDAO implements BaseOperationsDAO<Trainee, UUID>, ExtendedOperationsDAO<Trainee> {
+public class TraineeDAO implements BaseOperationsDAO<Trainee>, ExtendedOperationsDAO<Trainee> {
 
     private final InMemoryStorage inMemoryStorage;
 
@@ -20,7 +21,8 @@ public class TraineeDAO implements BaseOperationsDAO<Trainee, UUID>, ExtendedOpe
 
     @Override
     public Trainee create(Trainee trainee) {
-        return inMemoryStorage.createTrainee(trainee);
+        Map<UUID, Trainee> traineeStorage = inMemoryStorage.getTraineeStorage();
+        return traineeStorage.put(trainee.getUuid(), trainee);
     }
 
     @Override

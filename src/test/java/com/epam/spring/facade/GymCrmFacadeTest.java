@@ -5,7 +5,7 @@ import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
 import com.epam.spring.model.TrainingType;
-import com.epam.spring.storage.InMemoryStorage;
+import com.epam.spring.utils.StorageClearer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,26 +27,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class GymCrmFacadeTest {
 
     @Autowired
-    private InMemoryStorage inMemoryStorage;
-    @Autowired
     private GymCrmFacade facade;
+
+    @Autowired
+    private StorageClearer storageClearer;
 
     @BeforeEach
     public void clearDB() {
-        inMemoryStorage.clearDB();
+        storageClearer.clear();
     }
 
     @Test
     void whenCreateTrainee_ThenShouldBeSaved_AndShouldHaveCorrectUsernameAndPassword() {
-        // given
         Trainee trainee = buildTrainee("Will", "Salas");
 
-        // when
         Trainee createdTrainee = facade.createTrainee(trainee);
-        Trainee savedTrainee = facade.findTraineeById(createdTrainee.getUserId());
+        Trainee savedTrainee = facade.findTraineeById(createdTrainee.getUuid());
 
-        // then
-        assertNotNull(createdTrainee.getUserId());
+        assertNotNull(createdTrainee.getUuid());
         assertSame(createdTrainee, savedTrainee);
         assertEquals("Will.Salas", createdTrainee.getUsername());
         assertEquals(10, createdTrainee.getPassword().length());
@@ -54,15 +52,12 @@ class GymCrmFacadeTest {
 
     @Test
     void whenCreateTraineeWithExistingNamesTwice_ThenSerialShouldBeAddedToUsername() {
-        // given
         Trainee trainee1 = buildTrainee("Will", "Salas");
         Trainee trainee2 = buildTrainee("Will", "Salas");
 
-        // when
         Trainee createdTrainee1 = facade.createTrainee(trainee1);
         Trainee createdTrainee2 = facade.createTrainee(trainee2);
 
-        // then
         assertEquals("Will.Salas", createdTrainee1.getUsername());
         assertEquals("Will.Salas.1", createdTrainee2.getUsername());
     }
@@ -83,7 +78,7 @@ class GymCrmFacadeTest {
     void testFindTraineeById() {
         Trainee trainee = facade.createTrainee(buildTrainee("Will", "Salas"));
 
-        Trainee traineeById = facade.findTraineeById(trainee.getUserId());
+        Trainee traineeById = facade.findTraineeById(trainee.getUuid());
 
         assertSame(trainee, traineeById);
     }
@@ -100,7 +95,7 @@ class GymCrmFacadeTest {
         createdTrainee.setLastName(expectedLastName);
         Trainee updatedTrainee = facade.updateTrainee(createdTrainee);
 
-        assertSame(updatedTrainee.getUserId(), createdTrainee.getUserId());
+        assertSame(updatedTrainee.getUuid(), createdTrainee.getUuid());
         assertEquals(expectedFirstname, updatedTrainee.getFirstName());
         assertEquals(expectedLastName, updatedTrainee.getLastName());
         assertEquals(expectedUsername, updatedTrainee.getUsername());
@@ -113,20 +108,17 @@ class GymCrmFacadeTest {
         facade.deleteTrainee(createdTrainee);
 
         assertEquals(0, facade.findAllTrainees().size());
-        assertNull(facade.findTraineeById(createdTrainee.getUserId()));
+        assertNull(facade.findTraineeById(createdTrainee.getUuid()));
     }
 
     @Test
     void testCreateTrainer() {
-        // given
         Trainer trainee = buildTrainer("Will", "Salas");
 
-        // when
         Trainer createdTrainer = facade.createTrainer(trainee);
-        Trainer savedTrainer = facade.findTrainerById(createdTrainer.getUserId());
+        Trainer savedTrainer = facade.findTrainerById(createdTrainer.getUuid());
 
-        // then
-        assertNotNull(createdTrainer.getUserId());
+        assertNotNull(createdTrainer.getUuid());
         assertSame(createdTrainer, savedTrainer);
         assertEquals("Will.Salas", createdTrainer.getUsername());
         assertEquals(10, createdTrainer.getPassword().length());
@@ -156,7 +148,7 @@ class GymCrmFacadeTest {
         createdTrainer.setLastName(expectedLastName);
         Trainer updatedTrainer = facade.updateTrainer(createdTrainer);
 
-        assertSame(updatedTrainer.getUserId(), createdTrainer.getUserId());
+        assertSame(updatedTrainer.getUuid(), createdTrainer.getUuid());
         assertEquals(expectedFirstname, updatedTrainer.getFirstName());
         assertEquals(expectedLastName, updatedTrainer.getLastName());
         assertEquals(expectedUsername, updatedTrainer.getUsername());

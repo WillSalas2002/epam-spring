@@ -7,6 +7,7 @@ import com.epam.spring.model.TrainingType;
 import com.epam.spring.model.User;
 import com.epam.spring.util.UsernameGenerator;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
@@ -16,16 +17,16 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
 
 @Component
 @PropertySource("classpath:application.properties")
+@RequiredArgsConstructor
 public class InMemoryStorage {
 
     private static final Logger LOGGER = Logger.getLogger(InMemoryStorage.class.getName());
@@ -33,26 +34,24 @@ public class InMemoryStorage {
     @Value("${storage.trainee.initial-data-path}")
     private String initialDataPath;
 
-    private final Map<UUID, Trainee> traineeStorage = new HashMap<>();
-    private final Map<UUID, Trainer> trainerStorage = new HashMap<>();
-    private final Map<UUID, Training> trainingStorage = new HashMap<>();
-    private final Set<String> usernames = new HashSet<>();
-
+    private final Map<UUID, Trainee> traineeStorage;
+    private final Map<UUID, Trainer> trainerStorage;
+    private final Map<UUID, Training> trainingStorage;
+    private final Set<String> usernameStorage;
     private final UsernameGenerator usernameGenerator;
 
     private final String TRAINEE_CLASS_NAME = "Trainee";
     private final String TRAINER_CLASS_NAME = "Trainer";
     private final String TRAINING_CLASS_NAME = "Training";
-    private final String TRUE_STRING = "true";
     private final String SEPARATOR = ",";
-
-    public InMemoryStorage(UsernameGenerator usernameGenerator) {
-        this.usernameGenerator = usernameGenerator;
-    }
 
     @PostConstruct
     public void initializeStorages() {
         loadInitialData(initialDataPath);
+    }
+
+    public Map<UUID, Trainee> getTraineeStorage() {
+        return traineeStorage;
     }
 
     public void loadInitialData(String path) {
@@ -88,6 +87,19 @@ public class InMemoryStorage {
     }
 
 
+    private Trainee getTraineeByUsername(String piece) {
+        List<Trainee> trainees = findAllTrainees();
+        return trainees.stream()
+                .filter(trainee -> trainee.getUsername().equals(piece))
+                .findFirst().orElseThrow(() -> new NoSuchElementException("Trainer not found"));
+    }
+
+    private Trainer getTrainerByUsername(String piece) {
+        return findAllTrainers().stream()
+                .filter(trainee -> trainee.getUsername().equals(piece))
+                .findFirst().orElseThrow(() -> new NoSuchElementException("Trainer not found"));
+    }
+
     private Training buildTraining(String[] pieces) {
         Training training = new Training();
         training.setTrainee(getTraineeByUsername(pieces[1]));
@@ -99,18 +111,6 @@ public class InMemoryStorage {
         return training;
     }
 
-    private Trainee getTraineeByUsername(String piece) {
-        return findAllTrainees().stream()
-                .filter(trainee -> trainee.getUsername().equals(piece))
-                .findFirst().get();
-    }
-
-    private Trainer getTrainerByUsername(String piece) {
-        return findAllTrainers().stream()
-                .filter(trainee -> trainee.getUsername().equals(piece))
-                .findFirst().get();
-    }
-
     private Trainer buildTrainer(String[] pieces) {
         Trainer trainer = new Trainer();
         trainer.setFirstName(pieces[1]);
@@ -118,7 +118,7 @@ public class InMemoryStorage {
         trainer.setUsername(pieces[3]);
         trainer.setPassword(pieces[4]);
         trainer.setSpecialization(pieces[5]);
-        trainer.setActive(pieces[6].equals(TRUE_STRING));
+        trainer.setActive(pieces[6].equals(Boolean.TRUE.toString()));
         return trainer;
     }
 
@@ -130,7 +130,7 @@ public class InMemoryStorage {
         trainee.setPassword(pieces[4]);
         trainee.setDataOfBirth(LocalDate.parse(pieces[5]));
         trainee.setAddress(pieces[6]);
-        trainee.setActive(pieces[7].equals(TRUE_STRING));
+        trainee.setActive(pieces[7].equals(Boolean.TRUE.toString()));
         return trainee;
     }
 
@@ -143,7 +143,7 @@ public class InMemoryStorage {
     public Trainee createTrainee(Trainee trainee) {
         LOGGER.info("Creating Trainee: " + trainee.getUsername());
         makeUsernameUnique(trainee);
-        traineeStorage.put(trainee.getUserId(), trainee);
+        traineeStorage.put(trainee.getUuid(), trainee);
         return trainee;
     }
 
@@ -153,16 +153,16 @@ public class InMemoryStorage {
     }
 
     public Trainee updateTrainee(Trainee trainee) {
-        LOGGER.info("Updating Trainee with id: " + trainee.getUserId());
+        LOGGER.info("Updating Trainee with id: " + trainee.getUuid());
         makeUsernameUnique(trainee);
-        traineeStorage.put(trainee.getUserId(), trainee);
+        traineeStorage.put(trainee.getUuid(), trainee);
         return trainee;
     }
 
     public void deleteTrainee(Trainee trainee) {
         LOGGER.info("Deleting Trainee with username: " + trainee.getUsername());
-        usernames.remove(trainee.getUsername());
-        traineeStorage.remove(trainee.getUserId());
+        usernameStorage.remove(trainee.getUsername());
+        traineeStorage.remove(trainee.getUuid());
     }
 
     // Methods related to Trainer
@@ -174,7 +174,7 @@ public class InMemoryStorage {
     public Trainer createTrainer(Trainer trainer) {
         LOGGER.info("Creating Trainer: " + trainer.getUsername());
         makeUsernameUnique(trainer);
-        trainerStorage.put(trainer.getUserId(), trainer);
+        trainerStorage.put(trainer.getUuid(), trainer);
         return trainer;
     }
 
@@ -184,16 +184,16 @@ public class InMemoryStorage {
     }
 
     public Trainer updateTrainer(Trainer trainer) {
-        LOGGER.info("Updating Trainer with id: " + trainer.getUserId());
+        LOGGER.info("Updating Trainer with id: " + trainer.getUuid());
         makeUsernameUnique(trainer);
-        trainerStorage.put(trainer.getUserId(), trainer);
+        trainerStorage.put(trainer.getUuid(), trainer);
         return trainer;
     }
 
     public void deleteTrainer(Trainer trainer) {
         LOGGER.info("Deleting Trainee with username: " + trainer.getUsername());
-        usernames.remove(trainer.getUsername());
-        trainerStorage.remove(trainer.getUserId());
+        usernameStorage.remove(trainer.getUsername());
+        trainerStorage.remove(trainer.getUuid());
     }
 
     // Methods related to Training
@@ -214,14 +214,7 @@ public class InMemoryStorage {
     }
 
     private void makeUsernameUnique(User user) {
-        String username = usernameGenerator.generateUniqueUsername(user.getUsername(), usernames);
+        String username = usernameGenerator.generateUniqueUsername(user.getUsername(), usernameStorage);
         user.setUsername(username);
-    }
-
-    public void clearDB() {
-        traineeStorage.clear();
-        trainerStorage.clear();
-        trainingStorage .clear();
-        usernames.clear();
     }
 }

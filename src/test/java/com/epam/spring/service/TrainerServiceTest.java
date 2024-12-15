@@ -2,7 +2,7 @@ package com.epam.spring.service;
 
 import com.epam.spring.config.AppConfig;
 import com.epam.spring.model.Trainer;
-import com.epam.spring.storage.InMemoryStorage;
+import com.epam.spring.utils.StorageClearer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,55 +23,46 @@ class TrainerServiceTest {
     private TrainerService trainerService;
 
     @Autowired
-    private InMemoryStorage inMemoryStorage;
+    private StorageClearer storageClearer;
 
     @BeforeEach
     void setUp() {
-        inMemoryStorage.clearDB();
+        storageClearer.clear();
     }
 
     @Test
     void testCreate() {
-        // Given
         Trainer Trainer = buildTrainer();
 
-        // When
         Trainer createdTrainer = trainerService.create(Trainer);
 
-        // Then
-        assertNotNull(createdTrainer.getUserId());
+        assertNotNull(createdTrainer.getUuid());
         assertEquals("John.Doe", createdTrainer.getUsername());
-        assertTrue(inMemoryStorage.findAllTrainers().contains(createdTrainer));
+        assertTrue(trainerService.findAll().contains(createdTrainer));
     }
 
     @Test
     void testCreateWithExistingName() {
-        // Given
         Trainer trainer1 = buildTrainer();
         Trainer trainer2 = buildTrainer();
 
-        // When
         Trainer createdTrainer1 = trainerService.create(trainer1);
         Trainer createdTrainer2 = trainerService.create(trainer2);
 
-        // Then
         assertEquals("John.Doe", createdTrainer1.getUsername());
         assertEquals("John.Doe.1", createdTrainer2.getUsername());
     }
 
     @Test
     void testFindAll() {
-        // Given
         Trainer trainer1 = buildTrainer();
         Trainer trainer2 = buildTrainer();
         trainer2.setFirstName("Jane");
 
-        // When
         trainerService.create(trainer1);
         trainerService.create(trainer2);
         List<Trainer> Trainers = trainerService.findAll();
 
-        // Then
         assertEquals(2, Trainers.size());
         assertTrue(Trainers.stream().anyMatch(t -> t.getFirstName().equals("John")));
         assertTrue(Trainers.stream().anyMatch(t -> t.getFirstName().equals("Jane")));
@@ -79,83 +70,66 @@ class TrainerServiceTest {
 
     @Test
     void testFindById() {
-        // Given
         Trainer Trainer = buildTrainer();
         Trainer createdTrainer = trainerService.create(Trainer);
 
-        // When
-        Trainer foundTrainer = trainerService.findById(createdTrainer.getUserId());
+        Trainer foundTrainer = trainerService.findById(createdTrainer.getUuid());
 
-        // Then
         assertNotNull(foundTrainer);
-        assertEquals(createdTrainer.getUserId(), foundTrainer.getUserId());
+        assertEquals(createdTrainer.getUuid(), foundTrainer.getUuid());
         assertEquals("John.Doe", foundTrainer.getUsername());
     }
 
     @Test
     void testFindByIdNonExistent() {
-        // When
         Trainer foundTrainer = trainerService.findById(UUID.randomUUID());
 
-        // Then
         assertNull(foundTrainer);
     }
 
     @Test
     void testUpdate() {
-        // Given
         Trainer trainer = buildTrainer();
         Trainer createdTrainer = trainerService.create(trainer);
 
-        // When
         createdTrainer.setFirstName("Updated");
         createdTrainer.setLastName("Name");
         Trainer updatedTrainer = trainerService.update(createdTrainer);
 
-        // Then
         assertEquals("Updated.Name", updatedTrainer.getUsername());
         assertEquals("Updated", updatedTrainer.getFirstName());
         assertEquals("Name", updatedTrainer.getLastName());
-        assertEquals(createdTrainer.getUserId(), updatedTrainer.getUserId());
+        assertEquals(createdTrainer.getUuid(), updatedTrainer.getUuid());
     }
 
     @Test
     void testDelete() {
-        // Given
         Trainer trainer = buildTrainer();
         Trainer createdTrainer = trainerService.create(trainer);
 
-        // When
         trainerService.delete(createdTrainer);
 
-        // Then
         assertEquals(0, trainerService.findAll().size());
-        assertNull(trainerService.findById(createdTrainer.getUserId()));
+        assertNull(trainerService.findById(createdTrainer.getUuid()));
     }
 
     @Test
     void testMultipleOperations() {
-        // Create
         Trainer trainer1 = buildTrainer();
         Trainer createdTrainer1 = trainerService.create(trainer1);
 
-        // Update
         createdTrainer1.setSpecialization("Cardio");
         Trainer updatedTrainer1 = trainerService.update(createdTrainer1);
 
-        // Create another
         Trainer trainer2 = buildTrainer();
         trainer2.setFirstName("Jane");
         Trainer createdTrainer2 = trainerService.create(trainer2);
 
-        // Find
         List<Trainer> trainers = trainerService.findAll();
-        Trainer foundTrainer = trainerService.findById(createdTrainer1.getUserId());
+        Trainer foundTrainer = trainerService.findById(createdTrainer1.getUuid());
 
-        // Delete
         trainerService.delete(createdTrainer1);
 
-        // Assertions
         assertEquals(2, trainers.size());
         assertEquals("Cardio", updatedTrainer1.getSpecialization());
         assertEquals("Jane.Doe", createdTrainer2.getUsername());

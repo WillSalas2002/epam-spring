@@ -2,7 +2,7 @@ package com.epam.spring.dao;
 
 import com.epam.spring.config.AppConfig;
 import com.epam.spring.model.Trainer;
-import com.epam.spring.storage.InMemoryStorage;
+import com.epam.spring.utils.StorageClearer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,39 +24,33 @@ class TrainerDAOTest {
     private TrainerDAO trainerDAO;
 
     @Autowired
-    private InMemoryStorage inMemoryStorage;
+    private StorageClearer storageClearer;
 
     @BeforeEach
     void setUp() {
-        inMemoryStorage.clearDB();
+        storageClearer.clear();
     }
 
     @Test
     void testCreate() {
-        // Given
         Trainer trainer = buildTrainer();
 
-        // When
         Trainer createdTrainer = trainerDAO.create(trainer);
 
-        // Then
-        assertNotNull(createdTrainer.getUserId());
-        assertTrue(inMemoryStorage.findAllTrainers().contains(createdTrainer));
+        assertNotNull(createdTrainer.getUuid());
+        assertTrue(trainerDAO.findAll().contains(createdTrainer));
     }
 
     @Test
     void testFindAll() {
-        // Given
         Trainer trainer1 = buildTrainer();
         Trainer trainer2 = buildTrainer();
         trainer2.setFirstName("Jane");
 
-        // When
         trainerDAO.create(trainer1);
         trainerDAO.create(trainer2);
         List<Trainer> trainers = trainerDAO.findAll();
 
-        // Then
         assertEquals(2, trainers.size());
         assertTrue(trainers.stream().anyMatch(t -> t.getFirstName().equals("John")));
         assertTrue(trainers.stream().anyMatch(t -> t.getFirstName().equals("Jane")));
@@ -64,90 +58,71 @@ class TrainerDAOTest {
 
     @Test
     void testFindById() {
-        // Given
         Trainer trainer = buildTrainer();
         Trainer createdTrainer = trainerDAO.create(trainer);
 
-        // When
-        Trainer foundTrainer = trainerDAO.findById(createdTrainer.getUserId());
+        Trainer foundTrainer = trainerDAO.findById(createdTrainer.getUuid());
 
-        // Then
         assertNotNull(foundTrainer);
-        assertEquals(createdTrainer.getUserId(), foundTrainer.getUserId());
+        assertEquals(createdTrainer.getUuid(), foundTrainer.getUuid());
     }
 
     @Test
     void testFindByIdNonExistent() {
-        // When
         Trainer foundTrainer = trainerDAO.findById(UUID.randomUUID());
 
-        // Then
         assertNull(foundTrainer);
     }
 
     @Test
     void testUpdate() {
-        // Given
         Trainer trainer = buildTrainer();
         Trainer createdTrainer = trainerDAO.create(trainer);
 
-        // When
         createdTrainer.setFirstName("Updated");
         createdTrainer.setLastName("Name");
         Trainer updatedTrainer = trainerDAO.update(createdTrainer);
 
-        // Then
         assertEquals("Updated", updatedTrainer.getFirstName());
         assertEquals("Name", updatedTrainer.getLastName());
-        assertEquals(createdTrainer.getUserId(), updatedTrainer.getUserId());
+        assertEquals(createdTrainer.getUuid(), updatedTrainer.getUuid());
     }
 
     @Test
     void testDelete() {
-        // Given
         Trainer trainer = buildTrainer();
         Trainer createdTrainer = trainerDAO.create(trainer);
 
-        // When
         trainerDAO.delete(createdTrainer);
 
-        // Then
         assertEquals(0, trainerDAO.findAll().size());
-        assertNull(trainerDAO.findById(createdTrainer.getUserId()));
+        assertNull(trainerDAO.findById(createdTrainer.getUuid()));
     }
 
     @Test
     void testDeleteNonExistentTrainee() {
-        // Given
         Trainer trainer = buildTrainer();
 
-        // When & Then
         assertDoesNotThrow(() -> trainerDAO.delete(trainer));
     }
 
     @Test
     void testMultipleOperations() {
-        // Create
         Trainer trainer1 = buildTrainer();
         Trainer createdTrainer1 = trainerDAO.create(trainer1);
 
-        // Update
         createdTrainer1.setSpecialization("Cardio");
         Trainer updatedTrainer1 = trainerDAO.update(createdTrainer1);
 
-        // Create another
         Trainer trainer2 = buildTrainer();
         trainer2.setFirstName("Jane");
-        Trainer createdTrainer2 = trainerDAO.create(trainer2);
+        trainerDAO.create(trainer2);
 
-        // Find
         List<Trainer> trainers = trainerDAO.findAll();
-        Trainer foundTrainer = trainerDAO.findById(createdTrainer1.getUserId());
+        Trainer foundTrainer = trainerDAO.findById(createdTrainer1.getUuid());
 
-        // Delete
         trainerDAO.delete(createdTrainer1);
 
-        // Assertions
         assertEquals(2, trainers.size());
         assertEquals("Cardio", updatedTrainer1.getSpecialization());
         assertEquals("Cardio", foundTrainer.getSpecialization());

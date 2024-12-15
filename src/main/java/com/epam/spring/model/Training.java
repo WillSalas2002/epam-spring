@@ -1,11 +1,9 @@
 package com.epam.spring.model;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
-public class Training {
+public class Training extends EntityId {
 
-    private UUID uuid = UUID.randomUUID();
     private Trainee trainee;
     private Trainer trainer;
     private String name;
@@ -23,14 +21,6 @@ public class Training {
         this.type = type;
         this.date = date;
         this.duration = duration;
-    }
-
-    public UUID getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
     }
 
     public Trainee getTrainee() {

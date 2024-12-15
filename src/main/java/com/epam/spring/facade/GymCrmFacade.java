@@ -53,14 +53,14 @@ public class GymCrmFacade {
     }
 
     public Trainee updateTrainee(Trainee trainee) {
-        LOGGER.info("Updating Trainee with ID: " + trainee.getUserId());
+        LOGGER.info("Updating Trainee with ID: " + trainee.getUuid());
         Trainee updatedTrainee = traineeService.update(trainee);
         LOGGER.info("Trainee updated: " + updatedTrainee.getUsername());
         return updatedTrainee;
     }
 
     public void deleteTrainee(Trainee trainee) {
-        LOGGER.info("Deleting Trainee with ID: " + trainee.getUserId());
+        LOGGER.info("Deleting Trainee with ID: " + trainee.getUuid());
         traineeService.delete(trainee);
         LOGGER.info("Trainee deleted: " + trainee.getUsername());
     }
@@ -91,7 +91,7 @@ public class GymCrmFacade {
     }
 
     public Trainer updateTrainer(Trainer trainer) {
-        LOGGER.info("Updating Trainer with ID: " + trainer.getUserId());
+        LOGGER.info("Updating Trainer with ID: " + trainer.getUuid());
         Trainer updatedTrainer = trainerService.update(trainer);
         LOGGER.info("Trainer updated: " + updatedTrainer.getUsername());
         return updatedTrainer;

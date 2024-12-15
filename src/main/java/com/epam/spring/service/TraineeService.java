@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class TraineeService implements BaseOperationsService<Trainee, UUID>, ExtendedOperationsService<Trainee> {
+public class TraineeService implements BaseOperationsService<Trainee>, ExtendedOperationsService<Trainee> {
 
     public static final String DOT = ".";
     private final TraineeDAO traineeDAO;

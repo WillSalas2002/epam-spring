@@ -1,7 +1,7 @@
 package com.epam.spring.dao;
 
-import com.epam.spring.storage.InMemoryStorage;
 import com.epam.spring.model.Training;
+import com.epam.spring.storage.InMemoryStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public class TrainingDAO implements BaseOperationsDAO<Training, UUID> {
+public class TrainingDAO implements BaseOperationsDAO<Training> {
 
     private final InMemoryStorage inMemoryStorage;
 

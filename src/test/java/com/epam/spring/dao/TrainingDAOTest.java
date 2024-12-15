@@ -5,7 +5,7 @@ import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
 import com.epam.spring.model.TrainingType;
-import com.epam.spring.storage.InMemoryStorage;
+import com.epam.spring.utils.StorageClearer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,27 +22,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class TrainingDAOTest {
 
     @Autowired
-    private InMemoryStorage inMemoryStorage;
+    private TrainingDAO trainingDAO;
 
     @Autowired
-    private TrainingDAO trainingDAO;
+    private StorageClearer storageClearer;
 
     @BeforeEach
     void clearStorage() {
-        inMemoryStorage.clearDB();
+        storageClearer.clear();
     }
 
     @Test
     public void testCreateTraining() {
-        // Given
         Trainer trainer = buildTrainer();
         Trainee trainee = buildTrainee();
         Training training = new Training(trainee, trainer, "Strong man training", TrainingType.STRENGTH_TRAINING, LocalDateTime.now().plusHours(3), 120);
 
-        // When
         Training createdTraining = trainingDAO.create(training);
 
-        // Then
         assertNotNull(createdTraining);
         assertEquals(createdTraining, trainingDAO.findById(createdTraining.getUuid()));
         assertEquals(1, trainingDAO.findAll().size());

@@ -1,10 +1,7 @@
 package com.epam.spring.model;
 
-import java.util.UUID;
+public abstract class User extends EntityId {
 
-public abstract class User {
-
-    private final UUID userId = UUID.randomUUID();
     private String firstName;
     private String lastName;
     private String username;
@@ -18,10 +15,6 @@ public abstract class User {
         this.firstName = firstName;
         this.lastName = lastName;
         this.isActive = isActive;
-    }
-
-    public UUID getUserId() {
-        return userId;
     }
 
     public String getFirstName() {
@@ -67,8 +60,7 @@ public abstract class User {
     @Override
     public String toString() {
         return "User{" +
-                "userId='" + userId + '\''+
-                ", firstName='" + firstName + '\'' +
+                "firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +

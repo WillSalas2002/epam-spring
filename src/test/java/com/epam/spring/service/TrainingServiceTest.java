@@ -5,7 +5,7 @@ import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
 import com.epam.spring.model.TrainingType;
-import com.epam.spring.storage.InMemoryStorage;
+import com.epam.spring.utils.StorageClearer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,33 +14,32 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringJUnitConfig(AppConfig.class)
 class TrainingServiceTest {
 
     @Autowired
-    private InMemoryStorage inMemoryStorage;
+    private TrainingService trainingService;
 
     @Autowired
-    private TrainingService trainingService;
+    private StorageClearer storageClearer;
 
     @BeforeEach
     void clearStorage() {
-        inMemoryStorage.clearDB();
+        storageClearer.clear();
     }
 
     @Test
     public void testCreateTraining() {
-        // Given
         Trainer trainer = buildTrainer();
         Trainee trainee = buildTrainee();
         Training training = new Training(trainee, trainer, "Strong man training", TrainingType.STRENGTH_TRAINING, LocalDateTime.now().plusHours(3), 120);
 
-        // When
         Training createdTraining = trainingService.create(training);
 
-        // Then
         assertNotNull(createdTraining);
         assertEquals(createdTraining, trainingService.findById(createdTraining.getUuid()));
         assertEquals(1, trainingService.findAll().size());

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class TrainingService implements BaseOperationsService<Training, UUID> {
+public class TrainingService implements BaseOperationsService<Training> {
 
     private final TrainingDAO trainingDAO;
 

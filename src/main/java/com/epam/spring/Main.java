@@ -53,7 +53,7 @@ public class Main {
                 true
         ));
 
-        Training training = facade.createTraining(new Training(
+        facade.createTraining(new Training(
                 trainee,
                 trainer,
                 "Iron man Training",
