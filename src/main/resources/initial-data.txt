@@ -1,8 +1,8 @@
-Trainee,John,Doe,john.doe,password12,1990-05-15,123 Main St.,true
-Trainee,Jane,Smith,jane.smith,password45,1985-09-20,456 Oak Rd.,false
-Trainee,Bob,Johnson,bob.johnson,password78,1992-03-01,789 Maple Ln.,true
-Trainer,Emily,Williams,emily.williams,password32,Strength Training,true
-Trainer,Michael,Brown,michael.brown,password65,Cardio,true
-Training,john.doe,emily.williams,Weight Lifting,2023-04-01T11:50:55,60
-Training,jane.smith,michael.brown,Treadmill Class,2023-05-15T11:50:55,45
-Training,bob.johnson,emily.williams,Yoga Session,2023-06-01T11:50:55,90
+Trainee,John,Doe,John.Doe,password12,1990-05-15,123 Main St.,true
+Trainee,Jane,Smith,Jane.Smith,password45,1985-09-20,456 Oak Rd.,false
+Trainee,Bob,Johnson,Bob.Johnson,password78,1992-03-01,789 Maple Ln.,true
+Trainer,Emily,Williams,Emily.Williams,password32,Strength Training,true
+Trainer,Michael,Brown,Michael.Brown,password65,Cardio,true
+Training,John.Doe,Emily.Williams,Weight Lifting,2023-04-01T11:50:55,60
+Training,Jane.Smith,Michael.Brown,Treadmill Class,2023-05-15T11:50:55,45
+Training,Bob.Johnson,Emily.Williams,Yoga Session,2023-06-01T11:50:55,90

@@ -2,7 +2,6 @@ package com.epam.spring.service;
 
 import com.epam.spring.dao.TrainerDAO;
 import com.epam.spring.model.Trainer;
-import com.epam.spring.util.PasswordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,24 +11,15 @@ import java.util.UUID;
 @Service
 public class TrainerService implements BaseOperationsService<Trainer>, ExtendedOperationsService<Trainer> {
 
-    public static final String DOT = ".";
     private final TrainerDAO trainerDAO;
-    private PasswordGenerator passwordGenerator;
 
     @Autowired
     public TrainerService(TrainerDAO trainerDAO) {
         this.trainerDAO = trainerDAO;
     }
 
-    @Autowired
-    public void setPasswordGenerator(PasswordGenerator passwordGenerator) {
-        this.passwordGenerator = passwordGenerator;
-    }
-
     @Override
     public Trainer create(Trainer trainer) {
-        trainer.setUsername(trainer.getFirstName() + DOT + trainer.getLastName());
-        trainer.setPassword(passwordGenerator.generatePassword());
         return trainerDAO.create(trainer);
     }
 
@@ -45,7 +35,6 @@ public class TrainerService implements BaseOperationsService<Trainer>, ExtendedO
 
     @Override
     public Trainer update(Trainer trainer) {
-        trainer.setUsername(trainer.getFirstName() + DOT + trainer.getLastName());
         return trainerDAO.update(trainer);
     }
 

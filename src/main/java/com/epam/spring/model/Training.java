@@ -1,7 +1,18 @@
 package com.epam.spring.model;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
+
 import java.time.LocalDateTime;
 
+@SuperBuilder
+@ToString
+@Getter
+@Setter
+@NoArgsConstructor
 public class Training extends EntityId {
 
     private Trainee trainee;
@@ -11,75 +22,13 @@ public class Training extends EntityId {
     private LocalDateTime date;
     private Integer duration;
 
-    public Training() {
-    }
-
     public Training(Trainee trainee, Trainer trainer, String name, TrainingType type, LocalDateTime date, Integer duration) {
+        super();
         this.trainee = trainee;
         this.trainer = trainer;
         this.name = name;
         this.type = type;
         this.date = date;
         this.duration = duration;
-    }
-
-    public Trainee getTrainee() {
-        return trainee;
-    }
-
-    public void setTrainee(Trainee trainee) {
-        this.trainee = trainee;
-    }
-
-    public Trainer getTrainer() {
-        return trainer;
-    }
-
-    public void setTrainer(Trainer trainer) {
-        this.trainer = trainer;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public TrainingType getType() {
-        return type;
-    }
-
-    public void setType(TrainingType type) {
-        this.type = type;
-    }
-
-    public LocalDateTime getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDateTime date) {
-        this.date = date;
-    }
-
-    public Integer getDuration() {
-        return duration;
-    }
-
-    public void setDuration(Integer duration) {
-        this.duration = duration;
-    }
-
-    @Override
-    public String toString() {
-        return "Training{" +
-                "trainee=" + trainee +
-                ", trainer=" + trainer +
-                ", name='" + name + '\'' +
-                ", type=" + type +
-                ", date=" + date +
-                ", duration=" + duration +
-                '}';
     }
 }

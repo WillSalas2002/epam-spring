@@ -1,35 +1,38 @@
 package com.epam.spring.dao;
 
 import com.epam.spring.model.Training;
-import com.epam.spring.storage.InMemoryStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Repository
 public class TrainingDAO implements BaseOperationsDAO<Training> {
 
-    private final InMemoryStorage inMemoryStorage;
+    private Map<UUID, Training> trainingStorage;
 
     @Autowired
-    public TrainingDAO(InMemoryStorage inMemoryStorage) {
-        this.inMemoryStorage = inMemoryStorage;
+    public void setTrainingStorage(Map<UUID, Training> trainingStorage) {
+        this.trainingStorage = trainingStorage;
     }
 
     @Override
     public Training create(Training training) {
-        return inMemoryStorage.createTraining(training);
+        UUID uuid = UUID.randomUUID();
+        training.setUuid(uuid);
+        trainingStorage.put(uuid, training);
+        return training;
     }
 
     @Override
     public List<Training> findAll() {
-        return inMemoryStorage.findAllTrainings();
+        return trainingStorage.values().stream().toList();
     }
 
     @Override
     public Training findById(UUID uuid) {
-        return inMemoryStorage.findTrainingById(uuid);
+        return trainingStorage.get(uuid);
     }
 }

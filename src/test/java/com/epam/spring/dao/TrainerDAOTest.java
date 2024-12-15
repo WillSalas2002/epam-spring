@@ -42,6 +42,22 @@ class TrainerDAOTest {
     }
 
     @Test
+    void testCreateDuplicateUsernames() {
+        Trainer trainer = buildTrainer();
+        Trainer trainer1 = buildTrainer();
+
+        Trainer createdTrainer = trainerDAO.create(trainer);
+        Trainer createdTrainer1 = trainerDAO.create(trainer1);
+
+        assertNotNull(createdTrainer.getUuid());
+        assertEquals(createdTrainer.getUsername(), "John.Doe");
+        assertEquals(createdTrainer1.getUsername(), "John.Doe.1");
+        assertTrue(trainerDAO.findAll().contains(createdTrainer));
+        assertTrue(trainerDAO.findAll().contains(createdTrainer1));
+    }
+
+
+    @Test
     void testFindAll() {
         Trainer trainer1 = buildTrainer();
         Trainer trainer2 = buildTrainer();

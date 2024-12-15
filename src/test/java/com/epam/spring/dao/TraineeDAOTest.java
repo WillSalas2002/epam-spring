@@ -39,6 +39,22 @@ class TraineeDAOTest {
         Trainee createdTrainee = traineeDAO.create(trainee);
 
         assertNotNull(createdTrainee.getUuid());
+        assertEquals("John.Doe", createdTrainee.getUsername());
+        assertEquals(10, createdTrainee.getPassword().length());
+        assertTrue(traineeDAO.findAll().contains(createdTrainee));
+    }
+
+    @Test
+    void testCreateDuplicateUsernames() {
+        Trainee trainee = buildTrainee();
+        Trainee trainee1 = buildTrainee();
+
+        Trainee createdTrainee = traineeDAO.create(trainee);
+        Trainee createdTrainee1 = traineeDAO.create(trainee1);
+
+        assertNotNull(createdTrainee.getUuid());
+        assertEquals(createdTrainee.getUsername(), "John.Doe");
+        assertEquals(createdTrainee1.getUsername(), "John.Doe.1");
         assertTrue(traineeDAO.findAll().contains(createdTrainee));
     }
 
@@ -87,6 +103,24 @@ class TraineeDAOTest {
         assertEquals("Updated", updatedTrainee.getFirstName());
         assertEquals("Name", updatedTrainee.getLastName());
         assertEquals(createdTrainee.getUuid(), updatedTrainee.getUuid());
+    }
+
+    @Test
+    void whenUsernameUpdatedToExistingUsername_thenShouldHaveSerialAdded() {
+        Trainee trainee1 = buildTrainee();
+        trainee1.setFirstName("Will");
+        trainee1.setLastName("Salas");
+        Trainee trainee2 = buildTrainee();
+
+        Trainee createdTrainee1 = traineeDAO.create(trainee1);
+        Trainee createdTrainee2 = traineeDAO.create(trainee2);
+
+        createdTrainee2.setFirstName("Will");
+        createdTrainee2.setLastName("Salas");
+        traineeDAO.update(createdTrainee2);
+
+        assertEquals("Will.Salas", createdTrainee1.getUsername());
+        assertEquals("Will.Salas.1", createdTrainee2.getUsername());
     }
 
     @Test
