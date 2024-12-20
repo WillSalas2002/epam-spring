@@ -71,7 +71,9 @@ public class TrainerDAO implements BaseOperationsDAO<Trainer>, ExtendedOperation
         if (trainer == null) {
             throw new NoSuchElementException("Trainee with id " + uuid + " not found");
         }
-        trainerStorage.put(uuid, trainer);
+        String uniqueUsername = usernameGenerator.generateUniqueUsername(updatedTrainer.getFirstName(), updatedTrainer.getLastName(), usernameStorage);
+        updatedTrainer.setUsername(uniqueUsername);
+        trainerStorage.put(uuid, updatedTrainer);
         return updatedTrainer;
     }
 
