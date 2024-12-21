@@ -13,7 +13,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class EntityId {
+public class BaseEntity {
 
     private UUID uuid;
 }

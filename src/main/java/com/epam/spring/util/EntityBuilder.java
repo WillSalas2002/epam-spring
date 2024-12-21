@@ -4,14 +4,9 @@ import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
 import com.epam.spring.model.TrainingType;
-import com.epam.spring.model.User;
-import com.epam.spring.service.TraineeService;
-import com.epam.spring.service.TrainerService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.NoSuchElementException;
 
 public class EntityBuilder {
 
@@ -38,10 +33,10 @@ public class EntityBuilder {
                 .build();
     }
 
-    public static Training buildTraining(String[] trainingPieces, TraineeService traineeService, TrainerService trainerService) {
+    public static Training buildTraining(String[] trainingPieces, Trainee trainee, Trainer trainer) {
         return Training.builder()
-                .trainee(getUserByUsername(traineeService.findAll(), trainingPieces[1], "Trainee not found"))
-                .trainer(getUserByUsername(trainerService.findAll(), trainingPieces[2], "Trainer not found"))
+                .trainee(trainee)
+                .trainer(trainer)
                 .name(trainingPieces[3])
                 .type(TrainingType.CARDIO)
                 .date(LocalDateTime.parse(trainingPieces[4]))
@@ -49,10 +44,5 @@ public class EntityBuilder {
                 .build();
     }
 
-    private static <T extends User> T getUserByUsername(Collection<T> users, String username, String errorMessage) {
-        return users.stream()
-                .filter(trainee -> trainee.getUsername().equals(username))
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException(errorMessage));
-    }
+
 }

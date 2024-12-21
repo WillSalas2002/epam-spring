@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Training extends EntityId {
+public class Training extends BaseEntity {
 
     private Trainee trainee;
     private Trainer trainer;
