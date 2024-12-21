@@ -11,7 +11,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @NoArgsConstructor
-public abstract class User extends EntityId {
+public abstract class User extends BaseEntity {
 
     private String firstName;
     private String lastName;
