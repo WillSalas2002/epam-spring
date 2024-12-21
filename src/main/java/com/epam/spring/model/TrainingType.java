@@ -1,16 +1,33 @@
 package com.epam.spring.model;
 
-public enum TrainingType {
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
-    YOGA("Yoga"),
-    CARDIO("Cardio"),
-    CROSS_FIT("Cross Fit"),
-    STRENGTH_TRAINING("Strengh Training"),
-    FUNCTIONAL_TRAINING("Functional Training");
+import java.util.List;
 
-    private final String name;
+@SuperBuilder
+@ToString
+@Getter
+@Setter
+@NoArgsConstructor
+@Entity
+@Table(name = "_training_type", schema = "gym")
+public class TrainingType extends BaseEntity {
 
-    TrainingType(String name) {
-        this.name = name;
-    }
+    @Column(name = "training_type_name")
+    private String trainingTypeName;
+
+    @OneToMany(mappedBy = "specialization", fetch = FetchType.LAZY)
+    private List<Trainer> trainers;
+
+    @OneToMany(mappedBy = "trainingType", fetch = FetchType.LAZY)
+    private List<Training> trainings;
 }
