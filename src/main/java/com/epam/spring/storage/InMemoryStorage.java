@@ -35,10 +35,10 @@ public class InMemoryStorage {
     private final TraineeService traineeService;
     private final TrainingService trainingService;
 
-    private final String TRAINEE_CLASS_TYPE = "Trainee";
-    private final String TRAINER_CLASS_TYPE = "Trainer";
-    private final String TRAINING_CLASS_TYPE = "Training";
-    private final String SEPARATOR = ",";
+    private static final String TRAINEE_CLASS_TYPE = "Trainee";
+    private static final String TRAINER_CLASS_TYPE = "Trainer";
+    private static final String TRAINING_CLASS_TYPE = "Training";
+    private static final String SEPARATOR = ",";
 
     @PostConstruct
     public void initializeStorages() {
