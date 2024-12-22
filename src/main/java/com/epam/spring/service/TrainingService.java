@@ -1,35 +1,34 @@
 package com.epam.spring.service;
 
-import com.epam.spring.dao.TrainingDAO;
+import com.epam.spring.dao.TrainingRepository;
 import com.epam.spring.model.Training;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class TrainingService implements BaseOperationsService<Training> {
 
-    private final TrainingDAO trainingDAO;
+    private final TrainingRepository trainingRepository;
 
     @Autowired
-    public TrainingService(TrainingDAO trainingDAO) {
-        this.trainingDAO = trainingDAO;
+    public TrainingService(TrainingRepository trainingRepository) {
+        this.trainingRepository = trainingRepository;
     }
 
     @Override
     public List<Training> findAll() {
-        return trainingDAO.findAll();
+        return trainingRepository.findAll();
     }
 
     @Override
-    public Training findById(UUID uuid) {
-        return trainingDAO.findById(uuid);
+    public Training findById(Long id) {
+        return trainingRepository.findById(id);
     }
 
     @Override
     public Training create(Training training) {
-        return trainingDAO.create(training);
+        return trainingRepository.create(training);
     }
 }

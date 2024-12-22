@@ -9,7 +9,6 @@ import com.epam.spring.service.TrainingService;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.logging.Logger;
 
 @Component
@@ -41,26 +40,26 @@ public class GymCrmFacade {
         return createdTrainee;
     }
 
-    public Trainee findTraineeById(UUID uuid) {
-        LOGGER.info("Fetching Trainee by ID: " + uuid);
-        Trainee trainee = traineeService.findById(uuid);
+    public Trainee findTraineeById(Long id) {
+        LOGGER.info("Fetching Trainee by ID: " + id);
+        Trainee trainee = traineeService.findById(id);
         if (trainee != null) {
             LOGGER.info("Trainee found: " + trainee.getUsername());
         } else {
-            LOGGER.warning("Trainee not found with ID: " + uuid);
+            LOGGER.warning("Trainee not found with ID: " + id);
         }
         return trainee;
     }
 
     public Trainee updateTrainee(Trainee trainee) {
-        LOGGER.info("Updating Trainee with ID: " + trainee.getUuid());
+        LOGGER.info("Updating Trainee with ID: " + trainee.getId());
         Trainee updatedTrainee = traineeService.update(trainee);
         LOGGER.info("Trainee updated: " + updatedTrainee.getUsername());
         return updatedTrainee;
     }
 
     public void deleteTrainee(Trainee trainee) {
-        LOGGER.info("Deleting Trainee with ID: " + trainee.getUuid());
+        LOGGER.info("Deleting Trainee with ID: " + trainee.getId());
         traineeService.delete(trainee);
         LOGGER.info("Trainee deleted: " + trainee.getUsername());
     }
@@ -79,19 +78,19 @@ public class GymCrmFacade {
         return createdTrainer;
     }
 
-    public Trainer findTrainerById(UUID uuid) {
-        LOGGER.info("Fetching Trainer by ID: " + uuid);
-        Trainer trainer = trainerService.findById(uuid);
+    public Trainer findTrainerById(Long id) {
+        LOGGER.info("Fetching Trainer by ID: " + id);
+        Trainer trainer = trainerService.findById(id);
         if (trainer != null) {
             LOGGER.info("Trainer found: " + trainer.getUsername());
         } else {
-            LOGGER.warning("Trainer not found with ID: " + uuid);
+            LOGGER.warning("Trainer not found with ID: " + id);
         }
         return trainer;
     }
 
     public Trainer updateTrainer(Trainer trainer) {
-        LOGGER.info("Updating Trainer with ID: " + trainer.getUuid());
+        LOGGER.info("Updating Trainer with ID: " + trainer.getId());
         Trainer updatedTrainer = trainerService.update(trainer);
         LOGGER.info("Trainer updated: " + updatedTrainer.getUsername());
         return updatedTrainer;
@@ -104,13 +103,13 @@ public class GymCrmFacade {
         return trainings;
     }
 
-    public Training findTrainingById(UUID uuid) {
-        LOGGER.info("Fetching Training by ID: " + uuid);
-        Training training = trainingService.findById(uuid);
+    public Training findTrainingById(Long id) {
+        LOGGER.info("Fetching Training by ID: " + id);
+        Training training = trainingService.findById(id);
         if (training != null) {
             LOGGER.info("Training found: " + training.getName());
         } else {
-            LOGGER.warning("Training not found with ID: " + uuid);
+            LOGGER.warning("Training not found with ID: " + id);
         }
         return training;
     }

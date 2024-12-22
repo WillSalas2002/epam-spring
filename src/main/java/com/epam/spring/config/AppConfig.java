@@ -11,24 +11,23 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 @Configuration
 @ComponentScan("com.epam.spring")
 public class AppConfig {
 
     @Bean
-    public Map<UUID, Trainee> traineeStorage() {
+    public Map<Long, Trainee> traineeStorage() {
         return new HashMap<>();
     }
 
     @Bean
-    public Map<UUID, Trainer> trainerStorage() {
+    public Map<Long, Trainer> trainerStorage() {
         return new HashMap<>();
     }
 
     @Bean
-    public Map<UUID, Training> trainingStorage() {
+    public Map<Long, Training> trainingStorage() {
         return new HashMap<>();
     }
 

@@ -1,5 +1,6 @@
 package com.epam.spring.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -23,7 +24,7 @@ import java.util.List;
 @Table(name = "_trainer", schema = "gym")
 public class Trainer extends User {
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "training_type_id")
     private TrainingType specialization;
 
