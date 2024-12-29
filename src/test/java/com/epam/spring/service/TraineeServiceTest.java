@@ -2,7 +2,10 @@ package com.epam.spring.service;
 
 import com.epam.spring.config.AppConfig;
 import com.epam.spring.model.Trainee;
-import com.epam.spring.utils.StorageClearer;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,12 +13,14 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
+import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringJUnitConfig(AppConfig.class)
@@ -25,30 +30,40 @@ class TraineeServiceTest {
     private TraineeService traineeService;
 
     @Autowired
-    private StorageClearer storageClearer;
+    private SessionFactory sessionFactory;
+
+    private Trainee trainee1;
+    private Trainee trainee2;
 
     @BeforeEach
     void setUp() {
-        storageClearer.clear();
+        trainee1 = buildTrainee("John", "Doe");
+        trainee2 = buildTrainee("Will", "Salas");
+    }
+
+    @AfterEach
+    void tearDown() {
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            session.createQuery("DELETE FROM Trainee").executeUpdate();
+            transaction.commit();
+        }
     }
 
     @Test
     void testCreate() {
-        Trainee trainee = buildTrainee();
+        Trainee createdTrainee = traineeService.create(trainee1);
 
-        Trainee createdTrainee = traineeService.create(trainee);
-
-        assertNotNull(createdTrainee.getUuid());
+        assertNotNull(createdTrainee.getId());
         assertEquals("John.Doe", createdTrainee.getUsername());
-        assertTrue(traineeService.findAll().contains(createdTrainee));
+        assertEquals(1, traineeService.findAll().size());
     }
 
     @Test
     void testCreateWithExistingName() {
-        Trainee trainee1 = buildTrainee();
-        Trainee trainee2 = buildTrainee();
-
         Trainee createdTrainee1 = traineeService.create(trainee1);
+        trainee2.setFirstName("John");
+        trainee2.setLastName("Doe");
         Trainee createdTrainee2 = traineeService.create(trainee2);
 
         assertEquals("John.Doe", createdTrainee1.getUsername());
@@ -57,102 +72,152 @@ class TraineeServiceTest {
 
     @Test
     void testFindAll() {
-        Trainee trainee1 = buildTrainee();
-        Trainee trainee2 = buildTrainee();
-        trainee2.setFirstName("Jane");
+        Trainee createdTrainee1 = traineeService.create(trainee1);
+        Trainee createdTrainee2 = traineeService.create(trainee2);
 
-        traineeService.create(trainee1);
-        traineeService.create(trainee2);
         List<Trainee> trainees = traineeService.findAll();
 
         assertEquals(2, trainees.size());
-        assertTrue(trainees.stream().anyMatch(t -> t.getFirstName().equals("John")));
-        assertTrue(trainees.stream().anyMatch(t -> t.getFirstName().equals("Jane")));
+        assertTrue(trainees.stream().anyMatch(t -> t.getUsername().equals(createdTrainee1.getUsername())));
+        assertTrue(trainees.stream().anyMatch(t -> t.getUsername().equals(createdTrainee2.getUsername())));
     }
 
     @Test
     void testFindById() {
-        Trainee trainee = buildTrainee();
-        Trainee createdTrainee = traineeService.create(trainee);
+        Trainee createdTrainee = traineeService.create(trainee1);
 
-        Trainee foundTrainee = traineeService.findById(createdTrainee.getUuid());
+        Trainee foundTrainee = traineeService.findById(createdTrainee.getId());
 
         assertNotNull(foundTrainee);
-        assertEquals(createdTrainee.getUuid(), foundTrainee.getUuid());
-        assertEquals("John.Doe", foundTrainee.getUsername());
+        assertEquals(createdTrainee.getId(), foundTrainee.getId());
+        assertEquals(trainee1.getUsername(), foundTrainee.getUsername());
     }
 
     @Test
     void testFindByIdNonExistent() {
-        Trainee foundTrainee = traineeService.findById(UUID.randomUUID());
+        Trainee foundTrainee = traineeService.findById(100L);
 
         assertNull(foundTrainee);
     }
 
     @Test
     void testUpdate() {
-        Trainee trainee = buildTrainee();
-        Trainee createdTrainee = traineeService.create(trainee);
+        Trainee createdTrainee = traineeService.create(trainee1);
 
         createdTrainee.setFirstName("Updated");
         createdTrainee.setLastName("Name");
         Trainee updatedTrainee = traineeService.update(createdTrainee);
 
-        assertEquals("Updated.Name", updatedTrainee.getUsername());
         assertEquals("Updated", updatedTrainee.getFirstName());
         assertEquals("Name", updatedTrainee.getLastName());
-        assertEquals(createdTrainee.getUuid(), updatedTrainee.getUuid());
+        assertEquals("Updated.Name", updatedTrainee.getUsername());
+        assertEquals(createdTrainee.getId(), updatedTrainee.getId());
+        assertEquals(1, traineeService.findAll().size());
+    }
+
+    @Test
+    void whenUpdateNonExistingTraineeThenThrowException() {
+        long id = 10L;
+        trainee1.setId(id);
+        assertThrows(NoSuchElementException.class, () -> traineeService.update(trainee1), "Trainee with id " + id + " not found");
     }
 
     @Test
     void testDelete() {
-        Trainee trainee = buildTrainee();
-        Trainee createdTrainee = traineeService.create(trainee);
+        Trainee createdTrainee = traineeService.create(trainee1);
 
         traineeService.delete(createdTrainee);
 
         assertEquals(0, traineeService.findAll().size());
-        assertNull(traineeService.findById(createdTrainee.getUuid()));
+        assertNull(traineeService.findById(createdTrainee.getId()));
     }
 
     @Test
     void testDeleteNonExistentTrainee() {
-        Trainee trainee = buildTrainee();
+        assertDoesNotThrow(() -> traineeService.delete(trainee1));
+    }
 
-        assertDoesNotThrow(() -> traineeService.delete(trainee));
+    @Test
+    void testFindByUsername() {
+        Trainee createdTrainee = traineeService.create(trainee1);
+
+        Trainee trainee = traineeService.findByUsername(trainee1.getUsername());
+
+        assertEquals(createdTrainee.getId(), trainee.getId());
+    }
+
+    @Test
+    void testActivateShouldNotBeIdempotent() {
+        Trainee createdTrainee = traineeService.create(trainee1);
+
+        traineeService.activate(createdTrainee);
+
+        assertFalse(createdTrainee.isActive());
+
+        traineeService.activate(createdTrainee);
+
+        assertTrue(createdTrainee.isActive());
+    }
+
+    @Test
+    void testDeleteByUsername() {
+        Trainee createdTrainee = traineeService.create(trainee1);
+
+        traineeService.deleteByUsername(createdTrainee.getUsername());
+
+        assertEquals(0, traineeService.findAll().size());
+        assertNull(traineeService.findById(createdTrainee.getId()));
+    }
+
+    @Test
+    void testChangePassword() {
+        String newPassword = "1111111111";
+        Trainee trainee = traineeService.create(trainee1);
+        String username = trainee.getUsername();
+
+        traineeService.changePassword(username, trainee.getPassword(), newPassword);
+
+        assertEquals(newPassword, traineeService.findByUsername(username).getPassword());
+    }
+
+    @Test
+    void whenChangePasswordWithIncorrectOldPasswordThenThrowException() {
+        String oldPassword = "1111111111";
+        String newPassword = "1132211111";
+        Trainee trainee = traineeService.create(trainee1);
+        String username = trainee.getUsername();
+
+        assertThrows(RuntimeException.class, () -> traineeService.changePassword(username, oldPassword, newPassword), "Incorrect password");
     }
 
     @Test
     void testMultipleOperations() {
-        Trainee trainee1 = buildTrainee();
         Trainee createdTrainee1 = traineeService.create(trainee1);
 
         createdTrainee1.setAddress("New Address");
         Trainee updatedTrainee1 = traineeService.update(createdTrainee1);
 
-        Trainee trainee2 = buildTrainee();
-        trainee2.setFirstName("Jane");
         Trainee createdTrainee2 = traineeService.create(trainee2);
 
         List<Trainee> trainees = traineeService.findAll();
-        Trainee foundTrainee = traineeService.findById(createdTrainee1.getUuid());
+        Trainee foundTrainee = traineeService.findById(createdTrainee1.getId());
 
         traineeService.delete(createdTrainee1);
 
         assertEquals(2, trainees.size());
         assertEquals("New Address", updatedTrainee1.getAddress());
-        assertEquals("Jane.Doe", createdTrainee2.getUsername());
+        assertEquals("Will.Salas", createdTrainee2.getUsername());
         assertEquals("New Address", foundTrainee.getAddress());
         assertEquals(1, traineeService.findAll().size());
     }
 
-    private Trainee buildTrainee() {
-        Trainee trainee = new Trainee();
-        trainee.setFirstName("John");
-        trainee.setLastName("Doe");
-        trainee.setDataOfBirth(LocalDate.now().minusYears(25));
-        trainee.setAddress("Test Address");
-        trainee.setActive(true);
-        return trainee;
+    private Trainee buildTrainee(String firstName, String lastName) {
+        return Trainee.builder()
+                .firstName(firstName)
+                .lastName(lastName)
+                .dataOfBirth(LocalDate.now().minusYears(25))
+                .address("Test Address")
+                .isActive(true)
+                .build();
     }
 }

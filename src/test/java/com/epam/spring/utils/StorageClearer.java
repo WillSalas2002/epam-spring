@@ -8,19 +8,18 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 @Component
 public class StorageClearer {
 
     @Autowired
-    private Map<UUID, Trainee> traineeStorage;
+    private Map<Long, Trainee> traineeStorage;
 
     @Autowired
-    private Map<UUID, Trainer> trainerStorage;
+    private Map<Long, Trainer> trainerStorage;
 
     @Autowired
-    private Map<UUID, Training> trainingStorage;
+    private Map<Long, Training> trainingStorage;
 
     @Autowired
     private Set<String> usernameStorage;

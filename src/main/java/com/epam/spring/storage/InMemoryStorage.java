@@ -12,7 +12,6 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -21,7 +20,7 @@ import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.logging.Logger;
 
-@Component
+//@Component
 @PropertySource("classpath:application.properties")
 @RequiredArgsConstructor
 public class InMemoryStorage {

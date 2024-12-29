@@ -1,6 +1,6 @@
 package com.epam.spring.service;
 
-import com.epam.spring.dao.TrainerRepository;
+import com.epam.spring.repository.TrainerRepository;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.util.PasswordGenerator;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +40,20 @@ public class TrainerService implements BaseOperationsService<Trainer>, ExtendedO
     }
 
     @Override
+    public Trainer findByUsername(String username) {
+        return trainerRepository.findByUsername(username);
+    }
+
+    @Override
+    public boolean authorize(String username, String password) {
+        Trainer trainer = trainerRepository.findByUsername(username);
+        if (trainer == null) {
+            return false;
+        }
+        return Objects.equals(trainer.getPassword(), password);
+    }
+
+    @Override
     public Trainer update(Trainer updatedTrainer) {
         Long id = updatedTrainer.getId();
         Trainer trainer = trainerRepository.findById(id);
@@ -51,6 +65,22 @@ public class TrainerService implements BaseOperationsService<Trainer>, ExtendedO
             updatedTrainer.setUsername(uniqueUsername);
         }
         return trainerRepository.update(updatedTrainer);
+    }
+
+    @Override
+    public void activate(Trainer trainer) {
+        trainer.setActive(!trainer.isActive());
+        trainerRepository.update(trainer);
+    }
+
+    @Override
+    public void changePassword(String username, String oldPassword, String newPassword) {
+        Trainer trainer = trainerRepository.findByUsername(username);
+        if (!Objects.equals(trainer.getPassword(), oldPassword)) {
+            throw new RuntimeException("Incorrect password");
+        }
+        trainer.setPassword(newPassword);
+        trainerRepository.update(trainer);
     }
 
     @Override

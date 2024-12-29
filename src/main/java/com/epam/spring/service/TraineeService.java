@@ -1,6 +1,6 @@
 package com.epam.spring.service;
 
-import com.epam.spring.dao.TraineeRepository;
+import com.epam.spring.repository.TraineeRepository;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.util.PasswordGenerator;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +46,7 @@ public class TraineeService implements BaseOperationsService<Trainee>, ExtendedO
         if (trainee == null) {
             throw new NoSuchElementException("Trainee with id " + id + " not found");
         }
-        // TODO: see if updated or adds and think about password change as well!
+
         if (isNameChanged(trainee, updatedTrainee)) {
             String uniqueUsername = userService.generateUniqueUsername(updatedTrainee.getFirstName(), updatedTrainee.getLastName());
             updatedTrainee.setUsername(uniqueUsername);
@@ -55,8 +55,47 @@ public class TraineeService implements BaseOperationsService<Trainee>, ExtendedO
     }
 
     @Override
+    public Trainee findByUsername(String username) {
+        return traineeRepository.findByUsername(username);
+    }
+
+    @Override
+    public boolean authorize(String username, String password) {
+        Trainee trainee = traineeRepository.findByUsername(username);
+        if (trainee == null) {
+            return false;
+        }
+        return Objects.equals(trainee.getPassword(), password);
+    }
+
+    @Override
+    public void activate(Trainee trainee) {
+        trainee.setActive(!trainee.isActive());
+        traineeRepository.update(trainee);
+    }
+
+    @Override
+    public void changePassword(String username, String oldPassword, String newPassword) {
+        Trainee trainee = traineeRepository.findByUsername(username);
+
+        if (trainee == null) {
+            throw new RuntimeException("Incorrect username");
+        }
+
+        if (!Objects.equals(trainee.getPassword(), oldPassword)) {
+            throw new RuntimeException("Incorrect password");
+        }
+        trainee.setPassword(newPassword);
+        traineeRepository.update(trainee);
+    }
+
+    @Override
     public void delete(Trainee trainee) {
         traineeRepository.delete(trainee);
+    }
+
+    public void deleteByUsername(String username) {
+        traineeRepository.deleteByUsername(username);
     }
 
     private boolean isNameChanged(Trainee trainee, Trainee updatedTrainee) {

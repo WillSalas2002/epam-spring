@@ -1,6 +1,6 @@
 package com.epam.spring.service;
 
-import com.epam.spring.dao.UserRepository;
+import com.epam.spring.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ public class UserService {
         String baseUsername = firstName + DOT_SIGN + lastName;
         int serial = 1;
         while (userRepository.existsByUsername(baseUsername)) {
-            baseUsername += serial++;
+            baseUsername = baseUsername + DOT_SIGN + serial++;
         }
         return baseUsername;
     }

@@ -1,4 +1,4 @@
-package com.epam.spring.dao;
+package com.epam.spring.repository;
 
 import java.util.List;
 

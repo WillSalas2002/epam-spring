@@ -1,5 +1,6 @@
 package com.epam.spring.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -9,13 +10,13 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @SuperBuilder
-@ToString
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -23,18 +24,18 @@ import java.time.LocalDateTime;
 @Table(name = "_training", schema = "gym")
 public class Training extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "trainee_id")
     private Trainee trainee;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "trainer_id")
     private Trainer trainer;
 
     @Column(name = "name")
     private String name;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "training_type_id")
     private TrainingType trainingType;
 
@@ -52,5 +53,18 @@ public class Training extends BaseEntity {
         this.trainingType = trainingType;
         this.date = date;
         this.duration = duration;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Training training = (Training) o;
+        return Objects.equals(trainee, training.trainee) && Objects.equals(trainer, training.trainer) && Objects.equals(name, training.name) && Objects.equals(trainingType, training.trainingType) && Objects.equals(date, training.date) && Objects.equals(duration, training.duration);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(trainee, trainer, name, trainingType, date, duration);
     }
 }

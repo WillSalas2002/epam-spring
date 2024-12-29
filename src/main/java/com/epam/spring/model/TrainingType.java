@@ -8,13 +8,13 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
+import java.util.Objects;
 
 @SuperBuilder
-@ToString
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -30,4 +30,17 @@ public class TrainingType extends BaseEntity {
 
     @OneToMany(mappedBy = "trainingType", fetch = FetchType.LAZY)
     private List<Training> trainings;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TrainingType that = (TrainingType) o;
+        return Objects.equals(trainingTypeName, that.trainingTypeName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(trainingTypeName);
+    }
 }

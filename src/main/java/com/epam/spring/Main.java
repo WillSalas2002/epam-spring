@@ -6,8 +6,7 @@ import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
 import com.epam.spring.model.TrainingType;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -15,9 +14,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 public class Main {
-
-    private static final Log LOGGER = LogFactory.getLog(Main.class);
 
     public static void main(String[] args) {
 
@@ -25,17 +23,18 @@ public class Main {
         GymCrmFacade facade = context.getBean(GymCrmFacade.class);
 
         List<Trainee> trainees = facade.findAllTrainees();
-        LOGGER.info("All Trainees after initialization: " + trainees);
+//        LOGGER.info("All Trainees after initialization: " + trainees);
 
         List<Trainer> trainers = facade.findAllTrainers();
-        LOGGER.info("All Trainers after initialization: " + trainers);
+//        LOGGER.info("All Trainers after initialization: " + trainers);
 
         List<Training> trainings = facade.findAllTrainings();
-        LOGGER.info("All Trainings after initialization: " + trainings);
+//        LOGGER.info("All Trainings after initialization: " + trainings);
 
-        createEntitiesExample(facade);
-
-
+//        Trainee trainee = facade.findTraineeById(1L);
+//        trainee.setFirstName("Adam");
+//        Trainee trainee1 = facade.updateTrainee(trainee);
+//        System.out.println(trainee1.getUsername());
     }
 
     private static void createEntitiesExample(GymCrmFacade facade) {
@@ -49,7 +48,7 @@ public class Main {
         Trainer trainer = facade.createTrainer(new Trainer(
                 "Simon",
                 "Anderson",
-                "Strong cardio",
+                TrainingType.builder().trainingTypeName("Strong cardio").build(),
                 true
         ));
 
@@ -57,7 +56,7 @@ public class Main {
                 trainee,
                 trainer,
                 "Iron man Training",
-                TrainingType.STRENGTH_TRAINING,
+                TrainingType.builder().id(1L).trainingTypeName("Strong cardio").build(),
                 LocalDateTime.now().plusDays(2),
                 120
         ));

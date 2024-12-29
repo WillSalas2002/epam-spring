@@ -1,4 +1,4 @@
-package com.epam.spring.dao;
+package com.epam.spring.repository;
 
 import com.epam.spring.model.Trainer;
 import lombok.RequiredArgsConstructor;
@@ -36,19 +36,39 @@ public class TrainerRepository implements BaseOperationsDAO<Trainer>, ExtendedOp
     @Override
     public List<Trainer> findAll() {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("SELECT t FROM Trainer t JOIN FETCH t.specialization", Trainer.class)
+            Transaction transaction = session.beginTransaction();
+            List<Trainer> trainers = session.createQuery("SELECT t FROM Trainer t LEFT JOIN FETCH t.specialization", Trainer.class)
                     .getResultList();
+            transaction.commit();
+            return trainers;
         }
     }
 
     @Override
     public Trainer findById(Long id) {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("SELECT t FROM Trainer t WHERE id =: id", Trainer.class)
+            List<Trainer> trainers = session.createQuery("SELECT t FROM Trainer t WHERE id =: id", Trainer.class)
                     .setParameter("id", id)
-                    .getSingleResult();
+                    .getResultList();
+            return trainers.isEmpty() ? null : trainers.get(0);
         }
     }
+
+    @Override
+    public Trainer findByUsername(String username) {
+        try (Session session = sessionFactory.openSession()) {
+            List<Trainer> trainers = session.createQuery("""
+                            SELECT t FROM Trainer t
+                                LEFT JOIN FETCH t.trainees
+                            WHERE t.username =: username
+                            """, Trainer.class)
+                    .setParameter("username", username)
+                    .getResultList();
+
+            return trainers.isEmpty() ? null : trainers.get(0);
+        }
+    }
+
 
     @Override
     public Trainer update(Trainer updatedTrainer) {
@@ -63,7 +83,24 @@ public class TrainerRepository implements BaseOperationsDAO<Trainer>, ExtendedOp
     @Override
     public void delete(Trainer trainer) {
         try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
             session.remove(trainer);
+            transaction.commit();
+        }
+    }
+
+    public List<Trainer> trainersByTraineeUsername(String username) {
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery("""
+                            SELECT t FROM Trainer t
+                            WHERE t NOT IN (
+                                SELECT t
+                                FROM Trainee tee
+                                    JOIN tee.trainers t
+                                WHERE tee.username =: username
+                            )""", Trainer.class)
+                    .setParameter("username", username)
+                    .getResultList();
         }
     }
 }

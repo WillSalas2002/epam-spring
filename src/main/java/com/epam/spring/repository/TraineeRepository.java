@@ -1,4 +1,4 @@
-package com.epam.spring.dao;
+package com.epam.spring.repository;
 
 import com.epam.spring.model.Trainee;
 import lombok.RequiredArgsConstructor;
@@ -44,9 +44,25 @@ public class TraineeRepository implements BaseOperationsDAO<Trainee>, ExtendedOp
     @Override
     public Trainee findById(Long id) {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("FROM Trainee WHERE id =: id", Trainee.class)
+            List<Trainee> trainees = session.createQuery("FROM Trainee WHERE id =: id", Trainee.class)
                     .setParameter("id", id)
-                    .getSingleResult();
+                    .getResultList();
+            return trainees.isEmpty() ? null : trainees.get(0);
+        }
+    }
+
+    @Override
+    public Trainee findByUsername(String username) {
+        try (Session session = sessionFactory.openSession()) {
+            List<Trainee> trainees = session.createQuery("""
+                            SELECT t FROM Trainee t
+                                LEFT JOIN FETCH t.trainers
+                            WHERE t.username =: username
+                            """, Trainee.class)
+                    .setParameter("username", username)
+                    .getResultList();
+
+            return trainees.isEmpty() ? null : trainees.get(0);
         }
     }
 
@@ -63,7 +79,19 @@ public class TraineeRepository implements BaseOperationsDAO<Trainee>, ExtendedOp
     @Override
     public void delete(Trainee trainee) {
         try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
             session.remove(trainee);
+            transaction.commit();
+        }
+    }
+
+    public void deleteByUsername(String username) {
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            session.createQuery("DELETE FROM Trainee t WHERE t.username =: username")
+                    .setParameter("username", username)
+                    .executeUpdate();
+            transaction.commit();
         }
     }
 }

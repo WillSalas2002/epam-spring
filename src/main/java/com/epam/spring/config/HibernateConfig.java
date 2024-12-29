@@ -9,17 +9,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import org.hibernate.cfg.Configuration;
 
 import java.util.Properties;
 
 @Slf4j
 @org.springframework.context.annotation.Configuration
-@PropertySource("classpath:application.properties")
+@PropertySource("classpath:application-test.properties")
 @RequiredArgsConstructor
 public class HibernateConfig {
 

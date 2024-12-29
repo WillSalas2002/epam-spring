@@ -3,7 +3,6 @@ package com.epam.spring.util;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
-import com.epam.spring.model.TrainingType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,7 +15,7 @@ public class EntityBuilder {
                 .lastName(trainerPieces[2])
                 .username(trainerPieces[3])
                 .password(trainerPieces[4])
-                .specialization(trainerPieces[5])
+//                .specialization(trainerPieces[5])
                 .isActive(trainerPieces[6].equals(Boolean.TRUE.toString()))
                 .build();
     }
@@ -38,7 +37,7 @@ public class EntityBuilder {
                 .trainee(trainee)
                 .trainer(trainer)
                 .name(trainingPieces[3])
-                .type(TrainingType.CARDIO)
+//                .type(new TrainingType())
                 .date(LocalDateTime.parse(trainingPieces[4]))
                 .duration(Integer.parseInt(trainingPieces[5]))
                 .build();

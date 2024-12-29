@@ -42,9 +42,9 @@ class GymCrmFacadeTest {
         Trainee trainee = buildTrainee("Will", "Salas");
 
         Trainee createdTrainee = facade.createTrainee(trainee);
-        Trainee savedTrainee = facade.findTraineeById(createdTrainee.getUuid());
+        Trainee savedTrainee = facade.findTraineeById(createdTrainee.getId());
 
-        assertNotNull(createdTrainee.getUuid());
+        assertNotNull(createdTrainee.getId());
         assertSame(createdTrainee, savedTrainee);
         assertEquals("Will.Salas", createdTrainee.getUsername());
         assertEquals(10, createdTrainee.getPassword().length());
@@ -78,7 +78,7 @@ class GymCrmFacadeTest {
     void testFindTraineeById() {
         Trainee trainee = facade.createTrainee(buildTrainee("Will", "Salas"));
 
-        Trainee traineeById = facade.findTraineeById(trainee.getUuid());
+        Trainee traineeById = facade.findTraineeById(trainee.getId());
 
         assertSame(trainee, traineeById);
     }
@@ -95,7 +95,7 @@ class GymCrmFacadeTest {
         createdTrainee.setLastName(expectedLastName);
         Trainee updatedTrainee = facade.updateTrainee(createdTrainee);
 
-        assertSame(updatedTrainee.getUuid(), createdTrainee.getUuid());
+        assertSame(updatedTrainee.getId(), createdTrainee.getId());
         assertEquals(expectedFirstname, updatedTrainee.getFirstName());
         assertEquals(expectedLastName, updatedTrainee.getLastName());
         assertEquals(expectedUsername, updatedTrainee.getUsername());
@@ -108,7 +108,7 @@ class GymCrmFacadeTest {
         facade.deleteTrainee(createdTrainee);
 
         assertEquals(0, facade.findAllTrainees().size());
-        assertNull(facade.findTraineeById(createdTrainee.getUuid()));
+        assertNull(facade.findTraineeById(createdTrainee.getId()));
     }
 
     @Test
@@ -116,9 +116,9 @@ class GymCrmFacadeTest {
         Trainer trainee = buildTrainer("Will", "Salas");
 
         Trainer createdTrainer = facade.createTrainer(trainee);
-        Trainer savedTrainer = facade.findTrainerById(createdTrainer.getUuid());
+        Trainer savedTrainer = facade.findTrainerById(createdTrainer.getId());
 
-        assertNotNull(createdTrainer.getUuid());
+        assertNotNull(createdTrainer.getId());
         assertSame(createdTrainer, savedTrainer);
         assertEquals("Will.Salas", createdTrainer.getUsername());
         assertEquals(10, createdTrainer.getPassword().length());
@@ -148,7 +148,7 @@ class GymCrmFacadeTest {
         createdTrainer.setLastName(expectedLastName);
         Trainer updatedTrainer = facade.updateTrainer(createdTrainer);
 
-        assertSame(updatedTrainer.getUuid(), createdTrainer.getUuid());
+        assertSame(updatedTrainer.getId(), createdTrainer.getId());
         assertEquals(expectedFirstname, updatedTrainer.getFirstName());
         assertEquals(expectedLastName, updatedTrainer.getLastName());
         assertEquals(expectedUsername, updatedTrainer.getUsername());
@@ -159,12 +159,12 @@ class GymCrmFacadeTest {
         Trainee trainee = facade.createTrainee(buildTrainee("Adam", "Simpson"));
         Trainer trainer = facade.createTrainer(buildTrainer("Will", "Salas"));
 
-        Training training = new Training(trainee, trainer, "Hard Cardio", TrainingType.CARDIO, LocalDateTime.now().plusHours(5), 90);
+        Training training = new Training(trainee, trainer, "Hard Cardio", new TrainingType(), LocalDateTime.now().plusHours(5), 90);
 
         Training createdTraining = facade.createTraining(training);
 
-        assertNotNull(createdTraining.getUuid());
-        assertEquals(createdTraining, facade.findTrainingById(createdTraining.getUuid()));
+        assertNotNull(createdTraining.getId());
+        assertEquals(createdTraining, facade.findTrainingById(createdTraining.getId()));
         assertEquals(1, facade.findAllTrainings().size());
     }
 
@@ -173,6 +173,6 @@ class GymCrmFacadeTest {
     }
 
     private Trainer buildTrainer(String firstName, String lastName) {
-        return new Trainer(firstName, lastName, "Strength Training", true);
+        return new Trainer(firstName, lastName, TrainingType.builder().trainingTypeName("Strength Training").build(), true);
     }
 }
