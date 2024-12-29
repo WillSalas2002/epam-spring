@@ -5,6 +5,8 @@ import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
 import com.epam.spring.model.TrainingType;
+import com.epam.spring.service.TraineeService;
+import com.epam.spring.service.TrainerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,10 @@ class TrainingRepositoryTest {
 
     @Autowired
     private TrainingRepository trainingRepository;
+    @Autowired
+    private TraineeService traineeService;
+    @Autowired
+    private TrainerService trainerService;
 
     private Trainer trainer;
     private Trainee trainee;
@@ -33,7 +39,9 @@ class TrainingRepositoryTest {
 
     @Test
     public void testCreateTraining() {
-        Training training = new Training(trainee, trainer, "Strong man training", new TrainingType(), LocalDateTime.now().plusHours(3), 120);
+        Trainee createdTrainee = traineeService.create(trainee);
+        Trainer createdTrainer = trainerService.create(trainer);
+        Training training = new Training(createdTrainee, createdTrainer, "Strong man training", new TrainingType(), LocalDateTime.now().plusHours(3), 120);
 
         Training createdTraining = trainingRepository.create(training);
         Training trainingById = trainingRepository.findById(createdTraining.getId());

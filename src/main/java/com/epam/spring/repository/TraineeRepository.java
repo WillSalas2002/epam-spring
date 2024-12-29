@@ -56,7 +56,6 @@ public class TraineeRepository implements BaseOperationsDAO<Trainee>, ExtendedOp
         try (Session session = sessionFactory.openSession()) {
             List<Trainee> trainees = session.createQuery("""
                             SELECT t FROM Trainee t
-                                LEFT JOIN FETCH t.trainers
                             WHERE t.username =: username
                             """, Trainee.class)
                     .setParameter("username", username)

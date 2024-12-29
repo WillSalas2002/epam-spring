@@ -42,7 +42,7 @@ class TraineeRepositoryTest {
     void tearDown() {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            session.createQuery("DELETE FROM Trainee", Trainee.class).executeUpdate();
+            session.createQuery("DELETE FROM Trainee").executeUpdate();
             transaction.commit();
         }
     }
