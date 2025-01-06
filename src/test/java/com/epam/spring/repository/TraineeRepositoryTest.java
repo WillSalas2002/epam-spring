@@ -42,7 +42,7 @@ class TraineeRepositoryTest {
     void tearDown() {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            session.createQuery("DELETE FROM Trainee").executeUpdate();
+            session.createMutationQuery("DELETE FROM Trainee").executeUpdate();
             transaction.commit();
         }
     }
@@ -140,6 +140,8 @@ class TraineeRepositoryTest {
         return Trainee.builder()
                 .firstName(firstName)
                 .lastName(lastName)
+                .username(firstName + "." + lastName)
+                .password("1111111111")
                 .dataOfBirth(LocalDate.now().minusYears(25))
                 .address("Test Address")
                 .isActive(true)

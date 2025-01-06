@@ -2,6 +2,7 @@ package com.epam.spring.service;
 
 import com.epam.spring.config.AppConfig;
 import com.epam.spring.model.Trainer;
+import com.epam.spring.model.TrainingType;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -44,7 +45,7 @@ class TrainerServiceTest {
     void tearDown() {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            session.createQuery("DELETE FROM Trainer").executeUpdate();
+            session.createMutationQuery("DELETE FROM Trainer").executeUpdate();
             transaction.commit();
         }
     }
@@ -171,19 +172,26 @@ class TrainerServiceTest {
 
     @Test
     void whenChangePasswordWithIncorrectOldPasswordThenThrowException() {
-        String oldPassword = "1111111111";
+        String incorrectOldPassword = "1111111111";
         String newPassword = "1132211111";
         Trainer Trainer = trainerService.create(trainer1);
         String username = Trainer.getUsername();
 
-        assertThrows(RuntimeException.class, () -> trainerService.changePassword(username, oldPassword, newPassword), "Incorrect password");
+        assertThrows(RuntimeException.class, () -> trainerService.changePassword(username, incorrectOldPassword, newPassword), "Incorrect password");
     }
 
     private Trainer buildTrainer(String firstName, String lastName) {
         return Trainer.builder()
                 .firstName(firstName)
                 .lastName(lastName)
+                .specialization(buildTrainingType())
                 .isActive(true)
+                .build();
+    }
+
+    private static TrainingType buildTrainingType() {
+        return TrainingType.builder()
+                .trainingTypeName("Cardio")
                 .build();
     }
 }

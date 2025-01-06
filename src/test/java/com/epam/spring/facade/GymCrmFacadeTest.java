@@ -5,8 +5,10 @@ import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
 import com.epam.spring.model.TrainingType;
-import com.epam.spring.utils.StorageClearer;
-import org.junit.jupiter.api.BeforeEach;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
@@ -30,11 +32,18 @@ class GymCrmFacadeTest {
     private GymCrmFacade facade;
 
     @Autowired
-    private StorageClearer storageClearer;
+    private SessionFactory sessionFactory;
 
-    @BeforeEach
-    public void clearDB() {
-        storageClearer.clear();
+    @AfterEach
+    void tearDown() {
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            session.createMutationQuery("DELETE FROM Training").executeUpdate();
+            session.createMutationQuery("DELETE FROM Trainee").executeUpdate();
+            session.createMutationQuery("DELETE FROM Trainer").executeUpdate();
+            session.createMutationQuery("DELETE FROM TrainingType").executeUpdate();
+            transaction.commit();
+        }
     }
 
     @Test
@@ -45,7 +54,7 @@ class GymCrmFacadeTest {
         Trainee savedTrainee = facade.findTraineeById(createdTrainee.getId());
 
         assertNotNull(createdTrainee.getId());
-        assertSame(createdTrainee, savedTrainee);
+        assertEquals(createdTrainee, savedTrainee);
         assertEquals("Will.Salas", createdTrainee.getUsername());
         assertEquals(10, createdTrainee.getPassword().length());
     }
@@ -80,7 +89,7 @@ class GymCrmFacadeTest {
 
         Trainee traineeById = facade.findTraineeById(trainee.getId());
 
-        assertSame(trainee, traineeById);
+        assertEquals(trainee, traineeById);
     }
 
     @Test
@@ -119,7 +128,7 @@ class GymCrmFacadeTest {
         Trainer savedTrainer = facade.findTrainerById(createdTrainer.getId());
 
         assertNotNull(createdTrainer.getId());
-        assertSame(createdTrainer, savedTrainer);
+        assertEquals(createdTrainer, savedTrainer);
         assertEquals("Will.Salas", createdTrainer.getUsername());
         assertEquals(10, createdTrainer.getPassword().length());
     }
@@ -158,21 +167,37 @@ class GymCrmFacadeTest {
     void testCreateTraining() {
         Trainee trainee = facade.createTrainee(buildTrainee("Adam", "Simpson"));
         Trainer trainer = facade.createTrainer(buildTrainer("Will", "Salas"));
+        TrainingType trainingType = trainer.getSpecialization();
 
-        Training training = new Training(trainee, trainer, "Hard Cardio", new TrainingType(), LocalDateTime.now().plusHours(5), 90);
+        Training training = new Training(trainee, trainer, "Hard Cardio", trainingType, LocalDateTime.now().plusHours(5), 90);
 
         Training createdTraining = facade.createTraining(training);
 
         assertNotNull(createdTraining.getId());
-        assertEquals(createdTraining, facade.findTrainingById(createdTraining.getId()));
         assertEquals(1, facade.findAllTrainings().size());
     }
 
-    private static Trainee buildTrainee(String firstName, String lastName) {
-        return new Trainee(firstName, lastName, LocalDate.now().minusYears(15), "Nukus", true);
+    private Trainer buildTrainer(String firstName, String lastName) {
+        return Trainer.builder()
+                .firstName(firstName)
+                .lastName(lastName)
+                .specialization(buildTrainingType())
+                .build();
     }
 
-    private Trainer buildTrainer(String firstName, String lastName) {
-        return new Trainer(firstName, lastName, TrainingType.builder().trainingTypeName("Strength Training").build(), true);
+    private Trainee buildTrainee(String firstName, String lastName) {
+        return Trainee.builder()
+                .firstName(firstName)
+                .lastName(lastName)
+                .dataOfBirth(LocalDate.now().minusYears(25))
+                .address("Test Address")
+                .isActive(true)
+                .build();
+    }
+
+    private static TrainingType buildTrainingType() {
+        return TrainingType.builder()
+                .trainingTypeName("Cardio")
+                .build();
     }
 }

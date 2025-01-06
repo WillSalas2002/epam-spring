@@ -24,11 +24,11 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "_trainer", schema = "gym")
+@Table(name = "trainers", schema = "gym")
 public class Trainer extends User {
 
     @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "training_type_id")
+    @JoinColumn(name = "training_type_id", nullable = false)
     private TrainingType specialization;
 
     @OneToMany(mappedBy = "trainer", fetch = FetchType.LAZY)

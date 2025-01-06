@@ -23,13 +23,13 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "_trainee", schema = "gym")
+@Table(name = "trainees", schema = "gym")
 public class Trainee extends User {
 
-    @Column(name = "date_of_birth")
+    @Column(name = "date_of_birth", nullable = false)
     private LocalDate dataOfBirth;
 
-    @Column(name = "address")
+    @Column(name = "address", nullable = false)
     private String address;
 
     @OneToMany(mappedBy = "trainee", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)

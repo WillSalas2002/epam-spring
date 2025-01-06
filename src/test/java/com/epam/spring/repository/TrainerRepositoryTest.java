@@ -2,6 +2,7 @@ package com.epam.spring.repository;
 
 import com.epam.spring.config.AppConfig;
 import com.epam.spring.model.Trainer;
+import com.epam.spring.model.TrainingType;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -41,7 +42,7 @@ class TrainerRepositoryTest {
     void tearDown() {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            session.createQuery("DELETE FROM Trainer").executeUpdate();
+            session.createMutationQuery("DELETE FROM Trainer").executeUpdate();
             transaction.commit();
         }
     }
@@ -137,6 +138,15 @@ class TrainerRepositoryTest {
         return Trainer.builder()
                 .firstName(firstName)
                 .lastName(lastName)
+                .username(firstName + "." + lastName)
+                .password("1111111111")
+                .specialization(buildTrainingType())
+                .build();
+    }
+
+    private static TrainingType buildTrainingType() {
+        return TrainingType.builder()
+                .trainingTypeName("Cardio")
                 .build();
     }
 }

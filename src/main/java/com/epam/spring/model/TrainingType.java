@@ -19,10 +19,10 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "_training_type", schema = "gym")
+@Table(name = "training_types", schema = "gym")
 public class TrainingType extends BaseEntity {
 
-    @Column(name = "training_type_name")
+    @Column(name = "training_type_name", nullable = false)
     private String trainingTypeName;
 
     @OneToMany(mappedBy = "specialization", fetch = FetchType.LAZY)

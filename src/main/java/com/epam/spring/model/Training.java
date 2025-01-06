@@ -21,28 +21,28 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "_training", schema = "gym")
+@Table(name = "trainings", schema = "gym")
 public class Training extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "trainee_id")
+    @JoinColumn(name = "trainee_id", nullable = false)
     private Trainee trainee;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "trainer_id")
+    @JoinColumn(name = "trainer_id", nullable = false)
     private Trainer trainer;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "training_type_id")
+    @JoinColumn(name = "training_type_id", nullable = false)
     private TrainingType trainingType;
 
-    @Column(name = "date")
+    @Column(name = "date", nullable = false)
     private LocalDateTime date;
 
-    @Column(name = "duration")
+    @Column(name = "duration", nullable = false)
     private Integer duration;
 
     public Training(Trainee trainee, Trainer trainer, String name, TrainingType trainingType, LocalDateTime date, Integer duration) {

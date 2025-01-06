@@ -1,9 +1,9 @@
 package com.epam.spring.service;
 
-import com.epam.spring.repository.TrainingRepository;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
+import com.epam.spring.repository.TrainingRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

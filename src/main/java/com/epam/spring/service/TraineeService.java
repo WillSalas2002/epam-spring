@@ -1,7 +1,7 @@
 package com.epam.spring.service;
 
-import com.epam.spring.repository.TraineeRepository;
 import com.epam.spring.model.Trainee;
+import com.epam.spring.repository.TraineeRepository;
 import com.epam.spring.util.PasswordGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

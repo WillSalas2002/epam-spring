@@ -45,7 +45,7 @@ class TraineeServiceTest {
     void tearDown() {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            session.createQuery("DELETE FROM Trainee").executeUpdate();
+            session.createMutationQuery("DELETE FROM Trainee").executeUpdate();
             transaction.commit();
         }
     }
