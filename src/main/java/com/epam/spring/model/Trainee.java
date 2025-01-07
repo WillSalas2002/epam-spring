@@ -26,10 +26,10 @@ import java.util.Objects;
 @Table(name = "trainees", schema = "gym")
 public class Trainee extends User {
 
-    @Column(name = "date_of_birth", nullable = false)
+    @Column(name = "date_of_birth")
     private LocalDate dataOfBirth;
 
-    @Column(name = "address", nullable = false)
+    @Column(name = "address")
     private String address;
 
     @OneToMany(mappedBy = "trainee", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
