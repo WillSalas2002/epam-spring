@@ -33,12 +33,12 @@ public class TrainingService implements BaseOperationsService<Training>, Trainin
 
     @Override
     public Training create(Training training) {
-        Trainee trainee = getOrCreateEntity(
+        Trainee trainee = findEntityOrThrow(
                 training.getTrainee().getUsername(),
                 traineeService::findByUsername
         );
 
-        Trainer trainer = getOrCreateEntity(
+        Trainer trainer = findEntityOrThrow(
                 training.getTrainer().getUsername(),
                 trainerService::findByUsername
         );
@@ -66,7 +66,7 @@ public class TrainingService implements BaseOperationsService<Training>, Trainin
         return trainingRepository.findTrainerTrainings(trainerUsername, fromDate, toDate, traineeName, trainingType);
     }
 
-    private <T> T getOrCreateEntity(String username, Function<String, T> findByUsername) {
+    private <T> T findEntityOrThrow(String username, Function<String, T> findByUsername) {
         if (username == null) {
             throw new RuntimeException("User not found");
         } else {
