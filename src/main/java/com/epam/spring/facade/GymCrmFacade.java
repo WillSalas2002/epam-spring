@@ -6,15 +6,15 @@ import com.epam.spring.model.Training;
 import com.epam.spring.service.TraineeService;
 import com.epam.spring.service.TrainerService;
 import com.epam.spring.service.TrainingService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.logging.Logger;
 
 @Component
+@Slf4j
 public class GymCrmFacade {
-
-    private static final Logger LOGGER = Logger.getLogger(GymCrmFacade.class.getName());
 
     private final TraineeService traineeService;
     private final TrainerService trainerService;
@@ -26,98 +26,172 @@ public class GymCrmFacade {
         this.trainingService = trainingService;
     }
 
+    // ------------- TRAINEE OPERATIONS -----------------
     public List<Trainee> findAllTrainees() {
-        LOGGER.info("Fetching all trainees.");
+        log.info("Fetching all trainees.");
         List<Trainee> trainees = traineeService.findAll();
-        LOGGER.info("Found " + trainees.size() + " trainees.");
+        log.info("Found {} trainees.", trainees.size());
         return trainees;
     }
 
     public Trainee createTrainee(Trainee trainee) {
-        LOGGER.info("Creating Trainee with name: " + trainee.getFirstName());
+        log.info("Creating Trainee with name: {}", trainee.getFirstName());
         Trainee createdTrainee = traineeService.create(trainee);
-        LOGGER.info("Trainee created: " + createdTrainee);
+        log.info("Trainee created: {}", createdTrainee);
         return createdTrainee;
     }
 
+    public boolean authenticateTrainee(String username, String password) {
+        log.info("Received request for trainee authentication");
+        boolean authenticate = traineeService.authenticate(username, password);
+        log.info("Trainee authentication for inputs, username: {} and password: {}, returned: {}", username, password, authenticate);
+        return authenticate;
+    }
+
+    public Trainee findTraineeByUsername(String username) {
+        log.info("Received request for getting trainee by username: {}", username);
+        Trainee trainee = traineeService.findByUsername(username);
+        log.info("Trainee by username returned result: {}", trainee);
+        return trainee;
+    }
+
+    public void changeTraineePassword(String username, String oldPassword, String newPassword) {
+        log.info("Received request for password change for trainee with username: {}", username);
+        traineeService.changePassword(username, oldPassword, newPassword);
+    }
+
+    public void activateTraineeProfile(Long id) {
+        Trainee trainee = traineeService.findById(id);
+        log.info("Received request for activating trainee {}", trainee);
+        traineeService.activate(trainee);
+        boolean isActive = trainee.isActive();
+        log.info("{}'s status changed from {} to {}", trainee.getUsername(), !isActive, isActive);
+    }
+
+    public void findTraineesTrainingListByCriteria(String username, LocalDate fromDate, LocalDate toDate, String trainerFirstName, String trainingType) {
+        log.info("Received request for getting traineeTrainings by criteria, {}, {}, {}, {}, {}", username, fromDate, toDate, trainerFirstName, trainingType);
+        List<Training> traineeTrainings = trainingService.findTraineeTrainings(username, fromDate, toDate, trainerFirstName, trainingType);
+        log.info("List of training found: {}", traineeTrainings);
+    }
+
     public Trainee findTraineeById(Long id) {
-        LOGGER.info("Fetching Trainee by ID: " + id);
+        log.info("Fetching Trainee by ID: {}", id);
         Trainee trainee = traineeService.findById(id);
         if (trainee != null) {
-            LOGGER.info("Trainee found: " + trainee.getUsername());
+            log.info("Trainee found: {}", trainee.getUsername());
         } else {
-            LOGGER.warning("Trainee not found with ID: " + id);
+            log.warn("Trainee not found with ID: {}", id);
         }
         return trainee;
     }
 
     public Trainee updateTrainee(Trainee trainee) {
-        LOGGER.info("Updating Trainee with ID: " + trainee.getId());
+        log.info("Updating Trainee with ID: {}", trainee.getId());
         Trainee updatedTrainee = traineeService.update(trainee);
-        LOGGER.info("Trainee updated: " + updatedTrainee.getUsername());
+        log.info("Trainee updated: {}", updatedTrainee.getUsername());
         return updatedTrainee;
     }
 
     public void deleteTrainee(Trainee trainee) {
-        LOGGER.info("Deleting Trainee with ID: " + trainee.getId());
+        log.info("Deleting Trainee with ID: {}", trainee.getId());
         traineeService.delete(trainee);
-        LOGGER.info("Trainee deleted: " + trainee.getUsername());
+        log.info("Trainee deleted: {}", trainee.getUsername());
     }
 
+    public void deleteTraineeByUsername(String username) {
+        log.info("Received request for delete trainee by username: {}", username);
+        traineeService.deleteByUsername(username);
+    }
+
+    // ------------- TRAINER OPERATIONS -----------------
     public List<Trainer> findAllTrainers() {
-        LOGGER.info("Fetching all trainers.");
+        log.info("Fetching all trainers.");
         List<Trainer> trainers = trainerService.findAll();
-        LOGGER.info("Found " + trainers.size() + " trainers.");
+        log.info("Found {} trainers.", trainers.size());
         return trainers;
     }
 
     public Trainer createTrainer(Trainer trainer) {
-        LOGGER.info("Creating Trainer with name: " + trainer.getFirstName());
+        log.info("Creating Trainer with name: {}", trainer.getFirstName());
         Trainer createdTrainer = trainerService.create(trainer);
-        LOGGER.info("Trainer created: " + createdTrainer);
+        log.info("Trainer created: {}", createdTrainer);
         return createdTrainer;
     }
 
+    public boolean authenticateTrainer(String username, String password) {
+        log.info("Received request for trainer authentication");
+        boolean authenticate = trainerService.authenticate(username, password);
+        log.info("Trainer authentication for inputs, username: {} and password: {}, returned: {}", username, password, authenticate);
+        return authenticate;
+    }
+
+    public Trainer findTrainerByUsername(String username) {
+        log.info("Received request for getting trainer by username: {}", username);
+        Trainer trainer = trainerService.findByUsername(username);
+        log.info("Trainer by username returned result: {}", trainer);
+        return trainer;
+    }
+
+    public void changeTrainerPassword(String username, String oldPassword, String newPassword) {
+        log.info("Received request for password change for trainer with username: {}", username);
+        trainerService.changePassword(username, oldPassword, newPassword);
+    }
+
+    public void activateTrainerProfile(Long id) {
+        Trainer trainer = trainerService.findById(id);
+        log.info("Received request for activating trainer {}", trainer);
+        trainerService.activate(trainer);
+        boolean isActive = trainer.isActive();
+        log.info("{}'s status changed from {} to {}", trainer.getUsername(), !isActive, isActive);
+    }
+
+    public void findTrainersTrainingListByCriteria(String username, LocalDate fromDate, LocalDate toDate, String traineeFirstName, String trainingType) {
+        log.info("Received request for getting trainerTrainings by criteria, {}, {}, {}, {}, {}", username, fromDate, toDate, traineeFirstName, trainingType);
+        List<Training> trainerTrainings = trainingService.findTrainerTrainings(username, fromDate, toDate, traineeFirstName, trainingType);
+        log.info("List of trainings found: {}", trainerTrainings);
+    }
+
     public Trainer findTrainerById(Long id) {
-        LOGGER.info("Fetching Trainer by ID: " + id);
+        log.info("Fetching Trainer by ID: {}", id);
         Trainer trainer = trainerService.findById(id);
         if (trainer != null) {
-            LOGGER.info("Trainer found: " + trainer.getUsername());
+            log.info("Trainer found: {}", trainer.getUsername());
         } else {
-            LOGGER.warning("Trainer not found with ID: " + id);
+            log.warn("Trainer not found with ID: {}", id);
         }
         return trainer;
     }
 
     public Trainer updateTrainer(Trainer trainer) {
-        LOGGER.info("Updating Trainer with ID: " + trainer.getId());
+        log.info("Updating Trainer with ID: {}", trainer.getId());
         Trainer updatedTrainer = trainerService.update(trainer);
-        LOGGER.info("Trainer updated: " + updatedTrainer.getUsername());
+        log.info("Trainer updated: {}", updatedTrainer.getUsername());
         return updatedTrainer;
     }
 
+    // ------------- TRAINING OPERATIONS -----------------
     public List<Training> findAllTrainings() {
-        LOGGER.info("Fetching all trainings.");
+        log.info("Fetching all trainings.");
         List<Training> trainings = trainingService.findAll();
-        LOGGER.info("Found " + trainings.size() + " trainings.");
+        log.info("Found {} trainings.", trainings.size());
         return trainings;
     }
 
     public Training findTrainingById(Long id) {
-        LOGGER.info("Fetching Training by ID: " + id);
+        log.info("Fetching Training by ID: {}", id);
         Training training = trainingService.findById(id);
         if (training != null) {
-            LOGGER.info("Training found: " + training.getName());
+            log.info("Training found: {}", training.getName());
         } else {
-            LOGGER.warning("Training not found with ID: " + id);
+            log.warn("Training not found with ID: {}", id);
         }
         return training;
     }
 
     public Training createTraining(Training training) {
-        LOGGER.info("Creating Training: " + training.getName());
+        log.info("Creating Training: {}", training.getName());
         Training createdTraining = trainingService.create(training);
-        LOGGER.info("Training created: " + createdTraining);
+        log.info("Training created: {}", createdTraining);
         return createdTraining;
     }
 }
