@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -37,31 +38,37 @@ public class TrainerService implements BaseOperationsService<Trainer>, ExtendedO
 
     @Override
     public Trainer findById(Long id) {
-        return trainerRepository.findById(id);
+        Optional<Trainer> trainerOptional = trainerRepository.findById(id);
+        if (trainerOptional.isEmpty()) {
+            throw new RuntimeException("Trainer with id " + id + " not found");
+        }
+        return trainerOptional.get();
     }
 
     @Override
     public Trainer findByUsername(String username) {
-        return trainerRepository.findByUsername(username);
+        Optional<Trainer> trainerOptional = trainerRepository.findByUsername(username);
+        if (trainerOptional.isEmpty()) {
+            throw new RuntimeException("Trainer with username " + username + " not found");
+        }
+        return trainerOptional.get();
     }
 
     @Override
     public boolean authorize(String username, String password) {
-        Trainer trainer = trainerRepository.findByUsername(username);
-        if (trainer == null) {
-            return false;
-        }
-        return Objects.equals(trainer.getPassword(), password);
+        Optional<Trainer> trainerOptional = trainerRepository.findByUsername(username);
+
+        return trainerOptional.filter(trainer -> Objects.equals(trainer.getPassword(), password)).isPresent();
     }
 
     @Override
     public Trainer update(Trainer updatedTrainer) {
         Long id = updatedTrainer.getId();
-        Trainer trainer = trainerRepository.findById(id);
-        if (trainer == null) {
+        Optional<Trainer> trainerOptional = trainerRepository.findById(id);
+        if (trainerOptional.isEmpty()) {
             throw new NoSuchElementException("Trainee with id " + id + " not found");
         }
-        if (isNameChanged(trainer, updatedTrainer)) {
+        if (isNameChanged(trainerOptional.get(), updatedTrainer)) {
             String uniqueUsername = usernameGenerator.generateUniqueUsername(updatedTrainer.getFirstName(), updatedTrainer.getLastName());
             updatedTrainer.setUsername(uniqueUsername);
         }
@@ -76,11 +83,16 @@ public class TrainerService implements BaseOperationsService<Trainer>, ExtendedO
 
     @Override
     public void changePassword(String username, String oldPassword, String newPassword) {
-        Trainer trainer = trainerRepository.findByUsername(username);
+        Optional<Trainer> trainerOptional = trainerRepository.findByUsername(username);
+        if (trainerOptional.isEmpty()) {
+            throw new RuntimeException("Incorrect username");
+        }
+        Trainer trainer = trainerOptional.get();
         if (!Objects.equals(trainer.getPassword(), oldPassword)) {
             throw new RuntimeException("Incorrect password");
         }
         trainer.setPassword(newPassword);
+
         trainerRepository.update(trainer);
     }
 

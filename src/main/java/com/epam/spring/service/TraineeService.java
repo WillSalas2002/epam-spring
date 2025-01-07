@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -37,18 +38,22 @@ public class TraineeService implements BaseOperationsService<Trainee>, ExtendedO
 
     @Override
     public Trainee findById(Long id) {
-        return traineeRepository.findById(id);
+        Optional<Trainee> traineeOptional = traineeRepository.findById(id);
+        if (traineeOptional.isEmpty()) {
+            throw new RuntimeException("Trainee with id " + id + " not found");
+        }
+        return traineeOptional.get();
     }
 
     @Override
     public Trainee update(Trainee updatedTrainee) {
         Long id = updatedTrainee.getId();
-        Trainee trainee = traineeRepository.findById(id);
-        if (trainee == null) {
+        Optional<Trainee> traineeOptional = traineeRepository.findById(id);
+        if (traineeOptional.isEmpty()) {
             throw new NoSuchElementException("Trainee with id " + id + " not found");
         }
 
-        if (isNameChanged(trainee, updatedTrainee)) {
+        if (isNameChanged(traineeOptional.get(), updatedTrainee)) {
             String uniqueUsername = usernameGenerator.generateUniqueUsername(updatedTrainee.getFirstName(), updatedTrainee.getLastName());
             updatedTrainee.setUsername(uniqueUsername);
         }
@@ -57,16 +62,18 @@ public class TraineeService implements BaseOperationsService<Trainee>, ExtendedO
 
     @Override
     public Trainee findByUsername(String username) {
-        return traineeRepository.findByUsername(username);
+        Optional<Trainee> traineeOptional = traineeRepository.findByUsername(username);
+        if (traineeOptional.isEmpty()) {
+            throw new RuntimeException("Trainee with username " + username + " not found");
+        }
+        return traineeOptional.get();
     }
 
     @Override
     public boolean authorize(String username, String password) {
-        Trainee trainee = traineeRepository.findByUsername(username);
-        if (trainee == null) {
-            return false;
-        }
-        return Objects.equals(trainee.getPassword(), password);
+        Optional<Trainee> traineeOptional = traineeRepository.findByUsername(username);
+
+        return traineeOptional.filter(trainee -> Objects.equals(trainee.getPassword(), password)).isPresent();
     }
 
     @Override
@@ -77,11 +84,13 @@ public class TraineeService implements BaseOperationsService<Trainee>, ExtendedO
 
     @Override
     public void changePassword(String username, String oldPassword, String newPassword) {
-        Trainee trainee = traineeRepository.findByUsername(username);
+        Optional<Trainee> traineeOptional = traineeRepository.findByUsername(username);
 
-        if (trainee == null) {
+        if (traineeOptional.isEmpty()) {
             throw new RuntimeException("Incorrect username");
         }
+
+        Trainee trainee = traineeOptional.get();
 
         if (!Objects.equals(trainee.getPassword(), oldPassword)) {
             throw new RuntimeException("Incorrect password");

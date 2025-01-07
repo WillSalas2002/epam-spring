@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Slf4j
@@ -28,7 +29,11 @@ public class TrainingService implements BaseOperationsService<Training>, Trainin
 
     @Override
     public Training findById(Long id) {
-        return trainingRepository.findById(id);
+        Optional<Training> trainingOptional = trainingRepository.findById(id);
+        if (trainingOptional.isEmpty()) {
+            throw new RuntimeException("Training with id " + id + " not found");
+        }
+        return trainingOptional.get();
     }
 
     @Override

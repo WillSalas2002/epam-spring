@@ -9,6 +9,7 @@ import org.hibernate.Transaction;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -50,23 +51,23 @@ public class TrainerRepository implements BaseOperationsRepository<Trainer>, Ext
     }
 
     @Override
-    public Trainer findById(Long id) {
+    public Optional<Trainer> findById(Long id) {
         try (Session session = sessionFactory.openSession()) {
-            List<Trainer> trainers = session.createQuery(FIND_BY_ID_QUERY, Trainer.class)
+            Trainer trainer = session.createQuery(FIND_BY_ID_QUERY, Trainer.class)
                     .setParameter("id", id)
-                    .getResultList();
-            return trainers.isEmpty() ? null : trainers.get(0);
+                    .uniqueResult();
+            return Optional.ofNullable(trainer);
         }
     }
 
     @Override
-    public Trainer findByUsername(String username) {
+    public Optional<Trainer> findByUsername(String username) {
         try (Session session = sessionFactory.openSession()) {
-            List<Trainer> trainers = session.createQuery(FIND_BY_USERNAME_QUERY, Trainer.class)
+            Trainer trainer = session.createQuery(FIND_BY_USERNAME_QUERY, Trainer.class)
                     .setParameter("username", username)
-                    .getResultList();
+                    .uniqueResult();
 
-            return trainers.isEmpty() ? null : trainers.get(0);
+            return Optional.ofNullable(trainer);
         }
     }
 

@@ -9,6 +9,7 @@ import org.hibernate.Transaction;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -47,23 +48,24 @@ public class TraineeRepository implements BaseOperationsRepository<Trainee>, Ext
     }
 
     @Override
-    public Trainee findById(Long id) {
+    public Optional<Trainee> findById(Long id) {
         try (Session session = sessionFactory.openSession()) {
-            List<Trainee> trainees = session.createQuery(FIND_BY_ID_QUERY, Trainee.class)
+            Trainee trainee = session.createQuery(FIND_BY_ID_QUERY, Trainee.class)
                     .setParameter("id", id)
-                    .getResultList();
-            return trainees.isEmpty() ? null : trainees.get(0);
+                    .uniqueResult();
+
+            return Optional.ofNullable(trainee);
         }
     }
 
     @Override
-    public Trainee findByUsername(String username) {
+    public Optional<Trainee> findByUsername(String username) {
         try (Session session = sessionFactory.openSession()) {
-            List<Trainee> trainees = session.createQuery(FIND_BY_USERNAME_QUERY, Trainee.class)
+            Trainee trainee = session.createQuery(FIND_BY_USERNAME_QUERY, Trainee.class)
                     .setParameter("username", username)
-                    .getResultList();
+                    .uniqueResult();
 
-            return trainees.isEmpty() ? null : trainees.get(0);
+            return Optional.ofNullable(trainee);
         }
     }
 

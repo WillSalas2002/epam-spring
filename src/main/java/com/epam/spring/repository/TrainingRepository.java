@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -61,11 +62,13 @@ public class TrainingRepository implements BaseOperationsRepository<Training>, T
     }
 
     @Override
-    public Training findById(Long id) {
+    public Optional<Training> findById(Long id) {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery(FIND_TRAINING_BY_ID_QUERY, Training.class)
+            Training training = session.createQuery(FIND_TRAINING_BY_ID_QUERY, Training.class)
                     .setParameter("id", id)
                     .getSingleResult();
+
+            return Optional.ofNullable(training);
         }
     }
 
