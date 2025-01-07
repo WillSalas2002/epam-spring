@@ -10,10 +10,11 @@ import org.springframework.stereotype.Repository;
 @Slf4j
 @RequiredArgsConstructor
 @Repository
-public class UserRepository {
+public class UserRepository implements UserOperationsRepository {
 
     private final SessionFactory sessionFactory;
 
+    @Override
     public boolean existsByUsername(String username) {
         try (Session session = sessionFactory.openSession()) {
             User user = session.createQuery("SELECT u FROM User u WHERE u.username =: username", User.class)
