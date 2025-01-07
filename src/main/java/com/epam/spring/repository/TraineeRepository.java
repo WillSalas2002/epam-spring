@@ -10,10 +10,11 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+
 @Slf4j
 @RequiredArgsConstructor
 @Repository
-public class TraineeRepository implements BaseOperationsDAO<Trainee>, ExtendedOperationsDAO<Trainee> {
+public class TraineeRepository implements BaseOperationsRepository<Trainee>, ExtendedOperationsRepository<Trainee>, TraineeSpecificOperationsRepository {
 
     private final SessionFactory sessionFactory;
 
@@ -84,10 +85,11 @@ public class TraineeRepository implements BaseOperationsDAO<Trainee>, ExtendedOp
         }
     }
 
+    @Override
     public void deleteByUsername(String username) {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            session.createQuery("DELETE FROM Trainee t WHERE t.username =: username")
+            session.createMutationQuery("DELETE FROM Trainee t WHERE t.username =: username")
                     .setParameter("username", username)
                     .executeUpdate();
             transaction.commit();

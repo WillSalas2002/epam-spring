@@ -13,7 +13,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Repository
-public class TrainerRepository implements BaseOperationsDAO<Trainer>, ExtendedOperationsDAO<Trainer> {
+public class TrainerRepository implements BaseOperationsRepository<Trainer>, ExtendedOperationsRepository<Trainer>, TrainerSpecificOperationsRepository {
 
     private final SessionFactory sessionFactory;
 
@@ -89,7 +89,8 @@ public class TrainerRepository implements BaseOperationsDAO<Trainer>, ExtendedOp
         }
     }
 
-    public List<Trainer> trainersByTraineeUsername(String username) {
+    @Override
+    public List<Trainer> findTrainersByTraineeUsername(String username) {
         try (Session session = sessionFactory.openSession()) {
             return session.createQuery("""
                             SELECT t FROM Trainer t

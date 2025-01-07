@@ -18,7 +18,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Repository
-public class TrainingRepository implements BaseOperationsDAO<Training> {
+public class TrainingRepository implements BaseOperationsRepository<Training>, TrainingSpecificOperationsRepository {
 
     private final SessionFactory sessionFactory;
 
@@ -76,6 +76,7 @@ public class TrainingRepository implements BaseOperationsDAO<Training> {
         }
     }
 
+    @Override
     public List<Training> findTraineeTrainings(String traineeUsername,
                                                LocalDate fromDate,
                                                LocalDate toDate,
@@ -123,6 +124,7 @@ public class TrainingRepository implements BaseOperationsDAO<Training> {
         }
     }
 
+    @Override
     public List<Training> findTrainerTrainings(String trainerUsername,
                                                LocalDate fromDate,
                                                LocalDate toDate,

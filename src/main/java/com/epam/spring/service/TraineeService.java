@@ -15,7 +15,7 @@ import java.util.Objects;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class TraineeService implements BaseOperationsService<Trainee>, ExtendedOperationsService<Trainee> {
+public class TraineeService implements BaseOperationsService<Trainee>, ExtendedOperationsService<Trainee>, TraineeSpecificOperationsService {
 
     private final UsernameGenerator usernameGenerator;
     private final TraineeRepository traineeRepository;
@@ -95,6 +95,7 @@ public class TraineeService implements BaseOperationsService<Trainee>, ExtendedO
         traineeRepository.delete(trainee);
     }
 
+    @Override
     public void deleteByUsername(String username) {
         traineeRepository.deleteByUsername(username);
     }

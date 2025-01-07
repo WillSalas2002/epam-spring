@@ -11,12 +11,11 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 @Slf4j
 @AllArgsConstructor
 @Service
-public class TrainingService implements BaseOperationsService<Training> {
+public class TrainingService implements BaseOperationsService<Training>, TrainingSpecificOperationsService {
 
     private final TrainingRepository trainingRepository;
     private final TrainerService trainerService;
@@ -36,14 +35,12 @@ public class TrainingService implements BaseOperationsService<Training> {
     public Training create(Training training) {
         Trainee trainee = getOrCreateEntity(
                 training.getTrainee().getUsername(),
-                traineeService::findByUsername,
-                () -> traineeService.create(training.getTrainee())
+                traineeService::findByUsername
         );
 
         Trainer trainer = getOrCreateEntity(
                 training.getTrainer().getUsername(),
-                trainerService::findByUsername,
-                () -> trainerService.create(training.getTrainer())
+                trainerService::findByUsername
         );
 
         training.setTrainee(trainee);
@@ -51,6 +48,7 @@ public class TrainingService implements BaseOperationsService<Training> {
         return trainingRepository.create(training);
     }
 
+    @Override
     public List<Training> findTraineeTrainings(String traineeUsername,
                                                LocalDate fromDate,
                                                LocalDate toDate,
@@ -59,6 +57,7 @@ public class TrainingService implements BaseOperationsService<Training> {
         return trainingRepository.findTraineeTrainings(traineeUsername, fromDate, toDate, trainerName, trainingType);
     }
 
+    @Override
     public List<Training> findTrainerTrainings(String trainerUsername,
                                                LocalDate fromDate,
                                                LocalDate toDate,
@@ -67,9 +66,9 @@ public class TrainingService implements BaseOperationsService<Training> {
         return trainingRepository.findTrainerTrainings(trainerUsername, fromDate, toDate, traineeName, trainingType);
     }
 
-    private <T> T getOrCreateEntity(String username, Function<String, T> findByUsername, Supplier<T> createEntity) {
+    private <T> T getOrCreateEntity(String username, Function<String, T> findByUsername) {
         if (username == null) {
-            return createEntity.get();
+            throw new RuntimeException("User not found");
         } else {
             return findByUsername.apply(username);
         }

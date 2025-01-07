@@ -2,7 +2,7 @@ package com.epam.spring.repository;
 
 import java.util.List;
 
-public interface BaseOperationsDAO<ENTITY_TYPE> {
+public interface BaseOperationsRepository<ENTITY_TYPE> {
 
     ENTITY_TYPE create(ENTITY_TYPE entity);
     List<ENTITY_TYPE> findAll();

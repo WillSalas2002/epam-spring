@@ -15,7 +15,7 @@ import java.util.Objects;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class TrainerService implements BaseOperationsService<Trainer>, ExtendedOperationsService<Trainer> {
+public class TrainerService implements BaseOperationsService<Trainer>, ExtendedOperationsService<Trainer>, TrainerSpecificOperationsService {
 
     private final UsernameGenerator usernameGenerator;
     private final TrainerRepository trainerRepository;
@@ -87,6 +87,11 @@ public class TrainerService implements BaseOperationsService<Trainer>, ExtendedO
     @Override
     public void delete(Trainer trainer) {
         trainerRepository.delete(trainer);
+    }
+
+    @Override
+    public List<Trainer> findTrainersByTraineeUsername(String username){
+        return trainerRepository.findTrainersByTraineeUsername(username);
     }
 
     private boolean isNameChanged(Trainer trainer, Trainer updatedTrainer) {
