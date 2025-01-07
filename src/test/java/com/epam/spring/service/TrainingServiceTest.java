@@ -28,6 +28,10 @@ class TrainingServiceTest {
     private TrainingService trainingService;
     @Autowired
     private SessionFactory sessionFactory;
+    @Autowired
+    private TraineeService traineeService;
+    @Autowired
+    private TrainerService trainerService;
 
     private Trainer trainer;
     private Trainee trainee;
@@ -52,6 +56,8 @@ class TrainingServiceTest {
 
     @Test
     public void testCreateTraining() {
+        trainerService.create(trainer);
+        traineeService.create(trainee);
         TrainingType trainingType = trainer.getSpecialization();
         Training training = new Training(trainee, trainer, "Strong man training", trainingType, LocalDateTime.now().plusHours(3), 120);
 
@@ -65,11 +71,14 @@ class TrainingServiceTest {
     @Test
     public void testFindTraineeAndTrainerTrainings() {
         Trainee trainee1 = buildTrainee("trainee1", "trainee1");
+        traineeService.create(trainee1);
         Trainer trainer1 = buildTrainer("trainer1", "trainer1");
+        trainerService.create(trainer1);
         TrainingType trainingType1 = trainer1.getSpecialization();
         Training training1 = new Training(trainee1, trainer1, "Strong man training", trainingType1, LocalDateTime.now().plusHours(3), 120);
 
         Trainer trainer2 = buildTrainer("trainer2", "trainer2");
+        trainerService.create(trainer2);
         TrainingType trainingType2 = trainer1.getSpecialization();
         Training training2 = new Training(trainee1, trainer2, "Strong man training", trainingType2, LocalDateTime.now().plusHours(3), 120);
 
