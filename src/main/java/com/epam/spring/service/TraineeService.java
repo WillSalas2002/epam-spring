@@ -3,6 +3,7 @@ package com.epam.spring.service;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.repository.TraineeRepository;
 import com.epam.spring.util.PasswordGenerator;
+import com.epam.spring.util.UsernameGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,13 +17,13 @@ import java.util.Objects;
 @Service
 public class TraineeService implements BaseOperationsService<Trainee>, ExtendedOperationsService<Trainee> {
 
-    private final UserService userService;
+    private final UsernameGenerator usernameGenerator;
     private final TraineeRepository traineeRepository;
     private final PasswordGenerator passwordGenerator;
 
     @Override
     public Trainee create(Trainee trainee) {
-        String uniqueUsername = userService.generateUniqueUsername(trainee.getFirstName(), trainee.getLastName());
+        String uniqueUsername = usernameGenerator.generateUniqueUsername(trainee.getFirstName(), trainee.getLastName());
         String password = passwordGenerator.generatePassword();
         trainee.setUsername(uniqueUsername);
         trainee.setPassword(password);
@@ -48,7 +49,7 @@ public class TraineeService implements BaseOperationsService<Trainee>, ExtendedO
         }
 
         if (isNameChanged(trainee, updatedTrainee)) {
-            String uniqueUsername = userService.generateUniqueUsername(updatedTrainee.getFirstName(), updatedTrainee.getLastName());
+            String uniqueUsername = usernameGenerator.generateUniqueUsername(updatedTrainee.getFirstName(), updatedTrainee.getLastName());
             updatedTrainee.setUsername(uniqueUsername);
         }
         return traineeRepository.update(updatedTrainee);

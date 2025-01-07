@@ -1,25 +1,22 @@
 package com.epam.spring.util;
 
+import com.epam.spring.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.Set;
-
 @Component
+@RequiredArgsConstructor
 public class UsernameGenerator {
 
     public static final String DOT_SIGN = ".";
+    private final UserRepository userRepository;
 
-    public String generateUniqueUsername(String firstName, String lastName, Set<String> usernames) {
+    public String generateUniqueUsername(String firstName, String lastName) {
         String baseUsername = firstName + DOT_SIGN + lastName;
-        String uniqueUsername = baseUsername;
-        int counter = 1;
-
-        while (usernames.contains(uniqueUsername)) {
-            uniqueUsername = baseUsername + DOT_SIGN + counter;
-            counter++;
+        int serial = 1;
+        while (userRepository.existsByUsername(baseUsername)) {
+            baseUsername = baseUsername + DOT_SIGN + serial++;
         }
-
-        usernames.add(uniqueUsername);
-        return uniqueUsername;
+        return baseUsername;
     }
 }

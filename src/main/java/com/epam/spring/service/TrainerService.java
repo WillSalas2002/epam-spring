@@ -3,6 +3,7 @@ package com.epam.spring.service;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.repository.TrainerRepository;
 import com.epam.spring.util.PasswordGenerator;
+import com.epam.spring.util.UsernameGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,13 +17,13 @@ import java.util.Objects;
 @Service
 public class TrainerService implements BaseOperationsService<Trainer>, ExtendedOperationsService<Trainer> {
 
-    private final UserService userService;
+    private final UsernameGenerator usernameGenerator;
     private final TrainerRepository trainerRepository;
     private final PasswordGenerator passwordGenerator;
 
     @Override
     public Trainer create(Trainer trainer) {
-        String uniqueUsername = userService.generateUniqueUsername(trainer.getFirstName(), trainer.getLastName());
+        String uniqueUsername = usernameGenerator.generateUniqueUsername(trainer.getFirstName(), trainer.getLastName());
         String password = passwordGenerator.generatePassword();
         trainer.setUsername(uniqueUsername);
         trainer.setPassword(password);
@@ -61,7 +62,7 @@ public class TrainerService implements BaseOperationsService<Trainer>, ExtendedO
             throw new NoSuchElementException("Trainee with id " + id + " not found");
         }
         if (isNameChanged(trainer, updatedTrainer)) {
-            String uniqueUsername = userService.generateUniqueUsername(updatedTrainer.getFirstName(), updatedTrainer.getLastName());
+            String uniqueUsername = usernameGenerator.generateUniqueUsername(updatedTrainer.getFirstName(), updatedTrainer.getLastName());
             updatedTrainer.setUsername(uniqueUsername);
         }
         return trainerRepository.update(updatedTrainer);
