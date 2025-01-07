@@ -10,11 +10,15 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-
 @Slf4j
 @RequiredArgsConstructor
 @Repository
 public class TraineeRepository implements BaseOperationsRepository<Trainee>, ExtendedOperationsRepository<Trainee>, TraineeSpecificOperationsRepository {
+
+    public static final String FIND_ALL_QUERY = "SELECT t FROM Trainee t";
+    public static final String FIND_BY_ID_QUERY = "FROM Trainee WHERE id =: id";
+    public static final String FIND_BY_USERNAME_QUERY = "SELECT t FROM Trainee t WHERE t.username =: username";
+    public static final String DELETE_BY_USERNAME_QUERY = "DELETE FROM Trainee t WHERE t.username =: username";
 
     private final SessionFactory sessionFactory;
 
@@ -37,7 +41,7 @@ public class TraineeRepository implements BaseOperationsRepository<Trainee>, Ext
     @Override
     public List<Trainee> findAll() {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("SELECT t FROM Trainee t", Trainee.class)
+            return session.createQuery(FIND_ALL_QUERY, Trainee.class)
                     .getResultList();
         }
     }
@@ -45,7 +49,7 @@ public class TraineeRepository implements BaseOperationsRepository<Trainee>, Ext
     @Override
     public Trainee findById(Long id) {
         try (Session session = sessionFactory.openSession()) {
-            List<Trainee> trainees = session.createQuery("FROM Trainee WHERE id =: id", Trainee.class)
+            List<Trainee> trainees = session.createQuery(FIND_BY_ID_QUERY, Trainee.class)
                     .setParameter("id", id)
                     .getResultList();
             return trainees.isEmpty() ? null : trainees.get(0);
@@ -55,10 +59,7 @@ public class TraineeRepository implements BaseOperationsRepository<Trainee>, Ext
     @Override
     public Trainee findByUsername(String username) {
         try (Session session = sessionFactory.openSession()) {
-            List<Trainee> trainees = session.createQuery("""
-                            SELECT t FROM Trainee t
-                            WHERE t.username =: username
-                            """, Trainee.class)
+            List<Trainee> trainees = session.createQuery(FIND_BY_USERNAME_QUERY, Trainee.class)
                     .setParameter("username", username)
                     .getResultList();
 
@@ -89,7 +90,7 @@ public class TraineeRepository implements BaseOperationsRepository<Trainee>, Ext
     public void deleteByUsername(String username) {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            session.createMutationQuery("DELETE FROM Trainee t WHERE t.username =: username")
+            session.createMutationQuery(DELETE_BY_USERNAME_QUERY)
                     .setParameter("username", username)
                     .executeUpdate();
             transaction.commit();

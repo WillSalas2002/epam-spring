@@ -15,6 +15,11 @@ import java.util.List;
 @Repository
 public class TrainerRepository implements BaseOperationsRepository<Trainer>, ExtendedOperationsRepository<Trainer>, TrainerSpecificOperationsRepository {
 
+    public static final String FIND_ALL_QUERY = "SELECT t FROM Trainer t";
+    public static final String FIND_BY_ID_QUERY = "SELECT t FROM Trainer t WHERE id =: id";
+    public static final String FIND_BY_USERNAME_QUERY = "SELECT t FROM Trainer t LEFT JOIN FETCH t.trainees WHERE t.username =: username";
+    public static final String FIND_BY_TRAINEE_USERNAME_QUERY = "SELECT t FROM Trainer t WHERE t NOT IN (SELECT t FROM Trainee tee JOIN tee.trainers t WHERE tee.username =: username)";
+
     private final SessionFactory sessionFactory;
 
     @Override
@@ -37,7 +42,7 @@ public class TrainerRepository implements BaseOperationsRepository<Trainer>, Ext
     public List<Trainer> findAll() {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            List<Trainer> trainers = session.createQuery("SELECT t FROM Trainer t LEFT JOIN FETCH t.specialization", Trainer.class)
+            List<Trainer> trainers = session.createQuery(FIND_ALL_QUERY, Trainer.class)
                     .getResultList();
             transaction.commit();
             return trainers;
@@ -47,7 +52,7 @@ public class TrainerRepository implements BaseOperationsRepository<Trainer>, Ext
     @Override
     public Trainer findById(Long id) {
         try (Session session = sessionFactory.openSession()) {
-            List<Trainer> trainers = session.createQuery("SELECT t FROM Trainer t WHERE id =: id", Trainer.class)
+            List<Trainer> trainers = session.createQuery(FIND_BY_ID_QUERY, Trainer.class)
                     .setParameter("id", id)
                     .getResultList();
             return trainers.isEmpty() ? null : trainers.get(0);
@@ -57,11 +62,7 @@ public class TrainerRepository implements BaseOperationsRepository<Trainer>, Ext
     @Override
     public Trainer findByUsername(String username) {
         try (Session session = sessionFactory.openSession()) {
-            List<Trainer> trainers = session.createQuery("""
-                            SELECT t FROM Trainer t
-                                LEFT JOIN FETCH t.trainees
-                            WHERE t.username =: username
-                            """, Trainer.class)
+            List<Trainer> trainers = session.createQuery(FIND_BY_USERNAME_QUERY, Trainer.class)
                     .setParameter("username", username)
                     .getResultList();
 
@@ -92,14 +93,7 @@ public class TrainerRepository implements BaseOperationsRepository<Trainer>, Ext
     @Override
     public List<Trainer> findTrainersByTraineeUsername(String username) {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("""
-                            SELECT t FROM Trainer t
-                            WHERE t NOT IN (
-                                SELECT t
-                                FROM Trainee tee
-                                    JOIN tee.trainers t
-                                WHERE tee.username =: username
-                            )""", Trainer.class)
+            return session.createQuery(FIND_BY_TRAINEE_USERNAME_QUERY, Trainer.class)
                     .setParameter("username", username)
                     .getResultList();
         }

@@ -4,6 +4,7 @@ import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
 import com.epam.spring.model.TrainingType;
+import com.epam.spring.util.QueryBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
@@ -19,6 +20,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @Repository
 public class TrainingRepository implements BaseOperationsRepository<Training>, TrainingSpecificOperationsRepository {
+
+    public static final String FIND_TRAINING_BY_ID_QUERY = "SELECT t FROM Training t JOIN FETCH t.trainee JOIN FETCH t.trainer JOIN FETCH t.trainingType WHERE t.id =: id";
+    public static final String FIND_ALL_TRAININGS_QUERY = "SELECT t FROM Training t JOIN FETCH t.trainee JOIN FETCH t.trainer JOIN FETCH t.trainingType";
 
     private final SessionFactory sessionFactory;
 
@@ -51,12 +55,7 @@ public class TrainingRepository implements BaseOperationsRepository<Training>, T
     @Override
     public List<Training> findAll() {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("""
-                            SELECT t FROM Training t
-                                JOIN FETCH t.trainee
-                                JOIN FETCH t.trainer
-                                JOIN FETCH t.trainingType
-                            """, Training.class)
+            return session.createQuery(FIND_ALL_TRAININGS_QUERY, Training.class)
                     .getResultList();
         }
     }
@@ -64,13 +63,7 @@ public class TrainingRepository implements BaseOperationsRepository<Training>, T
     @Override
     public Training findById(Long id) {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("""
-                            SELECT t FROM Training t
-                                JOIN FETCH t.trainee
-                                JOIN FETCH t.trainer
-                                JOIN FETCH t.trainingType
-                            WHERE t.id =: id
-                            """, Training.class)
+            return session.createQuery(FIND_TRAINING_BY_ID_QUERY, Training.class)
                     .setParameter("id", id)
                     .getSingleResult();
         }
@@ -84,30 +77,11 @@ public class TrainingRepository implements BaseOperationsRepository<Training>, T
                                                String trainingType) {
 
         try (Session session = sessionFactory.openSession()) {
-            StringBuilder hql = new StringBuilder(
-                    "SELECT t FROM Training t " +
-                            "JOIN t.trainee trainee " +
-                            "JOIN t.trainer trainer " +
-                            "JOIN t.trainingType trainingType " +
-                            "WHERE trainee.username = :traineeUsername "
-            );
+            String hqlQuery = QueryBuilder.buildFindTraineeTrainingsQuery(fromDate, toDate, trainerName, trainingType);
 
-            if (fromDate != null) {
-                hql.append("AND t.date >= :fromDate ");
-            }
-            if (toDate != null) {
-                hql.append("AND t.date <= :toDate ");
-            }
-            if (trainerName != null && !trainerName.isEmpty()) {
-                hql.append("AND trainer.firstName LIKE :trainerName ");
-            }
-            if (trainingType != null && !trainingType.isEmpty()) {
-                hql.append("AND trainingType.trainingTypeName LIKE :trainingType ");
-            }
+            Query<Training> query = session.createQuery(hqlQuery, Training.class);
 
-            Query<Training> query = session.createQuery(hql.toString(), Training.class);
             query.setParameter("traineeUsername", traineeUsername);
-
             if (fromDate != null) {
                 query.setParameter("fromDate", fromDate);
             }
@@ -120,6 +94,7 @@ public class TrainingRepository implements BaseOperationsRepository<Training>, T
             if (trainingType != null && !trainingType.isEmpty()) {
                 query.setParameter("trainingType", "%" + trainingType + "%");
             }
+
             return query.getResultList();
         }
     }
@@ -132,30 +107,11 @@ public class TrainingRepository implements BaseOperationsRepository<Training>, T
                                                String trainingType) {
 
         try (Session session = sessionFactory.openSession()) {
-            StringBuilder hql = new StringBuilder("""
-                    SELECT t FROM Training t
-                        JOIN t.trainer trainer
-                        JOIN t.trainee trainee
-                        JOIN t.trainingType trainingType
-                    WHERE trainer.username = :trainerUsername
-                    """);
+            String hqlQuery = QueryBuilder.buildFindTrainerTrainings(fromDate, toDate, traineeName, trainingType);
 
-            if (fromDate != null) {
-                hql.append("AND t.date >= :fromDate ");
-            }
-            if (toDate != null) {
-                hql.append("AND t.date <= :toDate ");
-            }
-            if (traineeName != null && !traineeName.isEmpty()) {
-                hql.append("AND trainee.firstName LIKE :traineeName ");
-            }
-            if (trainingType != null && !trainingType.isEmpty()) {
-                hql.append("AND trainingType.trainingTypeName LIKE :trainingType ");
-            }
+            Query<Training> query = session.createQuery(hqlQuery, Training.class);
 
-            Query<Training> query = session.createQuery(hql.toString(), Training.class);
             query.setParameter("trainerUsername", trainerUsername);
-
             if (fromDate != null) {
                 query.setParameter("fromDate", fromDate);
             }
@@ -163,11 +119,12 @@ public class TrainingRepository implements BaseOperationsRepository<Training>, T
                 query.setParameter("toDate", toDate);
             }
             if (traineeName != null && !traineeName.isEmpty()) {
-                query.setParameter("trainerName", "%" + traineeName + "%");
+                query.setParameter("traineeName", "%" + traineeName + "%");
             }
             if (trainingType != null && !trainingType.isEmpty()) {
                 query.setParameter("trainingType", "%" + trainingType + "%");
             }
+
             return query.getResultList();
         }
     }
