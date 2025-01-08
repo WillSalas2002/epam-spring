@@ -1,6 +1,10 @@
 package com.epam.spring.repository;
 
+import com.epam.spring.model.User;
+
+import java.util.Optional;
+
 public interface UserOperationsRepository {
 
-    boolean existsByUsername(String username);
+    Optional<User> findByUsername(String username);
 }

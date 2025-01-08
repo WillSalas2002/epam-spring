@@ -7,6 +7,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Slf4j
 @RequiredArgsConstructor
 @Repository
@@ -15,12 +17,12 @@ public class UserRepository implements UserOperationsRepository {
     private final SessionFactory sessionFactory;
 
     @Override
-    public boolean existsByUsername(String username) {
+    public Optional<User> findByUsername(String username) {
         try (Session session = sessionFactory.openSession()) {
             User user = session.createQuery("SELECT u FROM User u WHERE u.username =: username", User.class)
                     .setParameter("username", username)
                     .uniqueResult();
-            return user != null;
+            return Optional.ofNullable(user);
         }
     }
 }

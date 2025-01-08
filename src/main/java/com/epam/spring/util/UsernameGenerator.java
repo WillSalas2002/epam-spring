@@ -14,7 +14,7 @@ public class UsernameGenerator {
     public String generateUniqueUsername(String firstName, String lastName) {
         String baseUsername = firstName + DOT_SIGN + lastName;
         int serial = 1;
-        while (userRepository.existsByUsername(baseUsername)) {
+        while (userRepository.findByUsername(baseUsername).isPresent()) {
             baseUsername = baseUsername + DOT_SIGN + serial++;
         }
         return baseUsername;
