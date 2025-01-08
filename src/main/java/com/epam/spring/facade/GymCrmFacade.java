@@ -3,9 +3,11 @@ package com.epam.spring.facade;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
+import com.epam.spring.repository.UserRepository;
 import com.epam.spring.service.TraineeService;
 import com.epam.spring.service.TrainerService;
 import com.epam.spring.service.TrainingService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -14,20 +16,16 @@ import java.util.List;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class GymCrmFacade {
 
     private final TraineeService traineeService;
     private final TrainerService trainerService;
     private final TrainingService trainingService;
 
-    public GymCrmFacade(TraineeService traineeService, TrainerService trainerService, TrainingService trainingService) {
-        this.traineeService = traineeService;
-        this.trainerService = trainerService;
-        this.trainingService = trainingService;
-    }
-
     // ------------- TRAINEE OPERATIONS -----------------
-    public List<Trainee> findAllTrainees() {
+    public List<Trainee> findAllTrainees(String username, String password) {
+        checkIfTraineeAuthenticated(username, password);
         log.info("Fetching all trainees.");
         List<Trainee> trainees = traineeService.findAll();
         log.info("Found {} trainees.", trainees.size());
@@ -48,7 +46,8 @@ public class GymCrmFacade {
         return authenticate;
     }
 
-    public Trainee findTraineeByUsername(String username) {
+    public Trainee findTraineeByUsername(String username, String password) {
+        checkIfTraineeAuthenticated(username, password);
         log.info("Received request for getting trainee by username: {}", username);
         Trainee trainee = traineeService.findByUsername(username);
         log.info("Trainee by username returned result: {}", trainee);
@@ -56,11 +55,13 @@ public class GymCrmFacade {
     }
 
     public void changeTraineePassword(String username, String oldPassword, String newPassword) {
+        checkIfTraineeAuthenticated(username, oldPassword);
         log.info("Received request for password change for trainee with username: {}", username);
         traineeService.changePassword(username, oldPassword, newPassword);
     }
 
-    public void activateTraineeProfile(Long id) {
+    public void activateTraineeProfile(Long id, String username, String password) {
+        checkIfTraineeAuthenticated(username, password);
         Trainee trainee = traineeService.findById(id);
         log.info("Received request for activating trainee {}", trainee);
         traineeService.activate(trainee);
@@ -68,43 +69,52 @@ public class GymCrmFacade {
         log.info("{}'s status changed from {} to {}", trainee.getUsername(), !isActive, isActive);
     }
 
-    public void findTraineesTrainingListByCriteria(String username, LocalDate fromDate, LocalDate toDate, String trainerFirstName, String trainingType) {
+    public void findTraineesTrainingListByCriteria(String username, String password, LocalDate fromDate, LocalDate toDate, String trainerFirstName, String trainingType) {
+        checkIfTraineeAuthenticated(username, password);
         log.info("Received request for getting traineeTrainings by criteria, {}, {}, {}, {}, {}", username, fromDate, toDate, trainerFirstName, trainingType);
         List<Training> traineeTrainings = trainingService.findTraineeTrainings(username, fromDate, toDate, trainerFirstName, trainingType);
         log.info("List of training found: {}", traineeTrainings);
     }
 
-    public Trainee findTraineeById(Long id) {
+    public Trainee findTraineeById(Long id, String username, String password) {
+        checkIfTraineeAuthenticated(username, password);
         log.info("Fetching Trainee by ID: {}", id);
         Trainee trainee = traineeService.findById(id);
-        if (trainee != null) {
-            log.info("Trainee found: {}", trainee.getUsername());
-        } else {
-            log.warn("Trainee not found with ID: {}", id);
-        }
+        log.info("Trainee found: {}", trainee.getUsername());
         return trainee;
     }
 
-    public Trainee updateTrainee(Trainee trainee) {
+    public Trainee updateTrainee(Trainee trainee, String username, String password) {
+        checkIfTraineeAuthenticated(username, password);
         log.info("Updating Trainee with ID: {}", trainee.getId());
         Trainee updatedTrainee = traineeService.update(trainee);
         log.info("Trainee updated: {}", updatedTrainee.getUsername());
         return updatedTrainee;
     }
 
-    public void deleteTrainee(Trainee trainee) {
+    public void deleteTrainee(Trainee trainee, String username, String password) {
+        checkIfTraineeAuthenticated(username, password);
         log.info("Deleting Trainee with ID: {}", trainee.getId());
         traineeService.delete(trainee);
         log.info("Trainee deleted: {}", trainee.getUsername());
     }
 
-    public void deleteTraineeByUsername(String username) {
+    public void deleteTraineeByUsername(String username, String password) {
+        checkIfTraineeAuthenticated(username, password);
         log.info("Received request for delete trainee by username: {}", username);
         traineeService.deleteByUsername(username);
     }
 
+    public void checkIfTraineeAuthenticated(String username, String password) {
+        boolean isAuthenticated = traineeService.authenticate(username, password);
+        if (!isAuthenticated) {
+            throw new RuntimeException("User is not authenticated");
+        }
+    }
+
     // ------------- TRAINER OPERATIONS -----------------
-    public List<Trainer> findAllTrainers() {
+    public List<Trainer> findAllTrainers(String username, String password) {
+        checkIfTrainerAuthenticated(username, password);
         log.info("Fetching all trainers.");
         List<Trainer> trainers = trainerService.findAll();
         log.info("Found {} trainers.", trainers.size());
@@ -125,7 +135,8 @@ public class GymCrmFacade {
         return authenticate;
     }
 
-    public Trainer findTrainerByUsername(String username) {
+    public Trainer findTrainerByUsername(String username, String password) {
+        checkIfTrainerAuthenticated(username, password);
         log.info("Received request for getting trainer by username: {}", username);
         Trainer trainer = trainerService.findByUsername(username);
         log.info("Trainer by username returned result: {}", trainer);
@@ -133,11 +144,13 @@ public class GymCrmFacade {
     }
 
     public void changeTrainerPassword(String username, String oldPassword, String newPassword) {
+        checkIfTrainerAuthenticated(username, oldPassword);
         log.info("Received request for password change for trainer with username: {}", username);
         trainerService.changePassword(username, oldPassword, newPassword);
     }
 
-    public void activateTrainerProfile(Long id) {
+    public void activateTrainerProfile(Long id, String username, String password) {
+        checkIfTrainerAuthenticated(username, password);
         Trainer trainer = trainerService.findById(id);
         log.info("Received request for activating trainer {}", trainer);
         trainerService.activate(trainer);
@@ -145,50 +158,58 @@ public class GymCrmFacade {
         log.info("{}'s status changed from {} to {}", trainer.getUsername(), !isActive, isActive);
     }
 
-    public void findTrainersTrainingListByCriteria(String username, LocalDate fromDate, LocalDate toDate, String traineeFirstName, String trainingType) {
+    public void findTrainersTrainingListByCriteria(String username, String password, LocalDate fromDate, LocalDate toDate, String traineeFirstName, String trainingType) {
+        checkIfTrainerAuthenticated(username, password);
         log.info("Received request for getting trainerTrainings by criteria, {}, {}, {}, {}, {}", username, fromDate, toDate, traineeFirstName, trainingType);
         List<Training> trainerTrainings = trainingService.findTrainerTrainings(username, fromDate, toDate, traineeFirstName, trainingType);
         log.info("List of trainings found: {}", trainerTrainings);
     }
 
-    public Trainer findTrainerById(Long id) {
+    public Trainer findTrainerById(Long id, String username, String password) {
+        checkIfTrainerAuthenticated(username, password);
         log.info("Fetching Trainer by ID: {}", id);
         Trainer trainer = trainerService.findById(id);
-        if (trainer != null) {
-            log.info("Trainer found: {}", trainer.getUsername());
-        } else {
-            log.warn("Trainer not found with ID: {}", id);
-        }
+        log.info("Trainer found: {}", trainer.getUsername());
         return trainer;
     }
 
-    public Trainer updateTrainer(Trainer trainer) {
+    public Trainer updateTrainer(Trainer trainer, String username, String password) {
+        checkIfTrainerAuthenticated(username, password);
         log.info("Updating Trainer with ID: {}", trainer.getId());
         Trainer updatedTrainer = trainerService.update(trainer);
         log.info("Trainer updated: {}", updatedTrainer.getUsername());
         return updatedTrainer;
     }
 
+    public void checkIfTrainerAuthenticated(String username, String password) {
+        boolean isAuthenticated = traineeService.authenticate(username, password);
+        if (!isAuthenticated) {
+            throw new RuntimeException("User is not authenticated");
+        }
+    }
+
     // ------------- TRAINING OPERATIONS -----------------
-    public List<Training> findAllTrainings() {
+    public List<Training> findAllTrainings(String username, String password) {
+        checkIfTraineeAuthenticated(username, password);
+        checkIfTrainerAuthenticated(username, password);
         log.info("Fetching all trainings.");
         List<Training> trainings = trainingService.findAll();
         log.info("Found {} trainings.", trainings.size());
         return trainings;
     }
 
-    public Training findTrainingById(Long id) {
+    public Training findTrainingById(Long id, String username, String password) {
+        checkIfTraineeAuthenticated(username, password);
+        checkIfTrainerAuthenticated(username, password);
         log.info("Fetching Training by ID: {}", id);
         Training training = trainingService.findById(id);
-        if (training != null) {
-            log.info("Training found: {}", training.getName());
-        } else {
-            log.warn("Training not found with ID: {}", id);
-        }
+        log.info("Training found: {}", training.getName());
         return training;
     }
 
-    public Training createTraining(Training training) {
+    public Training createTraining(Training training, String username, String password) {
+        checkIfTraineeAuthenticated(username, password);
+        checkIfTrainerAuthenticated(username, password);
         log.info("Creating Training: {}", training.getName());
         Training createdTraining = trainingService.create(training);
         log.info("Training created: {}", createdTraining);
