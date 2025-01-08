@@ -70,7 +70,7 @@ public class TraineeService implements BaseOperationsService<Trainee>, ExtendedO
     }
 
     @Override
-    public boolean authorize(String username, String password) {
+    public boolean authenticate(String username, String password) {
         Optional<Trainee> traineeOptional = traineeRepository.findByUsername(username);
 
         return traineeOptional.filter(trainee -> Objects.equals(trainee.getPassword(), password)).isPresent();

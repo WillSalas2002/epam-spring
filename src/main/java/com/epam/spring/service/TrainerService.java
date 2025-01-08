@@ -55,7 +55,7 @@ public class TrainerService implements BaseOperationsService<Trainer>, ExtendedO
     }
 
     @Override
-    public boolean authorize(String username, String password) {
+    public boolean authenticate(String username, String password) {
         Optional<Trainer> trainerOptional = trainerRepository.findByUsername(username);
 
         return trainerOptional.filter(trainer -> Objects.equals(trainer.getPassword(), password)).isPresent();
