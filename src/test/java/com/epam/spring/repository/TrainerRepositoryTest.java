@@ -13,11 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringJUnitConfig(AppConfig.class)
@@ -72,17 +72,17 @@ class TrainerRepositoryTest {
     void testFindById() {
         Trainer createdTrainer = trainerRepository.create(trainer1);
 
-        Trainer foundTrainer = trainerRepository.findById(createdTrainer.getId());
+        Optional<Trainer> foundTrainerOptional = trainerRepository.findById(createdTrainer.getId());
 
-        assertNotNull(foundTrainer);
-        assertEquals(createdTrainer.getId(), foundTrainer.getId());
+        assertTrue(foundTrainerOptional.isPresent());
+        assertEquals(createdTrainer.getId(), foundTrainerOptional.get().getId());
     }
 
     @Test
     void testFindByIdNonExistent() {
-        Trainer foundTrainer = trainerRepository.findById(10L);
+        Optional<Trainer> foundTrainerOptional = trainerRepository.findById(10L);
 
-        assertNull(foundTrainer);
+        assertTrue(foundTrainerOptional.isEmpty());
     }
 
     @Test
@@ -105,7 +105,6 @@ class TrainerRepositoryTest {
         trainerRepository.delete(createdTrainer);
 
         assertEquals(0, trainerRepository.findAll().size());
-        assertNull(trainerRepository.findById(createdTrainer.getId()));
     }
 
     @Test
@@ -124,13 +123,14 @@ class TrainerRepositoryTest {
         trainerRepository.create(trainer2);
 
         List<Trainer> trainers = trainerRepository.findAll();
-        Trainer foundTrainer = trainerRepository.findById(createdTrainer1.getId());
+        Optional<Trainer> foundTrainerOptional = trainerRepository.findById(createdTrainer1.getId());
 
         trainerRepository.delete(createdTrainer1);
 
+        assertTrue(foundTrainerOptional.isPresent());
         assertEquals(2, trainers.size());
         assertEquals(expectedName, updatedTrainer1.getFirstName());
-        assertEquals(expectedName, foundTrainer.getFirstName());
+        assertEquals(expectedName, foundTrainerOptional.get().getFirstName());
         assertEquals(1, trainerRepository.findAll().size());
     }
 

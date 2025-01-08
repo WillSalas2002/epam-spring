@@ -18,9 +18,11 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringJUnitConfig(AppConfig.class)
 class TrainingRepositoryTest {
@@ -64,11 +66,11 @@ class TrainingRepositoryTest {
         Training training = new Training(createdTrainee, createdTrainer, "Strong man training", trainingType, LocalDateTime.now().plusHours(3), 120);
 
         Training createdTraining = trainingRepository.create(training);
-        Training trainingById = trainingRepository.findById(createdTraining.getId());
+        Optional<Training> trainingByIdOptional = trainingRepository.findById(createdTraining.getId());
 
         assertNotNull(createdTraining);
-        assertNotNull(trainingById);
-        assertEquals(120, trainingById.getDuration());
+        assertTrue(trainingByIdOptional.isPresent());
+        assertEquals(120, trainingByIdOptional.get().getDuration());
         assertEquals(1, trainingRepository.findAll().size());
 
     }

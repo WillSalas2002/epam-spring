@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -95,9 +94,8 @@ class TrainerServiceTest {
 
     @Test
     void testFindByIdNonExistent() {
-        Trainer foundTrainer = trainerService.findById(100L);
-
-        assertNull(foundTrainer);
+        long nonExistentId = 100L;
+        assertThrows(RuntimeException.class, () -> trainerService.findById(nonExistentId), "Trainer with id " + nonExistentId + " not found");
     }
 
     @Test
@@ -125,11 +123,12 @@ class TrainerServiceTest {
     @Test
     void testDelete() {
         Trainer createdTrainer = trainerService.create(trainer1);
+        Long id = createdTrainer.getId();
 
         trainerService.delete(createdTrainer);
 
         assertEquals(0, trainerService.findAll().size());
-        assertNull(trainerService.findById(createdTrainer.getId()));
+        assertThrows(RuntimeException.class, () -> trainerService.findById(createdTrainer.getId()), "Trainer with id " + id + " not found");
     }
 
     @Test

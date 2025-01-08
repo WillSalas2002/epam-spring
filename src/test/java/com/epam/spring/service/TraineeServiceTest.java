@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -95,9 +94,8 @@ class TraineeServiceTest {
 
     @Test
     void testFindByIdNonExistent() {
-        Trainee foundTrainee = traineeService.findById(100L);
-
-        assertNull(foundTrainee);
+        long nonExistentId = 100L;
+        assertThrows(RuntimeException.class, () -> traineeService.findById(nonExistentId), "Trainee with id " + nonExistentId + " not found");
     }
 
     @Test
@@ -125,11 +123,12 @@ class TraineeServiceTest {
     @Test
     void testDelete() {
         Trainee createdTrainee = traineeService.create(trainee1);
+        long id = createdTrainee.getId();
 
         traineeService.delete(createdTrainee);
 
         assertEquals(0, traineeService.findAll().size());
-        assertNull(traineeService.findById(createdTrainee.getId()));
+        assertThrows(RuntimeException.class, () -> traineeService.findById(id), "Trainee with id " + id + " not found");
     }
 
     @Test
@@ -162,11 +161,12 @@ class TraineeServiceTest {
     @Test
     void testDeleteByUsername() {
         Trainee createdTrainee = traineeService.create(trainee1);
+        long id = createdTrainee.getId();
 
         traineeService.deleteByUsername(createdTrainee.getUsername());
 
         assertEquals(0, traineeService.findAll().size());
-        assertNull(traineeService.findById(createdTrainee.getId()));
+        assertThrows(RuntimeException.class, () -> traineeService.findById(id), "Trainer with id " + id + " not found");
     }
 
     @Test

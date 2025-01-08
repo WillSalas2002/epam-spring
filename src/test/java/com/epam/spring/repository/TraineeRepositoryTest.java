@@ -13,11 +13,12 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringJUnitConfig(AppConfig.class)
@@ -72,17 +73,20 @@ class TraineeRepositoryTest {
     void testFindById() {
         Trainee createdTrainee = traineeRepository.create(trainee1);
 
-        Trainee traineeById = traineeRepository.findById(createdTrainee.getId());
+        Optional<Trainee> traineeByIdOptional = traineeRepository.findById(createdTrainee.getId());
 
         assertNotNull(createdTrainee);
-        assertEquals(createdTrainee.getId(), traineeById.getId());
+        assertTrue(traineeByIdOptional.isPresent());
+        assertEquals(createdTrainee.getId(), traineeByIdOptional.get().getId());
+        assertEquals(createdTrainee.getFirstName(), traineeByIdOptional.get().getFirstName());
+        assertEquals(createdTrainee.getLastName(), traineeByIdOptional.get().getLastName());
     }
 
     @Test
     void testFindByIdNonExistent() {
-        Trainee foundTrainee = traineeRepository.findById(10L);
+        Optional<Trainee> traineeByIdOptional = traineeRepository.findById(10L);
 
-        assertNull(foundTrainee);
+        assertFalse(traineeByIdOptional.isPresent());
     }
 
     @Test
@@ -108,7 +112,7 @@ class TraineeRepositoryTest {
         traineeRepository.delete(createdTrainee);
 
         assertEquals(0, traineeRepository.findAll().size());
-        assertNull(traineeRepository.findById(createdTrainee.getId()));
+
     }
 
     @Test
@@ -126,13 +130,14 @@ class TraineeRepositoryTest {
         traineeRepository.create(trainee2);
 
         List<Trainee> trainees = traineeRepository.findAll();
-        Trainee foundTrainee = traineeRepository.findById(createdTrainee1.getId());
+        Optional<Trainee> foundTraineeOptional = traineeRepository.findById(createdTrainee1.getId());
 
         traineeRepository.delete(createdTrainee1);
 
+        assertTrue(foundTraineeOptional.isPresent());
         assertEquals(2, trainees.size());
         assertEquals("New Address", updatedTrainee1.getAddress());
-        assertEquals("New Address", foundTrainee.getAddress());
+        assertEquals("New Address", foundTraineeOptional.get().getAddress());
         assertEquals(1, traineeRepository.findAll().size());
     }
 
