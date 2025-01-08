@@ -8,6 +8,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,6 +26,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @Entity
 @Table(name = "trainers", schema = "gym")
+@PrimaryKeyJoinColumn(name = "user_id")
 public class Trainer extends User {
 
     @ManyToOne(cascade = CascadeType.PERSIST)
@@ -42,11 +44,6 @@ public class Trainer extends User {
             inverseJoinColumns = @JoinColumn(name = "trainee_id")
     )
     private List<Trainee> trainees;
-
-    public Trainer(String firstName, String lastName, TrainingType specialization, boolean isActive) {
-        super(firstName, lastName, isActive);
-        this.specialization = specialization;
-    }
 
     public List<Trainee> getTrainees() {
         if (trainees == null) {

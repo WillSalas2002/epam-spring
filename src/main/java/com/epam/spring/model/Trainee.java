@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @Entity
 @Table(name = "trainees", schema = "gym")
+@PrimaryKeyJoinColumn(name = "user_id")
 public class Trainee extends User {
 
     @Column(name = "date_of_birth")
@@ -37,12 +39,6 @@ public class Trainee extends User {
 
     @ManyToMany(mappedBy = "trainees", fetch = FetchType.LAZY)
     private List<Trainer> trainers;
-
-    public Trainee(String firstName, String lastName, LocalDate dataOfBirth, String address, boolean isActive) {
-        super(firstName, lastName, isActive);
-        this.dataOfBirth = dataOfBirth;
-        this.address = address;
-    }
 
     public List<Trainer> getTrainers() {
         if (trainers == null) {
