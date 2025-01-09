@@ -5,6 +5,7 @@ import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
 import com.epam.spring.model.TrainingType;
+import com.epam.spring.model.User;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -59,12 +60,12 @@ class GymCrmFacadeTest {
         Trainee trainee = buildTrainee("Will", "Salas");
 
         Trainee createdTrainee = facade.createTrainee(trainee);
-        Trainee savedTrainee = facade.findTraineeById(createdTrainee.getId(), admin.getUsername(), admin.getPassword());
+        Trainee savedTrainee = facade.findTraineeById(createdTrainee.getId(), admin.getUser().getUsername(), admin.getUser().getPassword());
 
         assertNotNull(createdTrainee.getId());
         assertEquals(createdTrainee, savedTrainee);
-        assertEquals("Will.Salas", createdTrainee.getUsername());
-        assertEquals(10, createdTrainee.getPassword().length());
+        assertEquals("Will.Salas", createdTrainee.getUser().getUsername());
+        assertEquals(10, createdTrainee.getUser().getPassword().length());
     }
 
     @Test
@@ -75,8 +76,8 @@ class GymCrmFacadeTest {
         Trainee createdTrainee1 = facade.createTrainee(trainee1);
         Trainee createdTrainee2 = facade.createTrainee(trainee2);
 
-        assertEquals("Will.Salas", createdTrainee1.getUsername());
-        assertEquals("Will.Salas.1", createdTrainee2.getUsername());
+        assertEquals("Will.Salas", createdTrainee1.getUser().getUsername());
+        assertEquals("Will.Salas.1", createdTrainee2.getUser().getUsername());
     }
 
     @Test
@@ -84,7 +85,7 @@ class GymCrmFacadeTest {
         Trainee trainee1 = facade.createTrainee(buildTrainee("Will", "Salas"));
         Trainee trainee2 = facade.createTrainee(buildTrainee("Adam", "Simpson"));
 
-        List<Trainee> trainees = facade.findAllTrainees(admin.getUsername(), admin.getPassword());
+        List<Trainee> trainees = facade.findAllTrainees(admin.getUser().getUsername(), admin.getUser().getPassword());
 
         assertEquals(3, trainees.size());
         assertTrue(trainees.contains(trainee1));
@@ -95,7 +96,7 @@ class GymCrmFacadeTest {
     void testFindTraineeById() {
         Trainee trainee = facade.createTrainee(buildTrainee("Will", "Salas"));
 
-        Trainee traineeById = facade.findTraineeById(trainee.getId(), admin.getUsername(), admin.getPassword());
+        Trainee traineeById = facade.findTraineeById(trainee.getId(), admin.getUser().getUsername(), admin.getUser().getPassword());
 
         assertEquals(trainee, traineeById);
     }
@@ -108,14 +109,14 @@ class GymCrmFacadeTest {
         String expectedLastName = "Simpson";
         String expectedUsername = expectedFirstname + "." + expectedLastName;
 
-        createdTrainee.setFirstName(expectedFirstname);
-        createdTrainee.setLastName(expectedLastName);
-        Trainee updatedTrainee = facade.updateTrainee(createdTrainee, admin.getUsername(), admin.getPassword());
+        createdTrainee.getUser().setFirstName(expectedFirstname);
+        createdTrainee.getUser().setLastName(expectedLastName);
+        Trainee updatedTrainee = facade.updateTrainee(createdTrainee, admin.getUser().getUsername(), admin.getUser().getPassword());
 
         assertSame(updatedTrainee.getId(), createdTrainee.getId());
-        assertEquals(expectedFirstname, updatedTrainee.getFirstName());
-        assertEquals(expectedLastName, updatedTrainee.getLastName());
-        assertEquals(expectedUsername, updatedTrainee.getUsername());
+        assertEquals(expectedFirstname, updatedTrainee.getUser().getFirstName());
+        assertEquals(expectedLastName, updatedTrainee.getUser().getLastName());
+        assertEquals(expectedUsername, updatedTrainee.getUser().getUsername());
     }
 
     @Test
@@ -123,10 +124,10 @@ class GymCrmFacadeTest {
         Trainee createdTrainee = facade.createTrainee(buildTrainee("Will", "Salas"));
         long id = createdTrainee.getId();
 
-        facade.deleteTrainee(createdTrainee, admin.getUsername(), admin.getPassword());
+        facade.deleteTrainee(createdTrainee, admin.getUser().getUsername(), admin.getUser().getPassword());
 
-        assertEquals(1, facade.findAllTrainees(admin.getUsername(), admin.getPassword()).size());
-        assertThrows(RuntimeException.class, () -> facade.findTraineeById(id, admin.getUsername(), admin.getPassword()), "Trainee with id " + id + " not found");
+        assertEquals(1, facade.findAllTrainees(admin.getUser().getUsername(), admin.getUser().getPassword()).size());
+        assertThrows(RuntimeException.class, () -> facade.findTraineeById(id, admin.getUser().getUsername(), admin.getUser().getPassword()), "Trainee with id " + id + " not found");
 
     }
 
@@ -135,12 +136,12 @@ class GymCrmFacadeTest {
         Trainer trainee = buildTrainer("Will", "Salas");
 
         Trainer createdTrainer = facade.createTrainer(trainee);
-        Trainer savedTrainer = facade.findTrainerById(createdTrainer.getId(), admin.getUsername(), admin.getPassword());
+        Trainer savedTrainer = facade.findTrainerById(createdTrainer.getId(), admin.getUser().getUsername(), admin.getUser().getPassword());
 
         assertNotNull(createdTrainer.getId());
         assertEquals(createdTrainer, savedTrainer);
-        assertEquals("Will.Salas", createdTrainer.getUsername());
-        assertEquals(10, createdTrainer.getPassword().length());
+        assertEquals("Will.Salas", createdTrainer.getUser().getUsername());
+        assertEquals(10, createdTrainer.getUser().getPassword().length());
     }
 
     @Test
@@ -148,7 +149,7 @@ class GymCrmFacadeTest {
         Trainer trainer1 = facade.createTrainer(buildTrainer("Will", "Salas"));
         Trainer trainer2 = facade.createTrainer(buildTrainer("Adam", "Simpson"));
 
-        List<Trainer> trainers = facade.findAllTrainers(admin.getUsername(), admin.getPassword());
+        List<Trainer> trainers = facade.findAllTrainers(admin.getUser().getUsername(), admin.getUser().getPassword());
 
         assertEquals(2, trainers.size());
         assertTrue(trainers.contains(trainer1));
@@ -163,14 +164,14 @@ class GymCrmFacadeTest {
         String expectedLastName = "Simpson";
         String expectedUsername = expectedFirstname + "." + expectedLastName;
 
-        createdTrainer.setFirstName(expectedFirstname);
-        createdTrainer.setLastName(expectedLastName);
-        Trainer updatedTrainer = facade.updateTrainer(createdTrainer, admin.getUsername(), admin.getPassword());
+        createdTrainer.getUser().setFirstName(expectedFirstname);
+        createdTrainer.getUser().setLastName(expectedLastName);
+        Trainer updatedTrainer = facade.updateTrainer(createdTrainer, admin.getUser().getUsername(), admin.getUser().getPassword());
 
         assertSame(updatedTrainer.getId(), createdTrainer.getId());
-        assertEquals(expectedFirstname, updatedTrainer.getFirstName());
-        assertEquals(expectedLastName, updatedTrainer.getLastName());
-        assertEquals(expectedUsername, updatedTrainer.getUsername());
+        assertEquals(expectedFirstname, updatedTrainer.getUser().getFirstName());
+        assertEquals(expectedLastName, updatedTrainer.getUser().getLastName());
+        assertEquals(expectedUsername, updatedTrainer.getUser().getUsername());
     }
 
     @Test
@@ -178,30 +179,47 @@ class GymCrmFacadeTest {
         Trainee trainee = facade.createTrainee(buildTrainee("Adam", "Simpson"));
         Trainer trainer = facade.createTrainer(buildTrainer("Will", "Salas"));
         TrainingType trainingType = trainer.getSpecialization();
+        Training training = buildTraining(trainee, trainer, trainingType);
 
-        Training training = new Training(trainee, trainer, "Hard Cardio", trainingType, LocalDateTime.now().plusHours(5), 90);
-
-        Training createdTraining = facade.createTraining(training, admin.getUsername(), admin.getPassword());
+        Training createdTraining = facade.createTraining(training, admin.getUser().getUsername(), admin.getUser().getPassword());
 
         assertNotNull(createdTraining.getId());
-        assertEquals(1, facade.findAllTrainings(admin.getUsername(), admin.getPassword()).size());
+        assertEquals(1, facade.findAllTrainings(admin.getUser().getUsername(), admin.getUser().getPassword()).size());
+    }
+
+    private static Training buildTraining(Trainee trainee, Trainer trainer, TrainingType trainingType) {
+        return Training.builder()
+                .trainee(trainee)
+                .trainer(trainer)
+                .name("Hard Cardio")
+                .trainingType(trainingType)
+                .date(LocalDateTime.now().plusHours(5))
+                .duration(90)
+                .build();
     }
 
     private Trainer buildTrainer(String firstName, String lastName) {
         return Trainer.builder()
-                .firstName(firstName)
-                .lastName(lastName)
+                .user(User.builder()
+                        .firstName(firstName)
+                        .lastName(lastName)
+                        .isActive(true)
+                        .build()
+                )
                 .specialization(buildTrainingType())
                 .build();
     }
 
     private static Trainee buildTrainee(String firstName, String lastName) {
         return Trainee.builder()
-                .firstName(firstName)
-                .lastName(lastName)
+                .user(User.builder()
+                        .firstName(firstName)
+                        .lastName(lastName)
+                        .isActive(true)
+                        .build()
+                )
                 .dataOfBirth(LocalDate.now().minusYears(25))
                 .address("Test Address")
-                .isActive(true)
                 .build();
     }
 

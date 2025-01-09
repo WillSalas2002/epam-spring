@@ -24,10 +24,10 @@ public class TrainerService implements BaseOperationsService<Trainer>, ExtendedO
 
     @Override
     public Trainer create(Trainer trainer) {
-        String uniqueUsername = usernameGenerator.generateUniqueUsername(trainer.getFirstName(), trainer.getLastName());
+        String uniqueUsername = usernameGenerator.generateUniqueUsername(trainer.getUser().getFirstName(), trainer.getUser().getLastName());
         String password = passwordGenerator.generatePassword();
-        trainer.setUsername(uniqueUsername);
-        trainer.setPassword(password);
+        trainer.getUser().setUsername(uniqueUsername);
+        trainer.getUser().setPassword(password);
         return trainerRepository.create(trainer);
     }
 
@@ -58,26 +58,26 @@ public class TrainerService implements BaseOperationsService<Trainer>, ExtendedO
     public boolean authenticate(String username, String password) {
         Optional<Trainer> trainerOptional = trainerRepository.findByUsername(username);
 
-        return trainerOptional.filter(trainer -> Objects.equals(trainer.getPassword(), password)).isPresent();
+        return trainerOptional.filter(trainer -> Objects.equals(trainer.getUser().getPassword(), password)).isPresent();
     }
 
     @Override
     public Trainer update(Trainer updatedTrainer) {
-        Long id = updatedTrainer.getId();
+        Long id = updatedTrainer.getUser().getId();
         Optional<Trainer> trainerOptional = trainerRepository.findById(id);
         if (trainerOptional.isEmpty()) {
             throw new NoSuchElementException("Trainee with id " + id + " not found");
         }
         if (isNameChanged(trainerOptional.get(), updatedTrainer)) {
-            String uniqueUsername = usernameGenerator.generateUniqueUsername(updatedTrainer.getFirstName(), updatedTrainer.getLastName());
-            updatedTrainer.setUsername(uniqueUsername);
+            String uniqueUsername = usernameGenerator.generateUniqueUsername(updatedTrainer.getUser().getFirstName(), updatedTrainer.getUser().getLastName());
+            updatedTrainer.getUser().setUsername(uniqueUsername);
         }
         return trainerRepository.update(updatedTrainer);
     }
 
     @Override
     public void activate(Trainer trainer) {
-        trainer.setActive(!trainer.isActive());
+        trainer.getUser().setActive(!trainer.getUser().isActive());
         trainerRepository.update(trainer);
     }
 
@@ -88,10 +88,10 @@ public class TrainerService implements BaseOperationsService<Trainer>, ExtendedO
             throw new RuntimeException("Incorrect username");
         }
         Trainer trainer = trainerOptional.get();
-        if (!Objects.equals(trainer.getPassword(), oldPassword)) {
+        if (!Objects.equals(trainer.getUser().getPassword(), oldPassword)) {
             throw new RuntimeException("Incorrect password");
         }
-        trainer.setPassword(newPassword);
+        trainer.getUser().setPassword(newPassword);
 
         trainerRepository.update(trainer);
     }
@@ -107,7 +107,7 @@ public class TrainerService implements BaseOperationsService<Trainer>, ExtendedO
     }
 
     private boolean isNameChanged(Trainer trainer, Trainer updatedTrainer) {
-        return !Objects.equals(trainer.getFirstName(), updatedTrainer.getFirstName()) ||
-                !Objects.equals(trainer.getLastName(), updatedTrainer.getLastName());
+        return !Objects.equals(trainer.getUser().getFirstName(), updatedTrainer.getUser().getFirstName()) ||
+                !Objects.equals(trainer.getUser().getLastName(), updatedTrainer.getUser().getLastName());
     }
 }

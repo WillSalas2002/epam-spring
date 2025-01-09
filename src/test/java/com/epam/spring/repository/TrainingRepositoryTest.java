@@ -5,6 +5,7 @@ import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
 import com.epam.spring.model.TrainingType;
+import com.epam.spring.model.User;
 import com.epam.spring.service.TraineeService;
 import com.epam.spring.service.TrainerService;
 import org.hibernate.Session;
@@ -53,6 +54,7 @@ class TrainingRepositoryTest {
             session.createMutationQuery("DELETE FROM Trainer").executeUpdate();
             session.createMutationQuery("DELETE FROM Trainee").executeUpdate();
             session.createMutationQuery("DELETE FROM TrainingType").executeUpdate();
+            session.createMutationQuery("DELETE FROM User").executeUpdate();
             transaction.commit();
         }
     }
@@ -63,39 +65,57 @@ class TrainingRepositoryTest {
         Trainer createdTrainer = trainerService.create(trainer);
         TrainingType trainingType = createdTrainer.getSpecialization();
 
-        Training training = new Training(createdTrainee, createdTrainer, "Strong man training", trainingType, LocalDateTime.now().plusHours(3), 120);
+        Training training = buildTraining(createdTrainee, createdTrainer, trainingType);
 
         Training createdTraining = trainingRepository.create(training);
         Optional<Training> trainingByIdOptional = trainingRepository.findById(createdTraining.getId());
 
         assertNotNull(createdTraining);
         assertTrue(trainingByIdOptional.isPresent());
-        assertEquals(120, trainingByIdOptional.get().getDuration());
+        assertEquals(90, trainingByIdOptional.get().getDuration());
         assertEquals(1, trainingRepository.findAll().size());
 
     }
 
     private Trainer buildTrainer(String firstName, String lastName) {
         return Trainer.builder()
-                .firstName(firstName)
-                .lastName(lastName)
+                .user(User.builder()
+                        .firstName(firstName)
+                        .lastName(lastName)
+                        .isActive(true)
+                        .build()
+                )
                 .specialization(buildTrainingType())
                 .build();
     }
 
     private Trainee buildTrainee(String firstName, String lastName) {
         return Trainee.builder()
-                .firstName(firstName)
-                .lastName(lastName)
+                .user(User.builder()
+                        .firstName(firstName)
+                        .lastName(lastName)
+                        .isActive(true)
+                        .build()
+                )
                 .dataOfBirth(LocalDate.now().minusYears(25))
                 .address("Test Address")
-                .isActive(true)
                 .build();
     }
 
     private static TrainingType buildTrainingType() {
         return TrainingType.builder()
                 .trainingTypeName("Cardio")
+                .build();
+    }
+
+    private static Training buildTraining(Trainee trainee, Trainer trainer, TrainingType trainingType) {
+        return Training.builder()
+                .trainee(trainee)
+                .trainer(trainer)
+                .name("Hard Cardio")
+                .trainingType(trainingType)
+                .date(LocalDateTime.now().plusHours(5))
+                .duration(90)
                 .build();
     }
 }

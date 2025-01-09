@@ -11,7 +11,6 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
-
 @Getter
 @Setter
 @NoArgsConstructor

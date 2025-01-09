@@ -5,6 +5,7 @@ import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
 import com.epam.spring.model.TrainingType;
+import com.epam.spring.model.User;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -50,6 +51,7 @@ class TrainingServiceTest {
             session.createMutationQuery("DELETE FROM Trainer").executeUpdate();
             session.createMutationQuery("DELETE FROM Trainee").executeUpdate();
             session.createMutationQuery("DELETE FROM TrainingType").executeUpdate();
+            session.createMutationQuery("DELETE FROM User").executeUpdate();
             transaction.commit();
         }
     }
@@ -85,8 +87,8 @@ class TrainingServiceTest {
         trainingService.create(training1);
         trainingService.create(training2);
 
-        List<Training> traineeTrainings = trainingService.findTraineeTrainings(trainee1.getUsername(), null, null, null, null);
-        List<Training> trainerTrainings = trainingService.findTrainerTrainings(trainer1.getUsername(), null, null, null, null);
+        List<Training> traineeTrainings = trainingService.findTraineeTrainings(trainee1.getUser().getUsername(), null, null, null, null);
+        List<Training> trainerTrainings = trainingService.findTrainerTrainings(trainer1.getUser().getUsername(), null, null, null, null);
 
         assertEquals(2, traineeTrainings.size());
         assertEquals(1, trainerTrainings.size());
@@ -95,20 +97,26 @@ class TrainingServiceTest {
 
     private Trainer buildTrainer(String firstName, String lastName) {
         return Trainer.builder()
-                .firstName(firstName)
-                .lastName(lastName)
+                .user(User.builder()
+                        .firstName(firstName)
+                        .lastName(lastName)
+                        .isActive(true)
+                        .build()
+                )
                 .specialization(buildTrainingType())
-                .isActive(true)
                 .build();
     }
 
     private Trainee buildTrainee(String firstName, String lastName) {
         return Trainee.builder()
-                .firstName(firstName)
-                .lastName(lastName)
+                .user(User.builder()
+                        .firstName(firstName)
+                        .lastName(lastName)
+                        .isActive(true)
+                        .build()
+                )
                 .dataOfBirth(LocalDate.now().minusYears(25))
                 .address("Test Address")
-                .isActive(true)
                 .build();
     }
 

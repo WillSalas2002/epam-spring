@@ -3,6 +3,7 @@ package com.epam.spring.repository;
 import com.epam.spring.config.AppConfig;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.TrainingType;
+import com.epam.spring.model.User;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -43,6 +44,7 @@ class TrainerRepositoryTest {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             session.createMutationQuery("DELETE FROM Trainer").executeUpdate();
+            session.createMutationQuery("DELETE FROM User").executeUpdate();
             transaction.commit();
         }
     }
@@ -51,9 +53,9 @@ class TrainerRepositoryTest {
     void testCreate() {
         Trainer createdTrainer = trainerRepository.create(trainer1);
 
-        assertNotNull(createdTrainer.getId());
-        assertEquals("John", createdTrainer.getFirstName());
-        assertEquals("Doe", createdTrainer.getLastName());
+        assertNotNull(createdTrainer.getUser().getId());
+        assertEquals("John", createdTrainer.getUser().getFirstName());
+        assertEquals("Doe", createdTrainer.getUser().getLastName());
     }
 
     @Test
@@ -64,18 +66,18 @@ class TrainerRepositoryTest {
         List<Trainer> trainers = trainerRepository.findAll();
 
         assertEquals(2, trainers.size());
-        assertTrue(trainers.stream().anyMatch(t -> t.getFirstName().equals(trainer1.getFirstName())));
-        assertTrue(trainers.stream().anyMatch(t -> t.getFirstName().equals(trainer2.getFirstName())));
+        assertTrue(trainers.stream().anyMatch(t -> t.getUser().getFirstName().equals(trainer1.getUser().getFirstName())));
+        assertTrue(trainers.stream().anyMatch(t -> t.getUser().getFirstName().equals(trainer2.getUser().getFirstName())));
     }
 
     @Test
     void testFindById() {
         Trainer createdTrainer = trainerRepository.create(trainer1);
 
-        Optional<Trainer> foundTrainerOptional = trainerRepository.findById(createdTrainer.getId());
+        Optional<Trainer> foundTrainerOptional = trainerRepository.findById(createdTrainer.getUser().getId());
 
         assertTrue(foundTrainerOptional.isPresent());
-        assertEquals(createdTrainer.getId(), foundTrainerOptional.get().getId());
+        assertEquals(createdTrainer.getUser().getId(), foundTrainerOptional.get().getId());
     }
 
     @Test
@@ -89,13 +91,13 @@ class TrainerRepositoryTest {
     void testUpdate() {
         Trainer createdTrainer = trainerRepository.create(trainer1);
 
-        createdTrainer.setFirstName("Updated");
-        createdTrainer.setLastName("Name");
+        createdTrainer.getUser().setFirstName("Updated");
+        createdTrainer.getUser().setLastName("Name");
         Trainer updatedTrainer = trainerRepository.update(createdTrainer);
 
-        assertEquals(createdTrainer.getId(), updatedTrainer.getId());
-        assertEquals("Updated", updatedTrainer.getFirstName());
-        assertEquals("Name", updatedTrainer.getLastName());
+        assertEquals(createdTrainer.getUser().getId(), updatedTrainer.getUser().getId());
+        assertEquals("Updated", updatedTrainer.getUser().getFirstName());
+        assertEquals("Name", updatedTrainer.getUser().getLastName());
     }
 
     @Test
@@ -117,7 +119,7 @@ class TrainerRepositoryTest {
         Trainer createdTrainer1 = trainerRepository.create(trainer1);
 
         String expectedName = "Adam";
-        createdTrainer1.setFirstName(expectedName);
+        createdTrainer1.getUser().setFirstName(expectedName);
         Trainer updatedTrainer1 = trainerRepository.update(createdTrainer1);
 
         trainerRepository.create(trainer2);
@@ -129,17 +131,21 @@ class TrainerRepositoryTest {
 
         assertTrue(foundTrainerOptional.isPresent());
         assertEquals(2, trainers.size());
-        assertEquals(expectedName, updatedTrainer1.getFirstName());
-        assertEquals(expectedName, foundTrainerOptional.get().getFirstName());
+        assertEquals(expectedName, updatedTrainer1.getUser().getFirstName());
+        assertEquals(expectedName, foundTrainerOptional.get().getUser().getFirstName());
         assertEquals(1, trainerRepository.findAll().size());
     }
 
     private Trainer buildTrainer(String firstName, String lastName) {
         return Trainer.builder()
-                .firstName(firstName)
-                .lastName(lastName)
-                .username(firstName + "." + lastName)
-                .password("1111111111")
+                .user(User.builder()
+                        .firstName(firstName)
+                        .lastName(lastName)
+                        .username(firstName + "." + lastName)
+                        .password("1111111111")
+                        .isActive(true)
+                        .build()
+                )
                 .specialization(buildTrainingType())
                 .build();
     }

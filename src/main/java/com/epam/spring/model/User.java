@@ -13,14 +13,13 @@ import lombok.experimental.SuperBuilder;
 import java.util.Objects;
 
 @SuperBuilder
-
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "users", schema = "gym")
-public abstract class User extends BaseEntity {
+public class User extends BaseEntity {
 
     @Column(name = "first_name", nullable = false)
     private String firstName;
@@ -36,12 +35,6 @@ public abstract class User extends BaseEntity {
 
     @Column(name = "is_active", nullable = false)
     private boolean isActive;
-
-    public User(String firstName, String lastName, boolean isActive) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.isActive = isActive;
-    }
 
     @Override
     public boolean equals(Object o) {

@@ -4,9 +4,9 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,19 +14,16 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @SuperBuilder
-
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "trainees", schema = "gym")
-@PrimaryKeyJoinColumn(name = "user_id")
-public class Trainee extends User {
+public class Trainee extends BaseEntity {
 
     @Column(name = "date_of_birth")
     private LocalDate dataOfBirth;
@@ -34,18 +31,12 @@ public class Trainee extends User {
     @Column(name = "address")
     private String address;
 
+    @OneToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
+
     @OneToMany(mappedBy = "trainee", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<Training> trainings;
-
-    @ManyToMany(mappedBy = "trainees", fetch = FetchType.LAZY)
-    private List<Trainer> trainers;
-
-    public List<Trainer> getTrainers() {
-        if (trainers == null) {
-            return new ArrayList<>();
-        }
-        return trainers;
-    }
 
     @Override
     public boolean equals(Object o) {

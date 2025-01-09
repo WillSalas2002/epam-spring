@@ -38,10 +38,6 @@ public class TrainingRepository implements BaseOperationsRepository<Training>, T
             Trainer trainer = session.get(Trainer.class, training.getTrainer().getId());
             Trainee trainee = session.get(Trainee.class, training.getTrainee().getId());
 
-            if (!trainer.getTrainees().contains(trainee)) {
-                trainer.addTrainee(trainee);
-            }
-
             training.setTrainingType(trainingType);
             training.setTrainer(trainer);
             training.setTrainee(trainee);

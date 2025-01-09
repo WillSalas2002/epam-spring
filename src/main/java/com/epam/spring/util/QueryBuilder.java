@@ -13,7 +13,7 @@ public class QueryBuilder {
                         "JOIN t.trainee trainee " +
                         "JOIN t.trainer trainer " +
                         "JOIN t.trainingType trainingType " +
-                        "WHERE trainee.username = :traineeUsername "
+                        "WHERE trainee.user.username = :traineeUsername "
         );
 
         if (fromDate != null) {
@@ -41,7 +41,7 @@ public class QueryBuilder {
                     JOIN t.trainer trainer
                     JOIN t.trainee trainee
                     JOIN t.trainingType trainingType
-                WHERE trainer.username = :trainerUsername
+                WHERE trainer.user.username = :trainerUsername
                 """);
 
         if (fromDate != null) {

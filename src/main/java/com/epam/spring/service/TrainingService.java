@@ -39,12 +39,12 @@ public class TrainingService implements BaseOperationsService<Training>, Trainin
     @Override
     public Training create(Training training) {
         Trainee trainee = findEntityOrThrow(
-                training.getTrainee().getUsername(),
+                training.getTrainee().getUser().getUsername(),
                 traineeService::findByUsername
         );
 
         Trainer trainer = findEntityOrThrow(
-                training.getTrainer().getUsername(),
+                training.getTrainer().getUser().getUsername(),
                 trainerService::findByUsername
         );
 

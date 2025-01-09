@@ -18,8 +18,8 @@ public class TrainerRepository implements BaseOperationsRepository<Trainer>, Ext
 
     public static final String FIND_ALL_QUERY = "SELECT t FROM Trainer t";
     public static final String FIND_BY_ID_QUERY = "SELECT t FROM Trainer t WHERE id =: id";
-    public static final String FIND_BY_USERNAME_QUERY = "SELECT t FROM Trainer t LEFT JOIN FETCH t.trainees WHERE t.username =: username";
-    public static final String FIND_BY_TRAINEE_USERNAME_QUERY = "SELECT t FROM Trainer t WHERE t NOT IN (SELECT t FROM Trainee tee JOIN tee.trainers t WHERE tee.username =: username)";
+    public static final String FIND_BY_USERNAME_QUERY = "SELECT t FROM Trainer t WHERE t.user.username =: username";
+//    public static final String FIND_BY_TRAINEE_USERNAME_QUERY = "SELECT t FROM Trainer t WHERE t NOT IN (SELECT t FROM Trainee tee JOIN tee..trainers t WHERE tee.user.username =: username)";
 
     private final SessionFactory sessionFactory;
 
@@ -76,6 +76,7 @@ public class TrainerRepository implements BaseOperationsRepository<Trainer>, Ext
     public Trainer update(Trainer updatedTrainer) {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
+            session.merge(updatedTrainer.getUser());
             Trainer mergedTrainer = session.merge(updatedTrainer);
             transaction.commit();
             return mergedTrainer;
@@ -93,10 +94,11 @@ public class TrainerRepository implements BaseOperationsRepository<Trainer>, Ext
 
     @Override
     public List<Trainer> findTrainersByTraineeUsername(String username) {
-        try (Session session = sessionFactory.openSession()) {
-            return session.createQuery(FIND_BY_TRAINEE_USERNAME_QUERY, Trainer.class)
-                    .setParameter("username", username)
-                    .getResultList();
-        }
+//        try (Session session = sessionFactory.openSession()) {
+//            return session.createQuery(FIND_BY_TRAINEE_USERNAME_QUERY, Trainer.class)
+//                    .setParameter("username", username)
+//                    .getResultList();
+//        }
+        return null;
     }
 }

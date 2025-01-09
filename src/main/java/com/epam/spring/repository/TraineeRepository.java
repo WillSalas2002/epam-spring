@@ -18,8 +18,8 @@ public class TraineeRepository implements BaseOperationsRepository<Trainee>, Ext
 
     public static final String FIND_ALL_QUERY = "SELECT t FROM Trainee t";
     public static final String FIND_BY_ID_QUERY = "FROM Trainee WHERE id =: id";
-    public static final String FIND_BY_USERNAME_QUERY = "SELECT t FROM Trainee t WHERE t.username =: username";
-    public static final String DELETE_BY_USERNAME_QUERY = "DELETE FROM Trainee t WHERE t.username =: username";
+    public static final String FIND_BY_USERNAME_QUERY = "SELECT t FROM Trainee t WHERE t.user.username =: username";
+    public static final String DELETE_BY_USERNAME_QUERY = "DELETE FROM Trainee t WHERE t.user.username =: username";
 
     private final SessionFactory sessionFactory;
 
@@ -73,6 +73,7 @@ public class TraineeRepository implements BaseOperationsRepository<Trainee>, Ext
     public Trainee update(Trainee updatedTrainee) {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
+            session.merge(updatedTrainee.getUser());
             Trainee mergedTrainee = session.merge(updatedTrainee);
             transaction.commit();
             return mergedTrainee;

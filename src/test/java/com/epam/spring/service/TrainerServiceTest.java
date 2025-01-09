@@ -3,6 +3,7 @@ package com.epam.spring.service;
 import com.epam.spring.config.AppConfig;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.TrainingType;
+import com.epam.spring.model.User;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -45,6 +46,7 @@ class TrainerServiceTest {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             session.createMutationQuery("DELETE FROM Trainer").executeUpdate();
+            session.createMutationQuery("DELETE FROM User").executeUpdate();
             transaction.commit();
         }
     }
@@ -54,19 +56,19 @@ class TrainerServiceTest {
         Trainer createdTrainer = trainerService.create(trainer1);
 
         assertNotNull(createdTrainer.getId());
-        assertEquals("John.Doe", createdTrainer.getUsername());
+        assertEquals("John.Doe", createdTrainer.getUser().getUsername());
         assertEquals(1, trainerService.findAll().size());
     }
 
     @Test
     void testCreateWithExistingName() {
         Trainer createdTrainer1 = trainerService.create(trainer1);
-        trainer2.setFirstName("John");
-        trainer2.setLastName("Doe");
+        trainer2.getUser().setFirstName("John");
+        trainer2.getUser().setLastName("Doe");
         Trainer createdTrainer2 = trainerService.create(trainer2);
 
-        assertEquals("John.Doe", createdTrainer1.getUsername());
-        assertEquals("John.Doe.1", createdTrainer2.getUsername());
+        assertEquals("John.Doe", createdTrainer1.getUser().getUsername());
+        assertEquals("John.Doe.1", createdTrainer2.getUser().getUsername());
     }
 
     @Test
@@ -77,8 +79,8 @@ class TrainerServiceTest {
         List<Trainer> Trainers = trainerService.findAll();
 
         assertEquals(2, Trainers.size());
-        assertTrue(Trainers.stream().anyMatch(t -> t.getUsername().equals(createdTrainer1.getUsername())));
-        assertTrue(Trainers.stream().anyMatch(t -> t.getUsername().equals(createdTrainer2.getUsername())));
+        assertTrue(Trainers.stream().anyMatch(t -> t.getUser().getUsername().equals(createdTrainer1.getUser().getUsername())));
+        assertTrue(Trainers.stream().anyMatch(t -> t.getUser().getUsername().equals(createdTrainer2.getUser().getUsername())));
     }
 
     @Test
@@ -89,7 +91,7 @@ class TrainerServiceTest {
 
         assertNotNull(foundTrainer);
         assertEquals(createdTrainer.getId(), foundTrainer.getId());
-        assertEquals(trainer1.getUsername(), foundTrainer.getUsername());
+        assertEquals(trainer1.getUser().getUsername(), foundTrainer.getUser().getUsername());
     }
 
     @Test
@@ -102,13 +104,13 @@ class TrainerServiceTest {
     void testUpdate() {
         Trainer createdTrainer = trainerService.create(trainer1);
 
-        createdTrainer.setFirstName("Updated");
-        createdTrainer.setLastName("Name");
+        createdTrainer.getUser().setFirstName("Updated");
+        createdTrainer.getUser().setLastName("Name");
         Trainer updatedTrainer = trainerService.update(createdTrainer);
 
-        assertEquals("Updated", updatedTrainer.getFirstName());
-        assertEquals("Name", updatedTrainer.getLastName());
-        assertEquals("Updated.Name", updatedTrainer.getUsername());
+        assertEquals("Updated", updatedTrainer.getUser().getFirstName());
+        assertEquals("Name", updatedTrainer.getUser().getLastName());
+        assertEquals("Updated.Name", updatedTrainer.getUser().getUsername());
         assertEquals(createdTrainer.getId(), updatedTrainer.getId());
         assertEquals(1, trainerService.findAll().size());
     }
@@ -140,7 +142,7 @@ class TrainerServiceTest {
     void testFindByUsername() {
         Trainer createdTrainer = trainerService.create(trainer1);
 
-        Trainer Trainer = trainerService.findByUsername(trainer1.getUsername());
+        Trainer Trainer = trainerService.findByUsername(trainer1.getUser().getUsername());
 
         assertEquals(createdTrainer.getId(), Trainer.getId());
     }
@@ -151,40 +153,43 @@ class TrainerServiceTest {
 
         trainerService.activate(createdTrainer);
 
-        assertFalse(createdTrainer.isActive());
+        assertFalse(createdTrainer.getUser().isActive());
 
         trainerService.activate(createdTrainer);
 
-        assertTrue(createdTrainer.isActive());
+        assertTrue(createdTrainer.getUser().isActive());
     }
 
     @Test
     void testChangePassword() {
         String newPassword = "1111111111";
         Trainer trainer = trainerService.create(trainer1);
-        String username = trainer.getUsername();
+        String username = trainer.getUser().getUsername();
 
-        trainerService.changePassword(username, trainer.getPassword(), newPassword);
+        trainerService.changePassword(username, trainer.getUser().getPassword(), newPassword);
 
-        assertEquals(newPassword, trainerService.findByUsername(username).getPassword());
+        assertEquals(newPassword, trainerService.findByUsername(username).getUser().getPassword());
     }
 
     @Test
     void whenChangePasswordWithIncorrectOldPasswordThenThrowException() {
         String incorrectOldPassword = "1111111111";
         String newPassword = "1132211111";
-        Trainer Trainer = trainerService.create(trainer1);
-        String username = Trainer.getUsername();
+        Trainer trainer = trainerService.create(trainer1);
+        String username = trainer.getUser().getUsername();
 
         assertThrows(RuntimeException.class, () -> trainerService.changePassword(username, incorrectOldPassword, newPassword), "Incorrect password");
     }
 
     private Trainer buildTrainer(String firstName, String lastName) {
         return Trainer.builder()
-                .firstName(firstName)
-                .lastName(lastName)
+                .user(User.builder()
+                        .firstName(firstName)
+                        .lastName(lastName)
+                        .isActive(true)
+                        .build()
+                )
                 .specialization(buildTrainingType())
-                .isActive(true)
                 .build();
     }
 

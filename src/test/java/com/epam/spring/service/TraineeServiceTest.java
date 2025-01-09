@@ -2,6 +2,7 @@ package com.epam.spring.service;
 
 import com.epam.spring.config.AppConfig;
 import com.epam.spring.model.Trainee;
+import com.epam.spring.model.User;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -45,6 +46,7 @@ class TraineeServiceTest {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             session.createMutationQuery("DELETE FROM Trainee").executeUpdate();
+            session.createMutationQuery("DELETE FROM User").executeUpdate();
             transaction.commit();
         }
     }
@@ -54,19 +56,19 @@ class TraineeServiceTest {
         Trainee createdTrainee = traineeService.create(trainee1);
 
         assertNotNull(createdTrainee.getId());
-        assertEquals("John.Doe", createdTrainee.getUsername());
+        assertEquals("John.Doe", createdTrainee.getUser().getUsername());
         assertEquals(1, traineeService.findAll().size());
     }
 
     @Test
     void testCreateWithExistingName() {
         Trainee createdTrainee1 = traineeService.create(trainee1);
-        trainee2.setFirstName("John");
-        trainee2.setLastName("Doe");
+        trainee2.getUser().setFirstName("John");
+        trainee2.getUser().setLastName("Doe");
         Trainee createdTrainee2 = traineeService.create(trainee2);
 
-        assertEquals("John.Doe", createdTrainee1.getUsername());
-        assertEquals("John.Doe.1", createdTrainee2.getUsername());
+        assertEquals("John.Doe", createdTrainee1.getUser().getUsername());
+        assertEquals("John.Doe.1", createdTrainee2.getUser().getUsername());
     }
 
     @Test
@@ -77,8 +79,8 @@ class TraineeServiceTest {
         List<Trainee> trainees = traineeService.findAll();
 
         assertEquals(2, trainees.size());
-        assertTrue(trainees.stream().anyMatch(t -> t.getUsername().equals(createdTrainee1.getUsername())));
-        assertTrue(trainees.stream().anyMatch(t -> t.getUsername().equals(createdTrainee2.getUsername())));
+        assertTrue(trainees.stream().anyMatch(t -> t.getUser().getUsername().equals(createdTrainee1.getUser().getUsername())));
+        assertTrue(trainees.stream().anyMatch(t -> t.getUser().getUsername().equals(createdTrainee2.getUser().getUsername())));
     }
 
     @Test
@@ -89,7 +91,7 @@ class TraineeServiceTest {
 
         assertNotNull(foundTrainee);
         assertEquals(createdTrainee.getId(), foundTrainee.getId());
-        assertEquals(trainee1.getUsername(), foundTrainee.getUsername());
+        assertEquals(trainee1.getUser().getUsername(), foundTrainee.getUser().getUsername());
     }
 
     @Test
@@ -102,13 +104,13 @@ class TraineeServiceTest {
     void testUpdate() {
         Trainee createdTrainee = traineeService.create(trainee1);
 
-        createdTrainee.setFirstName("Updated");
-        createdTrainee.setLastName("Name");
+        createdTrainee.getUser().setFirstName("Updated");
+        createdTrainee.getUser().setLastName("Name");
         Trainee updatedTrainee = traineeService.update(createdTrainee);
 
-        assertEquals("Updated", updatedTrainee.getFirstName());
-        assertEquals("Name", updatedTrainee.getLastName());
-        assertEquals("Updated.Name", updatedTrainee.getUsername());
+        assertEquals("Updated", updatedTrainee.getUser().getFirstName());
+        assertEquals("Name", updatedTrainee.getUser().getLastName());
+        assertEquals("Updated.Name", updatedTrainee.getUser().getUsername());
         assertEquals(createdTrainee.getId(), updatedTrainee.getId());
         assertEquals(1, traineeService.findAll().size());
     }
@@ -140,7 +142,7 @@ class TraineeServiceTest {
     void testFindByUsername() {
         Trainee createdTrainee = traineeService.create(trainee1);
 
-        Trainee trainee = traineeService.findByUsername(trainee1.getUsername());
+        Trainee trainee = traineeService.findByUsername(trainee1.getUser().getUsername());
 
         assertEquals(createdTrainee.getId(), trainee.getId());
     }
@@ -151,11 +153,11 @@ class TraineeServiceTest {
 
         traineeService.activate(createdTrainee);
 
-        assertFalse(createdTrainee.isActive());
+        assertFalse(createdTrainee.getUser().isActive());
 
         traineeService.activate(createdTrainee);
 
-        assertTrue(createdTrainee.isActive());
+        assertTrue(createdTrainee.getUser().isActive());
     }
 
     @Test
@@ -163,7 +165,7 @@ class TraineeServiceTest {
         Trainee createdTrainee = traineeService.create(trainee1);
         long id = createdTrainee.getId();
 
-        traineeService.deleteByUsername(createdTrainee.getUsername());
+        traineeService.deleteByUsername(createdTrainee.getUser().getUsername());
 
         assertEquals(0, traineeService.findAll().size());
         assertThrows(RuntimeException.class, () -> traineeService.findById(id), "Trainer with id " + id + " not found");
@@ -173,11 +175,11 @@ class TraineeServiceTest {
     void testChangePassword() {
         String newPassword = "1111111111";
         Trainee trainee = traineeService.create(trainee1);
-        String username = trainee.getUsername();
+        String username = trainee.getUser().getUsername();
 
-        traineeService.changePassword(username, trainee.getPassword(), newPassword);
+        traineeService.changePassword(username, trainee.getUser().getPassword(), newPassword);
 
-        assertEquals(newPassword, traineeService.findByUsername(username).getPassword());
+        assertEquals(newPassword, traineeService.findByUsername(username).getUser().getPassword());
     }
 
     @Test
@@ -185,7 +187,7 @@ class TraineeServiceTest {
         String oldPassword = "1111111111";
         String newPassword = "1132211111";
         Trainee trainee = traineeService.create(trainee1);
-        String username = trainee.getUsername();
+        String username = trainee.getUser().getUsername();
 
         assertThrows(RuntimeException.class, () -> traineeService.changePassword(username, oldPassword, newPassword), "Incorrect password");
     }
@@ -206,18 +208,21 @@ class TraineeServiceTest {
 
         assertEquals(2, trainees.size());
         assertEquals("New Address", updatedTrainee1.getAddress());
-        assertEquals("Will.Salas", createdTrainee2.getUsername());
+        assertEquals("Will.Salas", createdTrainee2.getUser().getUsername());
         assertEquals("New Address", foundTrainee.getAddress());
         assertEquals(1, traineeService.findAll().size());
     }
 
     private Trainee buildTrainee(String firstName, String lastName) {
         return Trainee.builder()
-                .firstName(firstName)
-                .lastName(lastName)
+                .user(User.builder()
+                        .firstName(firstName)
+                        .lastName(lastName)
+                        .isActive(true)
+                        .build()
+                )
                 .dataOfBirth(LocalDate.now().minusYears(25))
                 .address("Test Address")
-                .isActive(true)
                 .build();
     }
 }

@@ -4,63 +4,36 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @SuperBuilder
-
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "trainers", schema = "gym")
-@PrimaryKeyJoinColumn(name = "user_id")
-public class Trainer extends User {
+public class Trainer extends BaseEntity {
 
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "training_type_id", nullable = false)
     private TrainingType specialization;
 
+    @OneToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
+
     @OneToMany(mappedBy = "trainer", fetch = FetchType.LAZY)
     private List<Training> trainings;
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            schema = "gym",
-            name = "trainer_trainee",
-            joinColumns = @JoinColumn(name = "trainer_id"),
-            inverseJoinColumns = @JoinColumn(name = "trainee_id")
-    )
-    private List<Trainee> trainees;
-
-    public List<Trainee> getTrainees() {
-        if (trainees == null) {
-            return new ArrayList<>();
-        }
-        return trainees;
-    }
-
-    public void addTrainee(Trainee trainee) {
-        getTrainees().add(trainee);
-        trainee.getTrainers().add(this);
-    }
-
-    public void removeTrainee(Trainee trainee) {
-        this.trainees.remove(trainee);
-        trainee.getTrainers().remove(this);
-    }
 
     @Override
     public boolean equals(Object o) {

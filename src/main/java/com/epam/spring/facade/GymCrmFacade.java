@@ -3,7 +3,6 @@ package com.epam.spring.facade;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
-import com.epam.spring.repository.UserRepository;
 import com.epam.spring.service.TraineeService;
 import com.epam.spring.service.TrainerService;
 import com.epam.spring.service.TrainingService;
@@ -33,7 +32,7 @@ public class GymCrmFacade {
     }
 
     public Trainee createTrainee(Trainee trainee) {
-        log.info("Creating Trainee with name: {}", trainee.getFirstName());
+        log.info("Creating Trainee with name: {}", trainee.getUser().getFirstName());
         Trainee createdTrainee = traineeService.create(trainee);
         log.info("Trainee created: {}", createdTrainee);
         return createdTrainee;
@@ -65,8 +64,8 @@ public class GymCrmFacade {
         Trainee trainee = traineeService.findById(id);
         log.info("Received request for activating trainee {}", trainee);
         traineeService.activate(trainee);
-        boolean isActive = trainee.isActive();
-        log.info("{}'s status changed from {} to {}", trainee.getUsername(), !isActive, isActive);
+        boolean isActive = trainee.getUser().isActive();
+        log.info("{}'s status changed from {} to {}", trainee.getUser().getUsername(), !isActive, isActive);
     }
 
     public void findTraineesTrainingListByCriteria(String username, String password, LocalDate fromDate, LocalDate toDate, String trainerFirstName, String trainingType) {
@@ -80,23 +79,23 @@ public class GymCrmFacade {
         checkIfTraineeAuthenticated(username, password);
         log.info("Fetching Trainee by ID: {}", id);
         Trainee trainee = traineeService.findById(id);
-        log.info("Trainee found: {}", trainee.getUsername());
+        log.info("Trainee found: {}", trainee.getUser().getUsername());
         return trainee;
     }
 
     public Trainee updateTrainee(Trainee trainee, String username, String password) {
         checkIfTraineeAuthenticated(username, password);
-        log.info("Updating Trainee with ID: {}", trainee.getId());
+        log.info("Updating Trainee with ID: {}", trainee.getUser().getId());
         Trainee updatedTrainee = traineeService.update(trainee);
-        log.info("Trainee updated: {}", updatedTrainee.getUsername());
+        log.info("Trainee updated: {}", updatedTrainee.getUser().getUsername());
         return updatedTrainee;
     }
 
     public void deleteTrainee(Trainee trainee, String username, String password) {
         checkIfTraineeAuthenticated(username, password);
-        log.info("Deleting Trainee with ID: {}", trainee.getId());
+        log.info("Deleting Trainee with ID: {}", trainee.getUser().getId());
         traineeService.delete(trainee);
-        log.info("Trainee deleted: {}", trainee.getUsername());
+        log.info("Trainee deleted: {}", trainee.getUser().getUsername());
     }
 
     public void deleteTraineeByUsername(String username, String password) {
@@ -122,7 +121,7 @@ public class GymCrmFacade {
     }
 
     public Trainer createTrainer(Trainer trainer) {
-        log.info("Creating Trainer with name: {}", trainer.getFirstName());
+        log.info("Creating Trainer with name: {}", trainer.getUser().getFirstName());
         Trainer createdTrainer = trainerService.create(trainer);
         log.info("Trainer created: {}", createdTrainer);
         return createdTrainer;
@@ -154,8 +153,8 @@ public class GymCrmFacade {
         Trainer trainer = trainerService.findById(id);
         log.info("Received request for activating trainer {}", trainer);
         trainerService.activate(trainer);
-        boolean isActive = trainer.isActive();
-        log.info("{}'s status changed from {} to {}", trainer.getUsername(), !isActive, isActive);
+        boolean isActive = trainer.getUser().isActive();
+        log.info("{}'s status changed from {} to {}", trainer.getUser().getUsername(), !isActive, isActive);
     }
 
     public void findTrainersTrainingListByCriteria(String username, String password, LocalDate fromDate, LocalDate toDate, String traineeFirstName, String trainingType) {
@@ -169,15 +168,15 @@ public class GymCrmFacade {
         checkIfTrainerAuthenticated(username, password);
         log.info("Fetching Trainer by ID: {}", id);
         Trainer trainer = trainerService.findById(id);
-        log.info("Trainer found: {}", trainer.getUsername());
+        log.info("Trainer found: {}", trainer.getUser().getUsername());
         return trainer;
     }
 
     public Trainer updateTrainer(Trainer trainer, String username, String password) {
         checkIfTrainerAuthenticated(username, password);
-        log.info("Updating Trainer with ID: {}", trainer.getId());
+        log.info("Updating Trainer with ID: {}", trainer.getUser().getId());
         Trainer updatedTrainer = trainerService.update(trainer);
-        log.info("Trainer updated: {}", updatedTrainer.getUsername());
+        log.info("Trainer updated: {}", updatedTrainer.getUser().getUsername());
         return updatedTrainer;
     }
 
