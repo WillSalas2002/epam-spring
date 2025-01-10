@@ -31,7 +31,7 @@ public class Trainee extends BaseEntity {
     @Column(name = "address")
     private String address;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
@@ -42,9 +42,8 @@ public class Trainee extends BaseEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
         Trainee trainee = (Trainee) o;
-        return Objects.equals(dataOfBirth, trainee.dataOfBirth) && Objects.equals(address, trainee.address);
+        return Objects.equals(dataOfBirth, trainee.dataOfBirth) && Objects.equals(address, trainee.address) && Objects.equals(user, trainee.user);
     }
 
     @Override

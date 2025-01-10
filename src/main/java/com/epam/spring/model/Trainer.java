@@ -28,7 +28,7 @@ public class Trainer extends BaseEntity {
     @JoinColumn(name = "training_type_id", nullable = false)
     private TrainingType specialization;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
@@ -39,9 +39,8 @@ public class Trainer extends BaseEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
         Trainer trainer = (Trainer) o;
-        return Objects.equals(specialization, trainer.specialization);
+        return Objects.equals(specialization, trainer.specialization) && Objects.equals(user, trainer.user);
     }
 
     @Override
