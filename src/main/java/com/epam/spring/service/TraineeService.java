@@ -4,6 +4,7 @@ import com.epam.spring.model.Trainee;
 import com.epam.spring.repository.TraineeRepository;
 import com.epam.spring.util.PasswordGenerator;
 import com.epam.spring.util.UsernameGenerator;
+import com.epam.spring.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,9 +22,11 @@ public class TraineeService implements BaseOperationsService<Trainee>, ExtendedO
     private final UsernameGenerator usernameGenerator;
     private final TraineeRepository traineeRepository;
     private final PasswordGenerator passwordGenerator;
+    private final Validator validator;
 
     @Override
     public Trainee create(Trainee trainee) {
+        validator.validateUser(trainee.getUser());
         String uniqueUsername = usernameGenerator.generateUniqueUsername(trainee.getUser().getFirstName(), trainee.getUser().getLastName());
         String password = passwordGenerator.generatePassword();
         trainee.getUser().setUsername(uniqueUsername);
@@ -47,7 +50,8 @@ public class TraineeService implements BaseOperationsService<Trainee>, ExtendedO
 
     @Override
     public Trainee update(Trainee updatedTrainee) {
-        Long id = updatedTrainee.getUser().getId();
+        validator.validateUser(updatedTrainee.getUser());
+        Long id = updatedTrainee.getId();
         Optional<Trainee> traineeOptional = traineeRepository.findById(id);
         if (traineeOptional.isEmpty()) {
             throw new NoSuchElementException("Trainee with id " + id + " not found");

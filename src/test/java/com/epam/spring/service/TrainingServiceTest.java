@@ -50,24 +50,10 @@ class TrainingServiceTest {
             session.createMutationQuery("DELETE FROM Training").executeUpdate();
             session.createMutationQuery("DELETE FROM Trainer").executeUpdate();
             session.createMutationQuery("DELETE FROM Trainee").executeUpdate();
-            session.createMutationQuery("DELETE FROM TrainingType").executeUpdate();
             session.createMutationQuery("DELETE FROM User").executeUpdate();
+            session.createMutationQuery("DELETE FROM TrainingType").executeUpdate();
             transaction.commit();
         }
-    }
-
-    @Test
-    public void testCreateTraining() {
-        trainerService.create(trainer);
-        traineeService.create(trainee);
-        TrainingType trainingType = trainer.getSpecialization();
-        Training training = new Training(trainee, trainer, "Strong man training", trainingType, LocalDateTime.now().plusHours(3), 120);
-
-        Training createdTraining = trainingService.create(training);
-
-        assertNotNull(createdTraining);
-        assertEquals(createdTraining.getName(), trainingService.findById(createdTraining.getId()).getName());
-        assertEquals(1, trainingService.findAll().size());
     }
 
     @Test
@@ -93,6 +79,20 @@ class TrainingServiceTest {
         assertEquals(2, traineeTrainings.size());
         assertEquals(1, trainerTrainings.size());
 
+    }
+
+    @Test
+    public void testCreateTraining() {
+        trainerService.create(trainer);
+        traineeService.create(trainee);
+        TrainingType trainingType = trainer.getSpecialization();
+        Training training = new Training(trainee, trainer, "Strong man training", trainingType, LocalDateTime.now().plusHours(3), 120);
+
+        Training createdTraining = trainingService.create(training);
+
+        assertNotNull(createdTraining);
+        assertEquals(createdTraining.getName(), trainingService.findById(createdTraining.getId()).getName());
+        assertEquals(1, trainingService.findAll().size());
     }
 
     private Trainer buildTrainer(String firstName, String lastName) {

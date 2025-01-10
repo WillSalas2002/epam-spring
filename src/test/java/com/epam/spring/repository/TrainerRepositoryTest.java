@@ -53,6 +53,7 @@ class TrainerRepositoryTest {
     void testCreate() {
         Trainer createdTrainer = trainerRepository.create(trainer1);
 
+        assertNotNull(createdTrainer.getId());
         assertNotNull(createdTrainer.getUser().getId());
         assertEquals("John", createdTrainer.getUser().getFirstName());
         assertEquals("Doe", createdTrainer.getUser().getLastName());
@@ -74,10 +75,10 @@ class TrainerRepositoryTest {
     void testFindById() {
         Trainer createdTrainer = trainerRepository.create(trainer1);
 
-        Optional<Trainer> foundTrainerOptional = trainerRepository.findById(createdTrainer.getUser().getId());
+        Optional<Trainer> foundTrainerOptional = trainerRepository.findById(createdTrainer.getId());
 
         assertTrue(foundTrainerOptional.isPresent());
-        assertEquals(createdTrainer.getUser().getId(), foundTrainerOptional.get().getId());
+        assertEquals(createdTrainer.getId(), foundTrainerOptional.get().getId());
     }
 
     @Test

@@ -53,8 +53,8 @@ class TrainingRepositoryTest {
             session.createMutationQuery("DELETE FROM Training").executeUpdate();
             session.createMutationQuery("DELETE FROM Trainer").executeUpdate();
             session.createMutationQuery("DELETE FROM Trainee").executeUpdate();
-            session.createMutationQuery("DELETE FROM TrainingType").executeUpdate();
             session.createMutationQuery("DELETE FROM User").executeUpdate();
+            session.createMutationQuery("DELETE FROM TrainingType").executeUpdate();
             transaction.commit();
         }
     }
