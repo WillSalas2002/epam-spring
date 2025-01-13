@@ -76,24 +76,7 @@ public class TrainingRepository implements BaseOperationsRepository<Training>, T
                                                String trainingType) {
 
         try (Session session = sessionFactory.openSession()) {
-            String hqlQuery = QueryBuilder.buildFindTraineeTrainingsQuery(fromDate, toDate, trainerName, trainingType);
-
-            Query<Training> query = session.createQuery(hqlQuery, Training.class);
-
-            query.setParameter("traineeUsername", traineeUsername);
-            if (fromDate != null) {
-                query.setParameter("fromDate", fromDate);
-            }
-            if (toDate != null) {
-                query.setParameter("toDate", toDate);
-            }
-            if (trainerName != null && !trainerName.isEmpty()) {
-                query.setParameter("trainerName", "%" + trainerName + "%");
-            }
-            if (trainingType != null && !trainingType.isEmpty()) {
-                query.setParameter("trainingType", "%" + trainingType + "%");
-            }
-
+            Query<Training> query = QueryBuilder.buildFindTraineeTrainingsQuery(session, traineeUsername, fromDate, toDate, trainerName, trainingType);
             return query.getResultList();
         }
     }
@@ -106,24 +89,7 @@ public class TrainingRepository implements BaseOperationsRepository<Training>, T
                                                String trainingType) {
 
         try (Session session = sessionFactory.openSession()) {
-            String hqlQuery = QueryBuilder.buildFindTrainerTrainings(fromDate, toDate, traineeName, trainingType);
-
-            Query<Training> query = session.createQuery(hqlQuery, Training.class);
-
-            query.setParameter("trainerUsername", trainerUsername);
-            if (fromDate != null) {
-                query.setParameter("fromDate", fromDate);
-            }
-            if (toDate != null) {
-                query.setParameter("toDate", toDate);
-            }
-            if (traineeName != null && !traineeName.isEmpty()) {
-                query.setParameter("traineeName", "%" + traineeName + "%");
-            }
-            if (trainingType != null && !trainingType.isEmpty()) {
-                query.setParameter("trainingType", "%" + trainingType + "%");
-            }
-
+            Query<Training> query = QueryBuilder.buildFindTrainerTrainings(session, trainerUsername, fromDate, toDate, traineeName, trainingType);
             return query.getResultList();
         }
     }
