@@ -24,7 +24,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @ToString(callSuper = true, exclude = {"trainings"})
 @Entity
-@Table(name = "trainees", schema = "gym")
+@Table(name = "trainees")
 public class Trainee extends BaseEntity {
 
     @Column(name = "date_of_birth")

@@ -20,7 +20,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @ToString(callSuper = true, exclude = {"trainers", "trainings"})
 @Entity
-@Table(name = "training_types", schema = "gym")
+@Table(name = "training_types")
 public class TrainingType extends BaseEntity {
 
     @Column(name = "training_type_name", nullable = false)

@@ -23,7 +23,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @ToString(callSuper = true, exclude = {"trainings", "specialization"})
 @Entity
-@Table(name = "trainers", schema = "gym")
+@Table(name = "trainers")
 public class Trainer extends BaseEntity {
 
     @ManyToOne(cascade = CascadeType.PERSIST)

@@ -1,3 +1,0 @@
-Trainee,Bob,Johnson,Bob.Johnson,password78,1992-03-01,789 Maple Ln.,true
-Trainer,Michael,Brown,Michael.Brown,password65,Cardio,true
-Training,Bob.Johnson,Michael.Brown,Weight Lifting,2023-04-01T11:50:55,60

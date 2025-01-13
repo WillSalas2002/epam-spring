@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringJUnitConfig(AppConfig.class)
-@TestPropertySource(locations = "classpath:test-application.properties")
 class GymCrmFacadeTest {
 
     @Autowired

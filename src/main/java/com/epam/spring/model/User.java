@@ -19,8 +19,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @ToString(callSuper = true)
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
-@Table(name = "users", schema = "gym")
+@Table(name = "users")
 public class User extends BaseEntity {
 
     @Column(name = "first_name", nullable = false)
