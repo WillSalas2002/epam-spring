@@ -17,7 +17,7 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class TrainerService implements BaseOperationsService<Trainer>, ExtendedOperationsService<Trainer>, TrainerSpecificOperationsService {
+public class TrainerService implements ExtendedOperationsService<Trainer>, TrainerSpecificOperationsService {
 
     private final UsernameGenerator usernameGenerator;
     private final TrainerRepository trainerRepository;

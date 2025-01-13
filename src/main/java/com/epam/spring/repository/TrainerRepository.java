@@ -14,7 +14,7 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 @Repository
-public class TrainerRepository implements BaseOperationsRepository<Trainer>, ExtendedOperationsRepository<Trainer>, TrainerSpecificOperationsRepository {
+public class TrainerRepository implements ExtendedOperationsRepository<Trainer>, TrainerSpecificOperationsRepository {
 
     public static final String FIND_ALL_QUERY = "SELECT t FROM Trainer t";
     public static final String FIND_BY_ID_QUERY = "SELECT t FROM Trainer t WHERE id =: id";
