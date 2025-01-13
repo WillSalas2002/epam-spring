@@ -8,6 +8,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString(callSuper = true, exclude = {"trainers", "trainings"})
 @Entity
 @Table(name = "training_types", schema = "gym")
 public class TrainingType extends BaseEntity {
