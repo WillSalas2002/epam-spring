@@ -1,19 +1,26 @@
 package com.epam.spring.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-import java.util.UUID;
-
 @SuperBuilder
-@ToString
 @Getter
 @Setter
 @NoArgsConstructor
-public class BaseEntity {
+@ToString
+@MappedSuperclass
+public abstract class BaseEntity {
 
-    private UUID uuid;
+    @Id
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 }

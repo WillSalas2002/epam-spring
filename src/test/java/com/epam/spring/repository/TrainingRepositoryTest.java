@@ -1,4 +1,4 @@
-package com.epam.spring.service;
+package com.epam.spring.repository;
 
 import com.epam.spring.config.AppConfig;
 import com.epam.spring.model.Trainee;
@@ -6,6 +6,8 @@ import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
 import com.epam.spring.model.TrainingType;
 import com.epam.spring.model.User;
+import com.epam.spring.service.TraineeService;
+import com.epam.spring.service.TrainerService;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -17,22 +19,23 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringJUnitConfig(AppConfig.class)
-class TrainingServiceTest {
+class TrainingRepositoryTest {
 
     @Autowired
-    private TrainingService trainingService;
-    @Autowired
-    private SessionFactory sessionFactory;
+    private TrainingRepository trainingRepository;
     @Autowired
     private TraineeService traineeService;
     @Autowired
     private TrainerService trainerService;
+    @Autowired
+    private SessionFactory sessionFactory;
 
     private Trainer trainer;
     private Trainee trainee;
@@ -40,7 +43,7 @@ class TrainingServiceTest {
     @BeforeEach
     void setUp() {
         trainer = buildTrainer("Will", "Salas");
-        trainee = buildTrainee("Adam", "Sam");
+        trainee = buildTrainee("Adam", "Simpson");
     }
 
     @AfterEach
@@ -57,42 +60,21 @@ class TrainingServiceTest {
     }
 
     @Test
-    public void testFindTraineeAndTrainerTrainings() {
-        Trainee trainee1 = buildTrainee("trainee1", "trainee1");
-        traineeService.create(trainee1);
-        Trainer trainer1 = buildTrainer("trainer1", "trainer1");
-        trainerService.create(trainer1);
-        TrainingType trainingType1 = trainer1.getSpecialization();
-        Training training1 = new Training(trainee1, trainer1, "Strong man training", trainingType1, LocalDateTime.now().plusHours(3), 120);
-
-        Trainer trainer2 = buildTrainer("trainer2", "trainer2");
-        trainerService.create(trainer2);
-        TrainingType trainingType2 = trainer1.getSpecialization();
-        Training training2 = new Training(trainee1, trainer2, "Strong man training", trainingType2, LocalDateTime.now().plusHours(3), 120);
-
-        trainingService.create(training1);
-        trainingService.create(training2);
-
-        List<Training> traineeTrainings = trainingService.findTraineeTrainings(trainee1.getUser().getUsername(), null, null, null, null);
-        List<Training> trainerTrainings = trainingService.findTrainerTrainings(trainer1.getUser().getUsername(), null, null, null, null);
-
-        assertEquals(2, traineeTrainings.size());
-        assertEquals(1, trainerTrainings.size());
-
-    }
-
-    @Test
     public void testCreateTraining() {
-        trainerService.create(trainer);
-        traineeService.create(trainee);
-        TrainingType trainingType = trainer.getSpecialization();
-        Training training = new Training(trainee, trainer, "Strong man training", trainingType, LocalDateTime.now().plusHours(3), 120);
+        Trainee createdTrainee = traineeService.create(trainee);
+        Trainer createdTrainer = trainerService.create(trainer);
+        TrainingType trainingType = createdTrainer.getSpecialization();
 
-        Training createdTraining = trainingService.create(training);
+        Training training = buildTraining(createdTrainee, createdTrainer, trainingType);
+
+        Training createdTraining = trainingRepository.create(training);
+        Optional<Training> trainingByIdOptional = trainingRepository.findById(createdTraining.getId());
 
         assertNotNull(createdTraining);
-        assertEquals(createdTraining.getName(), trainingService.findById(createdTraining.getId()).getName());
-        assertEquals(1, trainingService.findAll().size());
+        assertTrue(trainingByIdOptional.isPresent());
+        assertEquals(90, trainingByIdOptional.get().getDuration());
+        assertEquals(1, trainingRepository.findAll().size());
+
     }
 
     private Trainer buildTrainer(String firstName, String lastName) {
@@ -123,6 +105,17 @@ class TrainingServiceTest {
     private static TrainingType buildTrainingType() {
         return TrainingType.builder()
                 .trainingTypeName("Cardio")
+                .build();
+    }
+
+    private static Training buildTraining(Trainee trainee, Trainer trainer, TrainingType trainingType) {
+        return Training.builder()
+                .trainee(trainee)
+                .trainer(trainer)
+                .name("Hard Cardio")
+                .trainingType(trainingType)
+                .date(LocalDateTime.now().plusHours(5))
+                .duration(90)
                 .build();
     }
 }

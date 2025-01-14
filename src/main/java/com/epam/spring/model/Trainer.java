@@ -1,26 +1,52 @@
 package com.epam.spring.model;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+import java.util.Objects;
+
 @SuperBuilder
-@ToString
 @Getter
 @Setter
 @NoArgsConstructor
-public class Trainer extends User {
+@ToString(callSuper = true, exclude = {"trainings", "specialization"})
+@Entity
+@Table(name = "trainers")
+public class Trainer extends BaseEntity {
 
-    private String specialization;
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "training_type_id", nullable = false)
+    private TrainingType specialization;
 
-    public Trainer(String firstName, String lastName, boolean isActive) {
-        super(firstName, lastName, isActive);
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
+
+    @OneToMany(mappedBy = "trainer", fetch = FetchType.LAZY)
+    private List<Training> trainings;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Trainer trainer = (Trainer) o;
+        return Objects.equals(specialization, trainer.specialization) && Objects.equals(user, trainer.user);
     }
 
-    public Trainer(String firstName, String lastName, String specialization, boolean isActive) {
-        super(firstName, lastName, isActive);
-        this.specialization = specialization;
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), specialization);
     }
 }
