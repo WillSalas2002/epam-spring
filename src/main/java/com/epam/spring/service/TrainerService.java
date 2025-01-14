@@ -107,7 +107,7 @@ public class TrainerService implements ExtendedOperationsService<Trainer>, Train
 
     @Override
     public List<Trainer> findTrainersByTraineeUsername(String username){
-        return trainerRepository.findTrainersByTraineeUsername(username);
+        return trainerRepository.findUnassignedTrainersByTraineeUsername(username);
     }
 
     private boolean isNameChanged(Trainer trainer, Trainer updatedTrainer) {

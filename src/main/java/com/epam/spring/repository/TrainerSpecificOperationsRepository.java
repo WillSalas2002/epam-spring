@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface TrainerSpecificOperationsRepository {
 
-    List<Trainer> findTrainersByTraineeUsername(String username);
+    List<Trainer> findUnassignedTrainersByTraineeUsername(String username);
 }

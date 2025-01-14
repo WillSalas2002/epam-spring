@@ -19,7 +19,17 @@ public class TrainerRepository implements ExtendedOperationsRepository<Trainer>,
     public static final String FIND_ALL_QUERY = "SELECT t FROM Trainer t";
     public static final String FIND_BY_ID_QUERY = "SELECT t FROM Trainer t WHERE id =: id";
     public static final String FIND_BY_USERNAME_QUERY = "SELECT t FROM Trainer t WHERE t.user.username =: username";
-//    public static final String FIND_BY_TRAINEE_USERNAME_QUERY = "SELECT t FROM Trainer t WHERE t NOT IN (SELECT t FROM Trainee tee JOIN tee..trainers t WHERE tee.user.username =: username)";
+    public static final String FIND_BY_TRAINEE_USERNAME_QUERY = """
+            SELECT DISTINCT t.id AS trainer_id, u.firstName, u.lastName
+            FROM Trainer t
+                     JOIN User u ON t.user.id = u.id
+            WHERE t.id NOT IN (SELECT tr.id
+                               FROM Training trn
+                                        JOIN Trainer tr ON tr.id = trn.trainer.id
+                                        JOIN Trainee tn ON tn.id = trn.trainee.id
+                                        JOIN User tu ON tu.id = tn.user.id
+                               WHERE tu.username =: username)
+            """;
 
     private final SessionFactory sessionFactory;
 
@@ -93,12 +103,12 @@ public class TrainerRepository implements ExtendedOperationsRepository<Trainer>,
     }
 
     @Override
-    public List<Trainer> findTrainersByTraineeUsername(String username) {
-//        try (Session session = sessionFactory.openSession()) {
-//            return session.createQuery(FIND_BY_TRAINEE_USERNAME_QUERY, Trainer.class)
-//                    .setParameter("username", username)
-//                    .getResultList();
-//        }
-        return null;
+    // найти список тренеров кто не является тренером текущего ученика
+    public List<Trainer> findUnassignedTrainersByTraineeUsername(String username) {
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery(FIND_BY_TRAINEE_USERNAME_QUERY, Trainer.class)
+                    .setParameter("username", username)
+                    .getResultList();
+        }
     }
 }
