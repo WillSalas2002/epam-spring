@@ -19,6 +19,7 @@
         <hibernate.version>6.5.2.Final</hibernate.version>
         <postgres.version>42.7.3</postgres.version>
         <slf4j.version>2.0.7</slf4j.version>
+        <hikariCP.version>5.1.0</hikariCP.version>
     </properties>
 
     <dependencies>
@@ -44,6 +45,12 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
             <version>${spring.version}</version>
         </dependency>
 
@@ -92,6 +99,13 @@
             <artifactId>postgresql</artifactId>
             <version>${postgres.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>${hikariCP.version}</version>
+        </dependency>
+
 
         <dependency>
             <groupId>com.h2database</groupId>

@@ -1,20 +1,17 @@
 package com.epam.spring.config;
 
-import com.epam.spring.model.Trainee;
-import com.epam.spring.model.Trainer;
-import com.epam.spring.model.Training;
-import com.epam.spring.model.TrainingType;
-import com.epam.spring.model.User;
+import com.zaxxer.hikari.HikariDataSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.SessionFactory;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.service.ServiceRegistry;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.orm.hibernate5.HibernateTransactionManager;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.transaction.PlatformTransactionManager;
 
+import javax.sql.DataSource;
 import java.util.Properties;
 
 @Slf4j
@@ -26,39 +23,34 @@ public class HibernateConfig {
     private final Environment ENV;
 
     @Bean
-    public SessionFactory sessionFactory() {
-        Configuration configuration = new Configuration();
-
-        configuration.addAnnotatedClass(User.class);
-        configuration.addAnnotatedClass(Trainee.class);
-        configuration.addAnnotatedClass(Trainer.class);
-        configuration.addAnnotatedClass(Training.class);
-        configuration.addAnnotatedClass(TrainingType.class);
-        configuration.addProperties(loadProperties());
-
-        // We need ServiceRegistry in order to obtain more control over hibernate (custom connection pool, caching etc...)
-        ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
-                .applySettings(configuration.getProperties())
-                .build();
-        log.info("Configuring session factory");
-
-        return configuration.buildSessionFactory(serviceRegistry);
+    public DataSource dataSource() {
+        HikariDataSource dataSource = new HikariDataSource();
+        dataSource.setDriverClassName(ENV.getProperty("db.driver"));
+        dataSource.setJdbcUrl(ENV.getProperty("db.url"));
+        dataSource.setUsername(ENV.getProperty("db.username"));
+        dataSource.setPassword(ENV.getProperty("db.password"));
+        return dataSource;
     }
 
-    private Properties loadProperties() {
+    @Bean
+    public LocalSessionFactoryBean sessionFactory(DataSource dataSource) {
+        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
+        sessionFactory.setDataSource(dataSource);
+        sessionFactory.setPackagesToScan("com.epam.spring.model");
+        sessionFactory.setHibernateProperties(hibernateProperties());
+        return sessionFactory;
+    }
+
+    private Properties hibernateProperties() {
         Properties properties = new Properties();
-        // Hibernate JDBC Properties
-        properties.setProperty("connection.driver_class", ENV.getProperty("db.driver"));
-        properties.setProperty("hibernate.connection.url", ENV.getProperty("db.url"));
-        properties.setProperty("hibernate.connection.username", ENV.getProperty("db.username"));
-        properties.setProperty("hibernate.connection.password", ENV.getProperty("db.password"));
-        // Hibernate Configuration Properties
         properties.setProperty("hibernate.show_sql", ENV.getProperty("hibernate.show_sql"));
         properties.setProperty("hibernate.format_sql", ENV.getProperty("hibernate.format_sql"));
         properties.setProperty("hibernate.hbm2ddl.auto", ENV.getProperty("hibernate.hbm2ddl.auto"));
-        properties.setProperty("hibernate.current_session_context_class", ENV.getProperty("hibernate.current_session_context_class"));
-
-        log.info("Setting properties");
         return properties;
+    }
+
+    @Bean
+    public PlatformTransactionManager transactionManager(SessionFactory sessionFactory) {
+        return new HibernateTransactionManager(sessionFactory);
     }
 }
