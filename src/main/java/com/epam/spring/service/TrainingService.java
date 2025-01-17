@@ -44,10 +44,11 @@ public class TrainingService {
 //                traineeService::findByUsername
 //        );
 
-        Trainer trainer = findEntityOrThrow(
-                training.getTrainer().getUser().getUsername(),
-                trainerService::findByUsername
-        );
+        Trainer trainer = null;
+//                findEntityOrThrow(
+//                training.getTrainer().getUser().getUsername(),
+//                trainerService::findByUsername
+//        );
 
         training.setTrainee(trainee);
         training.setTrainer(trainer);

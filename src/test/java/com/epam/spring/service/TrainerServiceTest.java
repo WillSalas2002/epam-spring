@@ -1,24 +1,27 @@
 package com.epam.spring.service;
 
 import com.epam.spring.config.AppConfig;
-import com.epam.spring.model.Trainer;
+import com.epam.spring.dto.TrainingTypeDTO;
+import com.epam.spring.dto.request.UserActivationRequestDTO;
+import com.epam.spring.dto.request.trainer.CreateTrainerRequestDTO;
+import com.epam.spring.dto.request.trainer.UpdateTrainerRequestDTO;
+import com.epam.spring.dto.response.UserCredentialsResponseDTO;
+import com.epam.spring.dto.response.trainer.FetchTrainerResponseDTO;
+import com.epam.spring.dto.response.trainer.UpdateTrainerResponseDTO;
 import com.epam.spring.model.TrainingType;
-import com.epam.spring.model.User;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -32,13 +35,19 @@ class TrainerServiceTest {
     @Autowired
     private SessionFactory sessionFactory;
 
-    private Trainer trainer1;
-    private Trainer trainer2;
+    private final String firstName = "John";
+    private final String lastName = "Doe";
 
     @BeforeEach
     void setUp() {
-        trainer1 = buildTrainer("John", "Doe");
-        trainer2 = buildTrainer("Will", "Salas");
+        buildCreateTrainerRequest(firstName, lastName);
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            session.createNativeMutationQuery("INSERT INTO training_types (training_type_name) VALUES ('Cardio')").executeUpdate();
+            session.createNativeMutationQuery("ALTER TABLE training_types ALTER COLUMN id RESTART WITH 1").executeUpdate();
+//            System.out.println("TrainingType: " + trainingType);
+            transaction.commit();
+        }
     }
 
     @AfterEach
@@ -47,155 +56,84 @@ class TrainerServiceTest {
             Transaction transaction = session.beginTransaction();
             session.createMutationQuery("DELETE FROM Trainer").executeUpdate();
             session.createMutationQuery("DELETE FROM User").executeUpdate();
+            session.createMutationQuery("DELETE FROM TrainingType ").executeUpdate();
             transaction.commit();
         }
     }
 
     @Test
     void testCreate() {
-        Trainer createdTrainer = trainerService.create(trainer1);
+        UserCredentialsResponseDTO userCredentialsResponseDTO = trainerService.create(buildCreateTrainerRequest(firstName, lastName));
 
-        assertNotNull(createdTrainer.getId());
-        assertEquals("John.Doe", createdTrainer.getUser().getUsername());
-        assertEquals(1, trainerService.findAll().size());
+        assertNotNull(userCredentialsResponseDTO);
+        assertEquals(firstName + "." + lastName, userCredentialsResponseDTO.getUsername());
+        assertEquals(10, userCredentialsResponseDTO.getPassword().length());
+    }
+
+    private static CreateTrainerRequestDTO buildCreateTrainerRequest(String firstName, String lastName) {
+        return CreateTrainerRequestDTO.builder()
+                .firstName(firstName)
+                .lastName(lastName)
+                .trainingTypeId(1L)
+                .build();
     }
 
     @Test
     void testCreateWithExistingName() {
-        Trainer createdTrainer1 = trainerService.create(trainer1);
-        trainer2.getUser().setFirstName("John");
-        trainer2.getUser().setLastName("Doe");
-        Trainer createdTrainer2 = trainerService.create(trainer2);
+        UserCredentialsResponseDTO userCredentialsResponseDTO1 = trainerService.create(buildCreateTrainerRequest(firstName, lastName));
+        UserCredentialsResponseDTO userCredentialsResponseDTO2 = trainerService.create(buildCreateTrainerRequest(firstName, lastName));
 
-        assertEquals("John.Doe", createdTrainer1.getUser().getUsername());
-        assertEquals("John.Doe.1", createdTrainer2.getUser().getUsername());
-    }
-
-    @Test
-    void testFindAll() {
-        Trainer createdTrainer1 = trainerService.create(trainer1);
-        Trainer createdTrainer2 = trainerService.create(trainer2);
-
-        List<Trainer> Trainers = trainerService.findAll();
-
-        assertEquals(2, Trainers.size());
-        assertTrue(Trainers.stream().anyMatch(t -> t.getUser().getUsername().equals(createdTrainer1.getUser().getUsername())));
-        assertTrue(Trainers.stream().anyMatch(t -> t.getUser().getUsername().equals(createdTrainer2.getUser().getUsername())));
-    }
-
-    @Test
-    void testFindById() {
-        Trainer createdTrainer = trainerService.create(trainer1);
-
-        Trainer foundTrainer = trainerService.findById(createdTrainer.getId());
-
-        assertNotNull(foundTrainer);
-        assertEquals(createdTrainer.getId(), foundTrainer.getId());
-        assertEquals(trainer1.getUser().getUsername(), foundTrainer.getUser().getUsername());
-    }
-
-    @Test
-    void testFindByIdNonExistent() {
-        long nonExistentId = 100L;
-        assertThrows(RuntimeException.class, () -> trainerService.findById(nonExistentId), "Trainer with id " + nonExistentId + " not found");
+        assertEquals("John.Doe", userCredentialsResponseDTO1.getUsername());
+        assertEquals("John.Doe.1", userCredentialsResponseDTO2.getUsername());
     }
 
     @Test
     void testUpdate() {
-        Trainer createdTrainer = trainerService.create(trainer1);
+        UserCredentialsResponseDTO userCredentialsResponseDTO = trainerService.create(buildCreateTrainerRequest(firstName, lastName));
+        String updatedFirstName = "Will";
+        String updateLastName = "Salas";
+        UpdateTrainerRequestDTO updateRequest = UpdateTrainerRequestDTO.builder()
+                .username(firstName + "." + lastName)
+                .firstName(updatedFirstName)
+                .lastName(updateLastName)
+                .active(Boolean.TRUE)
+                .trainingType(new TrainingTypeDTO(1L, "Cardio"))
+                .build();
 
-        createdTrainer.getUser().setFirstName("Updated");
-        createdTrainer.getUser().setLastName("Name");
-        Trainer updatedTrainer = trainerService.update(createdTrainer);
+        UpdateTrainerResponseDTO updateTrainerResponseDTO = trainerService.updateProfile(updateRequest);
 
-        assertEquals("Updated", updatedTrainer.getUser().getFirstName());
-        assertEquals("Name", updatedTrainer.getUser().getLastName());
-        assertEquals("Updated.Name", updatedTrainer.getUser().getUsername());
-        assertEquals(createdTrainer.getId(), updatedTrainer.getId());
-        assertEquals(1, trainerService.findAll().size());
+        assertEquals(updatedFirstName, updateTrainerResponseDTO.getFirstName());
+        assertEquals(updateLastName, updateTrainerResponseDTO.getLastName());
+        assertEquals(Boolean.TRUE, updateTrainerResponseDTO.getActive());
     }
 
     @Test
     void whenUpdateNonExistingTrainerThenThrowException() {
-        long id = 10L;
-        trainer1.setId(id);
-        assertThrows(NoSuchElementException.class, () -> trainerService.update(trainer1), "Trainer with id " + id + " not found");
-    }
-
-    @Test
-    void testDelete() {
-        Trainer createdTrainer = trainerService.create(trainer1);
-        Long id = createdTrainer.getId();
-
-        trainerService.delete(createdTrainer);
-
-        assertEquals(0, trainerService.findAll().size());
-        assertThrows(RuntimeException.class, () -> trainerService.findById(createdTrainer.getId()), "Trainer with id " + id + " not found");
-    }
-
-    @Test
-    void testDeleteNonExistentTrainer() {
-        assertDoesNotThrow(() -> trainerService.delete(trainer1));
+        String nonExistingUsername = "not exists";
+        assertThrows(NoSuchElementException.class, () -> trainerService.updateProfile(UpdateTrainerRequestDTO.builder().username(nonExistingUsername).build()), "Trainer with username " + nonExistingUsername + " not found");
     }
 
     @Test
     void testFindByUsername() {
-        Trainer createdTrainer = trainerService.create(trainer1);
+        UserCredentialsResponseDTO userCredentialsResponseDTO = trainerService.create(buildCreateTrainerRequest(firstName, lastName));
 
-        Trainer Trainer = trainerService.findByUsername(trainer1.getUser().getUsername());
+        FetchTrainerResponseDTO userProfile = trainerService.getUserProfile(userCredentialsResponseDTO.getUsername());
 
-        assertEquals(createdTrainer.getId(), Trainer.getId());
+        assertNotNull(userProfile);
+        assertEquals(firstName, userProfile.getFirstName());
+        assertEquals(lastName, userProfile.getLastName());
     }
 
+    // TODO: need to move this logic to User
     @Test
     void testActivateShouldNotBeIdempotent() {
-        Trainer createdTrainer = trainerService.create(trainer1);
+        UserCredentialsResponseDTO userCredentialsResponseDTO = trainerService.create(buildCreateTrainerRequest(firstName, lastName));
 
-        trainerService.activate(createdTrainer);
+        UserActivationRequestDTO activationRequest = new UserActivationRequestDTO(firstName + "." + lastName, Boolean.TRUE);
+        trainerService.activateProfile(activationRequest);
 
-        assertFalse(createdTrainer.getUser().isActive());
+        FetchTrainerResponseDTO userProfile = trainerService.getUserProfile(userCredentialsResponseDTO.getUsername());
 
-        trainerService.activate(createdTrainer);
-
-        assertTrue(createdTrainer.getUser().isActive());
-    }
-
-    @Test
-    void testChangePassword() {
-        String newPassword = "1111111111";
-        Trainer trainer = trainerService.create(trainer1);
-        String username = trainer.getUser().getUsername();
-
-        trainerService.changePassword(username, trainer.getUser().getPassword(), newPassword);
-
-        assertEquals(newPassword, trainerService.findByUsername(username).getUser().getPassword());
-    }
-
-    @Test
-    void whenChangePasswordWithIncorrectOldPasswordThenThrowException() {
-        String incorrectOldPassword = "1111111111";
-        String newPassword = "1132211111";
-        Trainer trainer = trainerService.create(trainer1);
-        String username = trainer.getUser().getUsername();
-
-        assertThrows(RuntimeException.class, () -> trainerService.changePassword(username, incorrectOldPassword, newPassword), "Incorrect password");
-    }
-
-    private Trainer buildTrainer(String firstName, String lastName) {
-        return Trainer.builder()
-                .user(User.builder()
-                        .firstName(firstName)
-                        .lastName(lastName)
-                        .isActive(true)
-                        .build()
-                )
-                .specialization(buildTrainingType())
-                .build();
-    }
-
-    private static TrainingType buildTrainingType() {
-        return TrainingType.builder()
-                .trainingTypeName("Cardio")
-                .build();
+        assertTrue(userProfile.getActive());
     }
 }

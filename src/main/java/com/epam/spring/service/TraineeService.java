@@ -1,5 +1,6 @@
 package com.epam.spring.service;
 
+import com.epam.spring.dto.TrainingTypeDTO;
 import com.epam.spring.dto.request.UserActivationRequestDTO;
 import com.epam.spring.dto.request.trainee.CreateTraineeRequestDTO;
 import com.epam.spring.dto.request.trainee.UpdateTraineeRequestDTO;
@@ -97,7 +98,7 @@ public class TraineeService implements
                 training.getTrainer().getUser().getUsername(),
                 training.getTrainer().getUser().getFirstName(),
                 training.getTrainer().getUser().getLastName(),
-                training.getTrainingType().getTrainingTypeName()
+                new TrainingTypeDTO(training.getTrainingType().getId(), training.getTrainingType().getTrainingTypeName())
         )).toList();
 
         return FetchTraineeResponseDTO.builder()

@@ -62,7 +62,7 @@ class TrainingRepositoryTest {
     @Test
     public void testCreateTraining() {
         Trainee createdTrainee = null;
-        Trainer createdTrainer = trainerService.create(trainer);
+        Trainer createdTrainer = null;
         TrainingType trainingType = createdTrainer.getSpecialization();
 
         Training training = buildTraining(createdTrainee, createdTrainer, trainingType);

@@ -1,6 +1,6 @@
 package com.epam.spring.dto.response.trainer;
 
-import com.epam.spring.model.TrainingType;
+import com.epam.spring.dto.TrainingTypeDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,5 +17,5 @@ public class TrainerResponseDTO {
     private String username;
     private String firstName;
     private String lastName;
-    private String specialization;
+    private TrainingTypeDTO specialization;
 }

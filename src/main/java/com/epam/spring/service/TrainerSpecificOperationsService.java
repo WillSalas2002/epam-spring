@@ -1,10 +1,10 @@
 package com.epam.spring.service;
 
-import com.epam.spring.model.Trainer;
+import com.epam.spring.dto.response.trainer.TrainerResponseDTO;
 
 import java.util.List;
 
 public interface TrainerSpecificOperationsService {
 
-    List<Trainer> findTrainersByTraineeUsername(String username);
+    List<TrainerResponseDTO> findUnassignedTrainersByTraineeUsername(String username);
 }

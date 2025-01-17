@@ -1,6 +1,7 @@
 package com.epam.spring.repository;
 
 import com.epam.spring.model.Trainer;
+import com.epam.spring.model.TrainingType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
@@ -18,7 +19,7 @@ public class TrainerRepository implements ExtendedOperationsRepository<Trainer>,
 
     public static final String FIND_ALL_QUERY = "SELECT t FROM Trainer t";
     public static final String FIND_BY_ID_QUERY = "SELECT t FROM Trainer t WHERE id =: id";
-    public static final String FIND_BY_USERNAME_QUERY = "SELECT t FROM Trainer t WHERE t.user.username =: username";
+    public static final String FIND_BY_USERNAME_QUERY = "SELECT t FROM Trainer t LEFT JOIN FETCH t.trainings WHERE t.user.username =: username";
     public static final String FIND_BY_TRAINEE_USERNAME_QUERY = """
             SELECT DISTINCT t.id AS trainer_id, u.firstName, u.lastName
             FROM Trainer t
@@ -38,6 +39,8 @@ public class TrainerRepository implements ExtendedOperationsRepository<Trainer>,
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
+            TrainingType mergedSpecialization = session.get(TrainingType.class, trainer.getSpecialization().getId());
+            trainer.setSpecialization(mergedSpecialization);
             session.persist(trainer);
             transaction.commit();
         } catch (Exception e) {
