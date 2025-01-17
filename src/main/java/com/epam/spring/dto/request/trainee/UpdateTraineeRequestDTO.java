@@ -1,6 +1,5 @@
 package com.epam.spring.dto.request.trainee;
 
-import com.epam.spring.enums.BooleanEnum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -27,5 +26,5 @@ public class UpdateTraineeRequestDTO {
     private String dateOfBirth;
     private String address;
     @NotNull(message = "Is active is required")
-    private BooleanEnum isActive;
+    private Boolean isActive;
 }

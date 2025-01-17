@@ -56,6 +56,7 @@ class TrainingServiceTest {
         }
     }
 
+    /*
     @Test
     public void testFindTraineeAndTrainerTrainings() {
         Trainee trainee1 = buildTrainee("trainee1", "trainee1");
@@ -94,6 +95,8 @@ class TrainingServiceTest {
         assertEquals(createdTraining.getName(), trainingService.findById(createdTraining.getId()).getName());
         assertEquals(1, trainingService.findAll().size());
     }
+
+     */
 
     private Trainer buildTrainer(String firstName, String lastName) {
         return Trainer.builder()

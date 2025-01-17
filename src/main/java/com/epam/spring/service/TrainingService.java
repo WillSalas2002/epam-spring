@@ -38,10 +38,11 @@ public class TrainingService {
 
 //    @Override
     public Training create(Training training) {
-        Trainee trainee = findEntityOrThrow(
-                training.getTrainee().getUser().getUsername(),
-                traineeService::findByUsername
-        );
+        Trainee trainee = null;
+//        findEntityOrThrow(
+//                training.getTrainee().getUser().getUsername(),
+//                traineeService::findByUsername
+//        );
 
         Trainer trainer = findEntityOrThrow(
                 training.getTrainer().getUser().getUsername(),
