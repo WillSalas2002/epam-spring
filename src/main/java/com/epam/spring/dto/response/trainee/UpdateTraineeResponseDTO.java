@@ -2,6 +2,7 @@ package com.epam.spring.dto.response.trainee;
 
 import com.epam.spring.dto.response.trainer.TrainerResponseDTO;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,7 +16,8 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class TraineeUpdateResponseDTO {
+@Builder
+public class UpdateTraineeResponseDTO {
 
     private String username;
     private String firstName;

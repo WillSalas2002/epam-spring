@@ -18,7 +18,7 @@ public class TraineeRepository implements ExtendedOperationsRepository<Trainee>,
 
     public static final String FIND_ALL_QUERY = "SELECT t FROM Trainee t";
     public static final String FIND_BY_ID_QUERY = "FROM Trainee WHERE id =: id";
-    public static final String FIND_BY_USERNAME_QUERY = "SELECT t FROM Trainee t WHERE t.user.username =: username";
+    public static final String FIND_BY_USERNAME_QUERY = "SELECT t FROM Trainee t JOIN Trainer tr ON t.user.id = tr.user.id WHERE t.user.username =: username";
     public static final String DELETE_BY_USERNAME_QUERY = "DELETE FROM Trainee t WHERE t.user.username =: username";
 
     private final SessionFactory sessionFactory;

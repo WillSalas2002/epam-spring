@@ -1,6 +1,15 @@
 package com.epam.spring.service;
 
+import com.epam.spring.dto.request.UserActivationRequestDTO;
+import com.epam.spring.dto.request.trainee.CreateTraineeRequestDTO;
+import com.epam.spring.dto.request.trainee.UpdateTraineeRequestDTO;
+import com.epam.spring.dto.response.UserCredentialsResponseDTO;
+import com.epam.spring.dto.response.trainee.FetchTraineeResponseDTO;
+import com.epam.spring.dto.response.trainee.UpdateTraineeResponseDTO;
+import com.epam.spring.dto.response.trainer.TrainerResponseDTO;
 import com.epam.spring.model.Trainee;
+import com.epam.spring.model.Training;
+import com.epam.spring.model.User;
 import com.epam.spring.repository.TraineeRepository;
 import com.epam.spring.util.PasswordGenerator;
 import com.epam.spring.util.UsernameGenerator;
@@ -9,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -17,63 +27,103 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class TraineeService implements ExtendedOperationsService<Trainee>, TraineeSpecificOperationsService {
+public class TraineeService implements BaseUserOperationsService<CreateTraineeRequestDTO, UserCredentialsResponseDTO, FetchTraineeResponseDTO, UpdateTraineeRequestDTO, UpdateTraineeResponseDTO, UserActivationRequestDTO> {
 
     private final UsernameGenerator usernameGenerator;
     private final TraineeRepository traineeRepository;
     private final PasswordGenerator passwordGenerator;
-    private final Validator validator;
 
     @Override
-    public Trainee create(Trainee trainee) {
-        validator.validateUser(trainee.getUser());
-        String uniqueUsername = usernameGenerator.generateUniqueUsername(trainee.getUser().getFirstName(), trainee.getUser().getLastName());
+    public UserCredentialsResponseDTO create(CreateTraineeRequestDTO createRequest) {
+        String uniqueUsername = usernameGenerator.generateUniqueUsername(createRequest.getFirstName(), createRequest.getLastName());
         String password = passwordGenerator.generatePassword();
-        trainee.getUser().setUsername(uniqueUsername);
-        trainee.getUser().setPassword(password);
-        return traineeRepository.create(trainee);
+
+        Trainee trainee = new Trainee();
+        User user = new User();
+        user.setFirstName(createRequest.getFirstName());
+        user.setLastName(createRequest.getLastName());
+        user.setUsername(uniqueUsername);
+        user.setPassword(password);
+        user.setActive(true);
+        trainee.setUser(user);
+        trainee.setAddress(createRequest.getAddress());
+        trainee.setDataOfBirth(LocalDate.parse(createRequest.getDateOfBirth()));
+
+        traineeRepository.create(trainee);
+
+        return new UserCredentialsResponseDTO(uniqueUsername, password);
     }
 
-    @Override
-    public List<Trainee> findAll() {
-        return traineeRepository.findAll();
-    }
+//    @Override
+//    public List<Trainee> findAll() {
+//        return traineeRepository.findAll();
+//    }
+
+//    @Override
+//    public Trainee findById(Long id) {
+//        Optional<Trainee> traineeOptional = traineeRepository.findById(id);
+//        if (traineeOptional.isEmpty()) {
+//            throw new RuntimeException("Trainee with id " + id + " not found");
+//        }
+//        return traineeOptional.get();
+//    }
 
     @Override
-    public Trainee findById(Long id) {
-        Optional<Trainee> traineeOptional = traineeRepository.findById(id);
+    public UpdateTraineeResponseDTO updateProfile(UpdateTraineeRequestDTO updateRequest) {
+        Optional<Trainee> traineeOptional = traineeRepository.findByUsername(updateRequest.getUsername());
         if (traineeOptional.isEmpty()) {
-            throw new RuntimeException("Trainee with id " + id + " not found");
+            throw new NoSuchElementException("Trainee with id " + updateRequest.getUsername() + " not found");
         }
-        return traineeOptional.get();
+        Trainee trainee = traineeOptional.get();
+        User user = trainee.getUser();
+
+        user.setFirstName(updateRequest.getFirstName());
+        user.setLastName(updateRequest.getLastName());
+        user.setActive(Boolean.parseBoolean(updateRequest.getIsActive().getValue()));
+        trainee.setAddress(updateRequest.getAddress());
+        trainee.setDataOfBirth(LocalDate.parse(updateRequest.getDateOfBirth()));
+
+        Trainee updatedTrainee = traineeRepository.update(trainee);
+
+        return UpdateTraineeResponseDTO.builder()
+                        .username(updatedTrainee.getUser().getUsername())
+                        .firstName(updatedTrainee.getUser().getFirstName())
+                        .lastName(updatedTrainee.getUser().getLastName())
+                        .dateOfBirth(updatedTrainee.getDataOfBirth())
+                        .isActive(updatedTrainee.getUser().isActive())
+                        .address(updatedTrainee.getAddress())
+                .build();
     }
 
     @Override
-    public Trainee update(Trainee updatedTrainee) {
-        validator.validateUser(updatedTrainee.getUser());
-        Long id = updatedTrainee.getId();
-        Optional<Trainee> traineeOptional = traineeRepository.findById(id);
-        if (traineeOptional.isEmpty()) {
-            throw new NoSuchElementException("Trainee with id " + id + " not found");
-        }
-
-        if (isNameChanged(traineeOptional.get(), updatedTrainee)) {
-            String uniqueUsername = usernameGenerator.generateUniqueUsername(updatedTrainee.getUser().getFirstName(), updatedTrainee.getUser().getLastName());
-            updatedTrainee.getUser().setUsername(uniqueUsername);
-        }
-        return traineeRepository.update(updatedTrainee);
-    }
-
-    @Override
-    public Trainee findByUsername(String username) {
+    public FetchTraineeResponseDTO getUserProfile(String username) {
         Optional<Trainee> traineeOptional = traineeRepository.findByUsername(username);
         if (traineeOptional.isEmpty()) {
             throw new RuntimeException("Trainee with username " + username + " not found");
         }
-        return traineeOptional.get();
+
+        Trainee trainee = traineeOptional.get();
+        User user = trainee.getUser();
+        List<Training> trainings = trainee.getTrainings();
+
+        List<TrainerResponseDTO> trainers = trainings.stream().map(training -> new TrainerResponseDTO(
+                training.getTrainer().getUser().getUsername(),
+                training.getTrainer().getUser().getFirstName(),
+                training.getTrainer().getUser().getLastName(),
+                training.getTrainingType().getTrainingTypeName()
+        )).toList();
+
+        return FetchTraineeResponseDTO.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .dateOfBirth(trainee.getDataOfBirth())
+                .address(trainee.getAddress())
+                .isActive(trainee.getUser().isActive())
+                .trainers(trainers)
+                .build();
     }
 
-    @Override
+//    @Override
     public boolean authenticate(String username, String password) {
         Optional<Trainee> traineeOptional = traineeRepository.findByUsername(username);
 
@@ -81,34 +131,38 @@ public class TraineeService implements ExtendedOperationsService<Trainee>, Train
     }
 
     @Override
-    public void activate(Trainee trainee) {
-        trainee.getUser().setActive(!trainee.getUser().isActive());
-        traineeRepository.update(trainee);
-    }
-
-    @Override
-    public void changePassword(String username, String oldPassword, String newPassword) {
-        Optional<Trainee> traineeOptional = traineeRepository.findByUsername(username);
-
+    public void activateProfile(UserActivationRequestDTO activateRequest) {
+        Optional<Trainee> traineeOptional = traineeRepository.findByUsername(activateRequest.getUsername());
         if (traineeOptional.isEmpty()) {
-            throw new RuntimeException("Incorrect username");
+            throw new RuntimeException("Trainee with username " + activateRequest.getUsername() + " not found");
         }
-
-        Trainee trainee = traineeOptional.get();
-
-        if (!Objects.equals(trainee.getUser().getPassword(), oldPassword)) {
-            throw new RuntimeException("Incorrect password");
-        }
-        trainee.getUser().setPassword(newPassword);
-        traineeRepository.update(trainee);
+        traineeOptional.get().getUser().setActive(Boolean.parseBoolean(activateRequest.getIsActive().getValue()));
+        traineeRepository.update(traineeOptional.get());
     }
 
-    @Override
-    public void delete(Trainee trainee) {
-        traineeRepository.delete(trainee);
-    }
+//    @Override
+//    public void changePassword(String username, String oldPassword, String newPassword) {
+//        Optional<Trainee> traineeOptional = traineeRepository.findByUsername(username);
+//
+//        if (traineeOptional.isEmpty()) {
+//            throw new RuntimeException("Incorrect username");
+//        }
+//
+//        Trainee trainee = traineeOptional.get();
+//
+//        if (!Objects.equals(trainee.getUser().getPassword(), oldPassword)) {
+//            throw new RuntimeException("Incorrect password");
+//        }
+//        trainee.getUser().setPassword(newPassword);
+//        traineeRepository.update(trainee);
+//    }
 
-    @Override
+//    @Override
+//    public void delete(Trainee trainee) {
+//        traineeRepository.delete(trainee);
+//    }
+
+//    @Override
     public void deleteByUsername(String username) {
         traineeRepository.deleteByUsername(username);
     }

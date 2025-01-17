@@ -16,18 +16,18 @@ import java.util.function.Function;
 @Slf4j
 @AllArgsConstructor
 @Service
-public class TrainingService implements BaseOperationsService<Training>, TrainingSpecificOperationsService {
+public class TrainingService {
 
     private final TrainingRepository trainingRepository;
     private final TrainerService trainerService;
     private final TraineeService traineeService;
 
-    @Override
+//    @Override
     public List<Training> findAll() {
         return trainingRepository.findAll();
     }
 
-    @Override
+//    @Override
     public Training findById(Long id) {
         Optional<Training> trainingOptional = trainingRepository.findById(id);
         if (trainingOptional.isEmpty()) {
@@ -36,7 +36,7 @@ public class TrainingService implements BaseOperationsService<Training>, Trainin
         return trainingOptional.get();
     }
 
-    @Override
+//    @Override
     public Training create(Training training) {
         Trainee trainee = findEntityOrThrow(
                 training.getTrainee().getUser().getUsername(),
@@ -53,7 +53,7 @@ public class TrainingService implements BaseOperationsService<Training>, Trainin
         return trainingRepository.create(training);
     }
 
-    @Override
+//    @Override
     public List<Training> findTraineeTrainings(String traineeUsername,
                                                LocalDate fromDate,
                                                LocalDate toDate,
@@ -62,7 +62,7 @@ public class TrainingService implements BaseOperationsService<Training>, Trainin
         return trainingRepository.findTraineeTrainings(traineeUsername, fromDate, toDate, trainerName, trainingType);
     }
 
-    @Override
+//    @Override
     public List<Training> findTrainerTrainings(String trainerUsername,
                                                LocalDate fromDate,
                                                LocalDate toDate,
