@@ -153,6 +153,7 @@ class TrainerRepositoryTest {
 
     private static TrainingType buildTrainingType() {
         return TrainingType.builder()
+                .id(1L)
                 .trainingTypeName("Cardio")
                 .build();
     }

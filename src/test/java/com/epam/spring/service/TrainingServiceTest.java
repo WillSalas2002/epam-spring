@@ -1,6 +1,7 @@
 package com.epam.spring.service;
 
 import com.epam.spring.config.AppConfig;
+import com.epam.spring.dto.request.training.CreateTrainingRequestDTO;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
@@ -36,11 +37,11 @@ class TrainingServiceTest {
 
     private Trainer trainer;
     private Trainee trainee;
+    private CreateTrainingRequestDTO createTrainingRequest;
 
     @BeforeEach
     void setUp() {
-        trainer = buildTrainer("Will", "Salas");
-        trainee = buildTrainee("Adam", "Sam");
+//        createTrainingRequest = buildTrainingRequest();
     }
 
     @AfterEach
@@ -56,7 +57,7 @@ class TrainingServiceTest {
         }
     }
 
-    /*
+/*
     @Test
     public void testFindTraineeAndTrainerTrainings() {
         Trainee trainee1 = buildTrainee("trainee1", "trainee1");
@@ -79,13 +80,10 @@ class TrainingServiceTest {
 
         assertEquals(2, traineeTrainings.size());
         assertEquals(1, trainerTrainings.size());
-
     }
-
     @Test
     public void testCreateTraining() {
-        trainerService.create(trainer);
-        traineeService.create(trainee);
+        trainingService.create(createTrainingRequest);
         TrainingType trainingType = trainer.getSpecialization();
         Training training = new Training(trainee, trainer, "Strong man training", trainingType, LocalDateTime.now().plusHours(3), 120);
 
@@ -96,7 +94,15 @@ class TrainingServiceTest {
         assertEquals(1, trainingService.findAll().size());
     }
 
-     */
+    private CreateTrainingRequestDTO buildTrainingRequest(String traineeUsername, String trainerUsername) {
+        return CreateTrainingRequestDTO.builder()
+                .traineeUsername(traineeUsername)
+                .trainerUsername(trainerUsername)
+                .trainingName("Calisthenics")
+                .trainingDate(LocalDateTime.now().plusDays(1).toString())
+                .duration(String.valueOf(90))
+                .build();
+    }
 
     private Trainer buildTrainer(String firstName, String lastName) {
         return Trainer.builder()
@@ -128,4 +134,6 @@ class TrainingServiceTest {
                 .trainingTypeName("Cardio")
                 .build();
     }
+
+ */
 }

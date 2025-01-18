@@ -13,14 +13,14 @@ import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
 @Repository
-public class TrainingRepository implements BaseOperationsRepository<Training>, TrainingSpecificOperationsRepository {
+public class TrainingRepository implements TrainingSpecificOperationsRepository {
 
     public static final String FIND_TRAINING_BY_ID_QUERY = "SELECT t FROM Training t JOIN FETCH t.trainee JOIN FETCH t.trainer JOIN FETCH t.trainingType WHERE t.id =: id";
     public static final String FIND_ALL_TRAININGS_QUERY = "SELECT t FROM Training t JOIN FETCH t.trainee JOIN FETCH t.trainer JOIN FETCH t.trainingType";
@@ -33,7 +33,7 @@ public class TrainingRepository implements BaseOperationsRepository<Training>, T
         try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
 
-            TrainingType trainingType = session.merge(training.getTrainingType());
+            TrainingType trainingType = session.get(TrainingType.class, training.getTrainingType().getId());
 
             Trainer trainer = session.get(Trainer.class, training.getTrainer().getId());
             Trainee trainee = session.get(Trainee.class, training.getTrainee().getId());
@@ -49,7 +49,6 @@ public class TrainingRepository implements BaseOperationsRepository<Training>, T
         }
     }
 
-    @Override
     public List<Training> findAll() {
         try (Session session = sessionFactory.openSession()) {
             return session.createQuery(FIND_ALL_TRAININGS_QUERY, Training.class)
@@ -57,7 +56,6 @@ public class TrainingRepository implements BaseOperationsRepository<Training>, T
         }
     }
 
-    @Override
     public Optional<Training> findById(Long id) {
         try (Session session = sessionFactory.openSession()) {
             Training training = session.createQuery(FIND_TRAINING_BY_ID_QUERY, Training.class)
@@ -70,26 +68,27 @@ public class TrainingRepository implements BaseOperationsRepository<Training>, T
 
     @Override
     public List<Training> findTraineeTrainings(String traineeUsername,
-                                               LocalDate fromDate,
-                                               LocalDate toDate,
+                                               LocalDateTime fromDate,
+                                               LocalDateTime toDate,
                                                String trainerName,
-                                               String trainingType) {
-
+                                               String trainingTypeName) {
         try (Session session = sessionFactory.openSession()) {
-            Query<Training> query = QueryBuilder.buildFindTraineeTrainingsQuery(session, traineeUsername, fromDate, toDate, trainerName, trainingType);
+            Query<Training> query = QueryBuilder.buildFindTraineeTrainingsQuery(
+                    session, traineeUsername, fromDate, toDate, trainerName, trainingTypeName);
+
             return query.getResultList();
         }
     }
 
     @Override
     public List<Training> findTrainerTrainings(String trainerUsername,
-                                               LocalDate fromDate,
-                                               LocalDate toDate,
-                                               String traineeName,
-                                               String trainingType) {
-
+                                               LocalDateTime fromDate,
+                                               LocalDateTime toDate,
+                                               String traineeName) {
         try (Session session = sessionFactory.openSession()) {
-            Query<Training> query = QueryBuilder.buildFindTrainerTrainings(session, trainerUsername, fromDate, toDate, traineeName, trainingType);
+            Query<Training> query = QueryBuilder.buildFindTrainerTrainings(
+                    session, trainerUsername, fromDate, toDate, traineeName);
+
             return query.getResultList();
         }
     }

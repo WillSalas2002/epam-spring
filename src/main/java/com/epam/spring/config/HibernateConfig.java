@@ -46,6 +46,7 @@ public class HibernateConfig {
         properties.setProperty("hibernate.show_sql", ENV.getProperty("hibernate.show_sql"));
         properties.setProperty("hibernate.format_sql", ENV.getProperty("hibernate.format_sql"));
         properties.setProperty("hibernate.hbm2ddl.auto", ENV.getProperty("hibernate.hbm2ddl.auto"));
+        properties.setProperty("hibernate.hbm2ddl.import_files", ENV.getProperty("hibernate.hbm2ddl.import_files"));
         return properties;
     }
 

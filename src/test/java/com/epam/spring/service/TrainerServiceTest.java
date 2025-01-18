@@ -8,12 +8,10 @@ import com.epam.spring.dto.request.trainer.UpdateTrainerRequestDTO;
 import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.dto.response.trainer.FetchTrainerResponseDTO;
 import com.epam.spring.dto.response.trainer.UpdateTrainerResponseDTO;
-import com.epam.spring.model.TrainingType;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,19 +33,13 @@ class TrainerServiceTest {
     @Autowired
     private SessionFactory sessionFactory;
 
+    private CreateTrainerRequestDTO createTrainerRequestDTO;
     private final String firstName = "John";
     private final String lastName = "Doe";
 
     @BeforeEach
     void setUp() {
-        buildCreateTrainerRequest(firstName, lastName);
-        try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            session.createNativeMutationQuery("INSERT INTO training_types (training_type_name) VALUES ('Cardio')").executeUpdate();
-            session.createNativeMutationQuery("ALTER TABLE training_types ALTER COLUMN id RESTART WITH 1").executeUpdate();
-//            System.out.println("TrainingType: " + trainingType);
-            transaction.commit();
-        }
+        createTrainerRequestDTO = buildCreateTrainerRequest(firstName, lastName);
     }
 
     @AfterEach
@@ -56,14 +48,13 @@ class TrainerServiceTest {
             Transaction transaction = session.beginTransaction();
             session.createMutationQuery("DELETE FROM Trainer").executeUpdate();
             session.createMutationQuery("DELETE FROM User").executeUpdate();
-            session.createMutationQuery("DELETE FROM TrainingType ").executeUpdate();
             transaction.commit();
         }
     }
 
     @Test
     void testCreate() {
-        UserCredentialsResponseDTO userCredentialsResponseDTO = trainerService.create(buildCreateTrainerRequest(firstName, lastName));
+        UserCredentialsResponseDTO userCredentialsResponseDTO = trainerService.create(createTrainerRequestDTO);
 
         assertNotNull(userCredentialsResponseDTO);
         assertEquals(firstName + "." + lastName, userCredentialsResponseDTO.getUsername());
@@ -80,16 +71,17 @@ class TrainerServiceTest {
 
     @Test
     void testCreateWithExistingName() {
-        UserCredentialsResponseDTO userCredentialsResponseDTO1 = trainerService.create(buildCreateTrainerRequest(firstName, lastName));
-        UserCredentialsResponseDTO userCredentialsResponseDTO2 = trainerService.create(buildCreateTrainerRequest(firstName, lastName));
+        UserCredentialsResponseDTO userCredentialsResponseDTO1 = trainerService.create(createTrainerRequestDTO);
+        UserCredentialsResponseDTO userCredentialsResponseDTO2 = trainerService.create(createTrainerRequestDTO);
 
         assertEquals("John.Doe", userCredentialsResponseDTO1.getUsername());
         assertEquals("John.Doe.1", userCredentialsResponseDTO2.getUsername());
     }
 
+    // TODO: Throwing lazy initialization exception!!!
     @Test
     void testUpdate() {
-        UserCredentialsResponseDTO userCredentialsResponseDTO = trainerService.create(buildCreateTrainerRequest(firstName, lastName));
+        trainerService.create(createTrainerRequestDTO);
         String updatedFirstName = "Will";
         String updateLastName = "Salas";
         UpdateTrainerRequestDTO updateRequest = UpdateTrainerRequestDTO.builder()
@@ -115,7 +107,7 @@ class TrainerServiceTest {
 
     @Test
     void testFindByUsername() {
-        UserCredentialsResponseDTO userCredentialsResponseDTO = trainerService.create(buildCreateTrainerRequest(firstName, lastName));
+        UserCredentialsResponseDTO userCredentialsResponseDTO = trainerService.create(createTrainerRequestDTO);
 
         FetchTrainerResponseDTO userProfile = trainerService.getUserProfile(userCredentialsResponseDTO.getUsername());
 
@@ -127,7 +119,7 @@ class TrainerServiceTest {
     // TODO: need to move this logic to User
     @Test
     void testActivateShouldNotBeIdempotent() {
-        UserCredentialsResponseDTO userCredentialsResponseDTO = trainerService.create(buildCreateTrainerRequest(firstName, lastName));
+        UserCredentialsResponseDTO userCredentialsResponseDTO = trainerService.create(createTrainerRequestDTO);
 
         UserActivationRequestDTO activationRequest = new UserActivationRequestDTO(firstName + "." + lastName, Boolean.TRUE);
         trainerService.activateProfile(activationRequest);
