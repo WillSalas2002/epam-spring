@@ -1,6 +1,7 @@
 package com.epam.spring.dto.request.training;
 
 import com.epam.spring.dto.TrainingTypeDTO;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ import lombok.ToString;
 @AllArgsConstructor
 public class FetchTraineeTrainingsRequestDTO {
 
+    @NotBlank(message = "Trainee username is required")
     private String traineeUsername;
     private String fromDate;
     private String toDate;

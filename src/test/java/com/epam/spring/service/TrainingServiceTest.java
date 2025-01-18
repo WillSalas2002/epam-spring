@@ -4,24 +4,13 @@ import com.epam.spring.config.AppConfig;
 import com.epam.spring.dto.request.training.CreateTrainingRequestDTO;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
-import com.epam.spring.model.Training;
-import com.epam.spring.model.TrainingType;
-import com.epam.spring.model.User;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringJUnitConfig(AppConfig.class)
 class TrainingServiceTest {

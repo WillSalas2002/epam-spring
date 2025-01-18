@@ -49,7 +49,7 @@ public class TrainerService implements
                 .build();
         Trainer trainer = new Trainer();
         trainer.setUser(user);
-        trainer.setSpecialization(TrainingType.builder().id(createRequestDTO.getTrainingTypeId()).build());
+        trainer.setSpecialization(TrainingType.builder().id(Long.valueOf(createRequestDTO.getTrainingTypeId())).build());
 
         Trainer createTrainer = trainerRepository.create(trainer);
 

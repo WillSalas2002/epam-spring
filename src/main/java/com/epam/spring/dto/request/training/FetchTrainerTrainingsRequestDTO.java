@@ -1,5 +1,6 @@
 package com.epam.spring.dto.request.training;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class FetchTrainerTrainingsRequestDTO {
 
+    @NotBlank(message = "Trainer username is required")
     private String trainerUsername;
     private LocalDateTime fromDate;
     private LocalDateTime toDate;

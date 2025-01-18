@@ -18,7 +18,7 @@ public class CreateTraineeRequestDTO {
 
     @NotBlank(message = "Firstname is required")
     private String firstName;
-    @NotBlank(message = "Firstname is required")
+    @NotBlank(message = "Lastname is required")
     private String lastName;
     private String dateOfBirth;
     private String address;

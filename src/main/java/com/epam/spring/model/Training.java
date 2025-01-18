@@ -1,6 +1,5 @@
 package com.epam.spring.model;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -25,18 +24,18 @@ import java.util.Objects;
 @Table(name = "trainings")
 public class Training extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trainee_id", nullable = false)
     private Trainee trainee;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trainer_id", nullable = false)
     private Trainer trainer;
 
     @Column(name = "name", nullable = false)
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "training_type_id", nullable = false)
     private TrainingType trainingType;
 
@@ -45,16 +44,6 @@ public class Training extends BaseEntity {
 
     @Column(name = "duration", nullable = false)
     private Integer duration;
-
-    public Training(Trainee trainee, Trainer trainer, String name, TrainingType trainingType, LocalDateTime date, Integer duration) {
-        super();
-        this.trainee = trainee;
-        this.trainer = trainer;
-        this.name = name;
-        this.trainingType = trainingType;
-        this.date = date;
-        this.duration = duration;
-    }
 
     @Override
     public boolean equals(Object o) {

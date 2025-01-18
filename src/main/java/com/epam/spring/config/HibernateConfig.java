@@ -16,7 +16,7 @@ import java.util.Properties;
 
 @Slf4j
 @org.springframework.context.annotation.Configuration
-@PropertySource("classpath:application-test.properties")
+@PropertySource("classpath:application.properties")
 @RequiredArgsConstructor
 public class HibernateConfig {
 
