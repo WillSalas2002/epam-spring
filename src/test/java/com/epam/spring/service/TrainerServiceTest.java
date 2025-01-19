@@ -4,7 +4,6 @@ import com.epam.spring.config.AppConfig;
 import com.epam.spring.dto.TrainingTypeDTO;
 import com.epam.spring.dto.request.trainer.CreateTrainerRequestDTO;
 import com.epam.spring.dto.request.trainer.UpdateTrainerRequestDTO;
-import com.epam.spring.dto.request.user.UserActivationRequestDTO;
 import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.dto.response.trainer.FetchTrainerResponseDTO;
 import com.epam.spring.dto.response.trainer.UpdateTrainerResponseDTO;
@@ -20,10 +19,8 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringJUnitConfig(AppConfig.class)
 class TrainerServiceTest {

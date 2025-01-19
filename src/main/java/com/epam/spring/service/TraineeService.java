@@ -58,8 +58,9 @@ public class TraineeService extends BaseUserService implements TraineeSpecificOp
         user.setActive(true);
         trainee.setUser(user);
         trainee.setAddress(createRequest.getAddress());
-        trainee.setDataOfBirth(LocalDate.parse(createRequest.getDateOfBirth()));
-
+        if (createRequest.getDateOfBirth() != null) {
+            trainee.setDataOfBirth(LocalDate.parse(createRequest.getDateOfBirth()));
+        }
         traineeRepository.create(trainee);
 
         return new UserCredentialsResponseDTO(uniqueUsername, password);
@@ -86,7 +87,7 @@ public class TraineeService extends BaseUserService implements TraineeSpecificOp
                 .username(updatedTrainee.getUser().getUsername())
                 .firstName(updatedTrainee.getUser().getFirstName())
                 .lastName(updatedTrainee.getUser().getLastName())
-                .dateOfBirth(updatedTrainee.getDataOfBirth())
+                .dateOfBirth(String.valueOf(updatedTrainee.getDataOfBirth()))
                 .isActive(updatedTrainee.getUser().isActive())
                 .address(updatedTrainee.getAddress())
                 .build();
@@ -113,7 +114,7 @@ public class TraineeService extends BaseUserService implements TraineeSpecificOp
         return FetchTraineeResponseDTO.builder()
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
-                .dateOfBirth(trainee.getDataOfBirth())
+                .dateOfBirth(String.valueOf(trainee.getDataOfBirth()))
                 .address(trainee.getAddress())
                 .isActive(trainee.getUser().isActive())
                 .trainers(trainers)
@@ -139,3 +140,11 @@ public class TraineeService extends BaseUserService implements TraineeSpecificOp
         return null;
     }
 }
+
+/* TODO: 1. need to create separate mapper classes
+/* TODO: 2. implement controllers
+/* TODO: 3. error handling
+/* TODO: 4. add swagger documentation
+/* TODO: 5. JWT authorization
+/* TODO: 6. improved logger
+ */

@@ -1,7 +1,6 @@
 package com.epam.spring.service;
 
 import com.epam.spring.config.AppConfig;
-import com.epam.spring.dto.request.user.UserActivationRequestDTO;
 import com.epam.spring.dto.request.trainee.CreateTraineeRequestDTO;
 import com.epam.spring.dto.request.trainee.UpdateTraineeRequestDTO;
 import com.epam.spring.dto.response.UserCredentialsResponseDTO;
@@ -22,7 +21,6 @@ import java.util.NoSuchElementException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringJUnitConfig(AppConfig.class)
 class TraineeServiceTest {
