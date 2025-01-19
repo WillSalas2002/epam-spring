@@ -1,7 +1,6 @@
 package com.epam.spring.service;
 
 import com.epam.spring.dto.TrainingTypeDTO;
-import com.epam.spring.dto.request.UserActivationRequestDTO;
 import com.epam.spring.dto.request.trainer.CreateTrainerRequestDTO;
 import com.epam.spring.dto.request.trainer.UpdateTrainerRequestDTO;
 import com.epam.spring.dto.response.UserCredentialsResponseDTO;
@@ -14,10 +13,11 @@ import com.epam.spring.model.Training;
 import com.epam.spring.model.TrainingType;
 import com.epam.spring.model.User;
 import com.epam.spring.repository.TrainerRepository;
+import com.epam.spring.repository.UserRepository;
 import com.epam.spring.util.PasswordGenerator;
 import com.epam.spring.util.UsernameGenerator;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,15 +25,20 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
-public class TrainerService implements
-        BaseUserOperationsService<CreateTrainerRequestDTO, UserCredentialsResponseDTO, FetchTrainerResponseDTO, UpdateTrainerRequestDTO, UpdateTrainerResponseDTO, UserActivationRequestDTO>,
-        TrainerSpecificOperationsService {
+public class TrainerService extends BaseUserService implements TrainerSpecificOperationsService {
 
     private final UsernameGenerator usernameGenerator;
     private final TrainerRepository trainerRepository;
     private final PasswordGenerator passwordGenerator;
+
+    @Autowired
+    public TrainerService(UserRepository userRepository, UsernameGenerator usernameGenerator, TrainerRepository trainerRepository, PasswordGenerator passwordGenerator) {
+        super(userRepository);
+        this.usernameGenerator = usernameGenerator;
+        this.trainerRepository = trainerRepository;
+        this.passwordGenerator = passwordGenerator;
+    }
 
     @Override
     public UserCredentialsResponseDTO create(CreateTrainerRequestDTO createRequestDTO) {
@@ -115,17 +120,6 @@ public class TrainerService implements
                 .active(updateRequestDto.getActive())
                 .trainees(traineeDTOList)
                 .build();
-    }
-
-    @Override
-    public void activateProfile(UserActivationRequestDTO activationRequest) {
-        Optional<Trainer> trainerOptional = trainerRepository.findByUsername(activationRequest.getUsername());
-        if (trainerOptional.isEmpty()) {
-            throw new RuntimeException("Trainer with username " + activationRequest.getUsername() + " not found");
-        }
-        Trainer trainer = trainerOptional.get();
-        trainer.getUser().setActive(activationRequest.getActive());
-        trainerRepository.update(trainer);
     }
 
     @Override

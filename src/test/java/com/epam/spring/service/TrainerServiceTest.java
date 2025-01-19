@@ -2,9 +2,9 @@ package com.epam.spring.service;
 
 import com.epam.spring.config.AppConfig;
 import com.epam.spring.dto.TrainingTypeDTO;
-import com.epam.spring.dto.request.UserActivationRequestDTO;
 import com.epam.spring.dto.request.trainer.CreateTrainerRequestDTO;
 import com.epam.spring.dto.request.trainer.UpdateTrainerRequestDTO;
+import com.epam.spring.dto.request.user.UserActivationRequestDTO;
 import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.dto.response.trainer.FetchTrainerResponseDTO;
 import com.epam.spring.dto.response.trainer.UpdateTrainerResponseDTO;
@@ -20,6 +20,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -78,8 +79,7 @@ class TrainerServiceTest {
         assertEquals("John.Doe.1", userCredentialsResponseDTO2.getUsername());
     }
 
-    // TODO: Throwing lazy initialization exception!!!
-//    @Test
+    @Test
     void testUpdate() {
         trainerService.create(createTrainerRequestDTO);
         String updatedFirstName = "Will";
@@ -114,18 +114,5 @@ class TrainerServiceTest {
         assertNotNull(userProfile);
         assertEquals(firstName, userProfile.getFirstName());
         assertEquals(lastName, userProfile.getLastName());
-    }
-
-    // TODO: need to move this logic to User
-    @Test
-    void testActivateShouldNotBeIdempotent() {
-        UserCredentialsResponseDTO userCredentialsResponseDTO = trainerService.create(createTrainerRequestDTO);
-
-        UserActivationRequestDTO activationRequest = new UserActivationRequestDTO(firstName + "." + lastName, Boolean.TRUE);
-        trainerService.activateProfile(activationRequest);
-
-        FetchTrainerResponseDTO userProfile = trainerService.getUserProfile(userCredentialsResponseDTO.getUsername());
-
-        assertTrue(userProfile.getActive());
     }
 }

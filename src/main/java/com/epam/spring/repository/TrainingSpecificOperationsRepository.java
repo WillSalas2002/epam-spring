@@ -5,7 +5,7 @@ import com.epam.spring.model.Training;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface TrainingSpecificOperationsRepository {
+public interface TrainingSpecificOperationsRepository extends BaseOperationsRepository<Training> {
 
     Training create(Training training);
     List<Training> findTraineeTrainings(String traineeUsername,

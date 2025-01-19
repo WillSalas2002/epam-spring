@@ -1,4 +1,4 @@
-package com.epam.spring.dto.request;
+package com.epam.spring.dto.request.user;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

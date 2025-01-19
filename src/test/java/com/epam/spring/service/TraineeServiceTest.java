@@ -1,7 +1,7 @@
 package com.epam.spring.service;
 
 import com.epam.spring.config.AppConfig;
-import com.epam.spring.dto.request.UserActivationRequestDTO;
+import com.epam.spring.dto.request.user.UserActivationRequestDTO;
 import com.epam.spring.dto.request.trainee.CreateTraineeRequestDTO;
 import com.epam.spring.dto.request.trainee.UpdateTraineeRequestDTO;
 import com.epam.spring.dto.response.UserCredentialsResponseDTO;
@@ -116,20 +116,6 @@ class TraineeServiceTest {
         assertEquals(FIRST_NAME, userProfile.getFirstName());
         assertEquals(LAST_NAME, userProfile.getLastName());
         assertEquals(LocalDate.now().minusYears(15), userProfile.getDateOfBirth());
-    }
-
-    @Test
-    void testActivateProfile() {
-        UserCredentialsResponseDTO userCredentialsResponseDTO = traineeService.create(createTraineeRequestDTO);
-        UserActivationRequestDTO userActivationRequestDTO = new UserActivationRequestDTO(
-                userCredentialsResponseDTO.getUsername(),
-                Boolean.TRUE);
-
-        traineeService.activateProfile(userActivationRequestDTO);
-
-        FetchTraineeResponseDTO userProfile = traineeService.getUserProfile(userCredentialsResponseDTO.getUsername());
-
-        assertTrue(userProfile.isActive());
     }
 
     @Test

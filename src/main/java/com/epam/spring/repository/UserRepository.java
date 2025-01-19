@@ -25,4 +25,11 @@ public class UserRepository implements UserOperationsRepository {
             return Optional.ofNullable(user);
         }
     }
+
+    @Override
+    public void update(User user) {
+        try (Session session = sessionFactory.openSession()) {
+            session.merge(user);
+        }
+    }
 }

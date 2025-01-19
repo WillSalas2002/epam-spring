@@ -15,10 +15,10 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 @Repository
-public class TrainerRepository implements ExtendedOperationsRepository<Trainer>, TrainerSpecificOperationsRepository {
+public class TrainerRepository implements TrainerSpecificOperationsRepository {
 
     public static final String FIND_ALL_QUERY = "SELECT t FROM Trainer t";
-    public static final String FIND_BY_ID_QUERY = "SELECT t FROM Trainer t WHERE id =: id";
+    public static final String FIND_BY_ID_QUERY = "SELECT t FROM Trainer t LEFT JOIN FETCH t.trainings WHERE t.id = :id";
     public static final String FIND_BY_USERNAME_QUERY = "SELECT t FROM Trainer t LEFT JOIN FETCH t.trainings WHERE t.user.username =: username";
     public static final String FIND_BY_TRAINEE_USERNAME_QUERY = """
             SELECT DISTINCT t.id AS trainer_id, u.firstName, u.lastName
@@ -89,8 +89,12 @@ public class TrainerRepository implements ExtendedOperationsRepository<Trainer>,
     public Trainer update(Trainer updatedTrainer) {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            session.merge(updatedTrainer.getUser());
+
+            session.createQuery(FIND_BY_ID_QUERY, Trainer.class)
+                    .setParameter("id", updatedTrainer.getId())
+                    .getSingleResult();
             Trainer mergedTrainer = session.merge(updatedTrainer);
+
             transaction.commit();
             return mergedTrainer;
         }

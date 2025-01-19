@@ -7,4 +7,5 @@ import java.util.Optional;
 public interface UserOperationsRepository {
 
     Optional<User> findByUsername(String username);
+    void update(User user);
 }

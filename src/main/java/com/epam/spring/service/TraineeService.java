@@ -1,7 +1,6 @@
 package com.epam.spring.service;
 
 import com.epam.spring.dto.TrainingTypeDTO;
-import com.epam.spring.dto.request.UserActivationRequestDTO;
 import com.epam.spring.dto.request.trainee.CreateTraineeRequestDTO;
 import com.epam.spring.dto.request.trainee.UpdateTraineeRequestDTO;
 import com.epam.spring.dto.request.trainee.UpdateTraineeTrainerRequestDTO;
@@ -10,13 +9,16 @@ import com.epam.spring.dto.response.trainee.FetchTraineeResponseDTO;
 import com.epam.spring.dto.response.trainee.UpdateTraineeResponseDTO;
 import com.epam.spring.dto.response.trainer.TrainerResponseDTO;
 import com.epam.spring.model.Trainee;
+import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
 import com.epam.spring.model.User;
 import com.epam.spring.repository.TraineeRepository;
+import com.epam.spring.repository.TrainerRepository;
+import com.epam.spring.repository.UserRepository;
 import com.epam.spring.util.PasswordGenerator;
 import com.epam.spring.util.UsernameGenerator;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -25,15 +27,22 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
-public class TraineeService implements
-        BaseUserOperationsService<CreateTraineeRequestDTO, UserCredentialsResponseDTO, FetchTraineeResponseDTO, UpdateTraineeRequestDTO, UpdateTraineeResponseDTO, UserActivationRequestDTO>,
-        TraineeSpecificOperationsService {
+public class TraineeService extends BaseUserService implements TraineeSpecificOperationsService {
 
     private final UsernameGenerator usernameGenerator;
     private final TraineeRepository traineeRepository;
     private final PasswordGenerator passwordGenerator;
+    private final TrainerRepository trainerRepository;
+
+    @Autowired
+    public TraineeService(UserRepository userRepository, UsernameGenerator usernameGenerator, TraineeRepository traineeRepository, PasswordGenerator passwordGenerator, TrainerRepository trainerRepository) {
+        super(userRepository);
+        this.usernameGenerator = usernameGenerator;
+        this.traineeRepository = traineeRepository;
+        this.passwordGenerator = passwordGenerator;
+        this.trainerRepository = trainerRepository;
+    }
 
     @Override
     public UserCredentialsResponseDTO create(CreateTraineeRequestDTO createRequest) {
@@ -74,12 +83,12 @@ public class TraineeService implements
         Trainee updatedTrainee = traineeRepository.update(trainee);
 
         return UpdateTraineeResponseDTO.builder()
-                        .username(updatedTrainee.getUser().getUsername())
-                        .firstName(updatedTrainee.getUser().getFirstName())
-                        .lastName(updatedTrainee.getUser().getLastName())
-                        .dateOfBirth(updatedTrainee.getDataOfBirth())
-                        .isActive(updatedTrainee.getUser().isActive())
-                        .address(updatedTrainee.getAddress())
+                .username(updatedTrainee.getUser().getUsername())
+                .firstName(updatedTrainee.getUser().getFirstName())
+                .lastName(updatedTrainee.getUser().getLastName())
+                .dateOfBirth(updatedTrainee.getDataOfBirth())
+                .isActive(updatedTrainee.getUser().isActive())
+                .address(updatedTrainee.getAddress())
                 .build();
     }
 
@@ -112,16 +121,6 @@ public class TraineeService implements
     }
 
     @Override
-    public void activateProfile(UserActivationRequestDTO activateRequest) {
-        Optional<Trainee> traineeOptional = traineeRepository.findByUsername(activateRequest.getUsername());
-        if (traineeOptional.isEmpty()) {
-            throw new RuntimeException("Trainee with username " + activateRequest.getUsername() + " not found");
-        }
-        traineeOptional.get().getUser().setActive(activateRequest.getActive());
-        traineeRepository.update(traineeOptional.get());
-    }
-
-    @Override
     public void deleteByUsername(String username) {
         traineeRepository.deleteByUsername(username);
     }
@@ -129,6 +128,14 @@ public class TraineeService implements
     // TODO: need to implement after clarifying with Daria
     @Override
     public TrainerResponseDTO updateTraineeTrainerList(UpdateTraineeTrainerRequestDTO updateTraineeTrainerRequestDTO) {
+        String traineeUsername = updateTraineeTrainerRequestDTO.getTraineeUsername();
+        Trainee trainee = traineeRepository.findByUsername(updateTraineeTrainerRequestDTO.getTraineeUsername())
+                .orElseThrow(() -> new NoSuchElementException("Trainee with username " + traineeUsername + " not found"));
+        List<String> trainerUsernames = updateTraineeTrainerRequestDTO.getTrainerUsernames();
+        List<Trainer> trainers = trainerUsernames.stream()
+                .map(username -> trainerRepository.findByUsername(username)
+                        .orElseThrow(() -> new NoSuchElementException("Trainer with username " + username + " not found")))
+                .toList();
         return null;
     }
 }
