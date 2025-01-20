@@ -17,8 +17,6 @@ import lombok.ToString;
 @Builder
 public class UpdateTraineeRequestDTO {
 
-    @NotBlank(message = "Username is required")
-    private String username;
     @NotBlank(message = "Firstname is required")
     private String firstName;
     @NotBlank(message = "Lastname is required")

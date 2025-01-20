@@ -51,9 +51,9 @@ public class TrainingService implements TrainingSpecificOperationsService {
     }
 
     @Override
-    public List<FetchUserTrainingsResponseDTO> findTraineeTrainings(FetchTraineeTrainingsRequestDTO fetchTraineeTrainingsRequest) {
+    public List<FetchUserTrainingsResponseDTO> findTraineeTrainings(String username, FetchTraineeTrainingsRequestDTO fetchTraineeTrainingsRequest) {
         List<Training> traineeTrainings = trainingRepository.findTraineeTrainings(
-                fetchTraineeTrainingsRequest.getTraineeUsername(),
+                username,
                 LocalDateTime.parse(fetchTraineeTrainingsRequest.getFromDate()),
                 LocalDateTime.parse(fetchTraineeTrainingsRequest.getToDate()),
                 fetchTraineeTrainingsRequest.getTrainerUsername(),
@@ -71,10 +71,10 @@ public class TrainingService implements TrainingSpecificOperationsService {
     }
 
     @Override
-    public List<FetchUserTrainingsResponseDTO> findTrainerTrainings(FetchTrainerTrainingsRequestDTO fetchTrainerTrainingsRequest) {
+    public List<FetchUserTrainingsResponseDTO> findTrainerTrainings(String username, FetchTrainerTrainingsRequestDTO fetchTrainerTrainingsRequest) {
         List<Training> trainerTrainings = trainingRepository.findTrainerTrainings(
-                fetchTrainerTrainingsRequest.getTrainerUsername(),
-                (fetchTrainerTrainingsRequest.getFromDate()),
+                username,
+                fetchTrainerTrainingsRequest.getFromDate(),
                 fetchTrainerTrainingsRequest.getToDate(),
                 fetchTrainerTrainingsRequest.getTraineeUsername());
 

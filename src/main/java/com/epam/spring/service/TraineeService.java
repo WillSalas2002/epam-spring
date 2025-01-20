@@ -9,7 +9,6 @@ import com.epam.spring.dto.response.trainee.FetchTraineeResponseDTO;
 import com.epam.spring.dto.response.trainee.UpdateTraineeResponseDTO;
 import com.epam.spring.dto.response.trainer.TrainerResponseDTO;
 import com.epam.spring.model.Trainee;
-import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
 import com.epam.spring.model.User;
 import com.epam.spring.repository.TraineeRepository;
@@ -67,10 +66,10 @@ public class TraineeService extends BaseUserService implements TraineeSpecificOp
     }
 
     @Override
-    public UpdateTraineeResponseDTO updateProfile(UpdateTraineeRequestDTO updateRequest) {
-        Optional<Trainee> traineeOptional = traineeRepository.findByUsername(updateRequest.getUsername());
+    public UpdateTraineeResponseDTO updateProfile(String username, UpdateTraineeRequestDTO updateRequest) {
+        Optional<Trainee> traineeOptional = traineeRepository.findByUsername(username);
         if (traineeOptional.isEmpty()) {
-            throw new NoSuchElementException("Trainee with username " + updateRequest.getUsername() + " not found");
+            throw new NoSuchElementException("Trainee with username " + username + " not found");
         }
         Trainee trainee = traineeOptional.get();
         User user = trainee.getUser();
@@ -128,15 +127,10 @@ public class TraineeService extends BaseUserService implements TraineeSpecificOp
 
     // TODO: need to implement after clarifying with Daria
     @Override
-    public TrainerResponseDTO updateTraineeTrainerList(UpdateTraineeTrainerRequestDTO updateTraineeTrainerRequestDTO) {
-        String traineeUsername = updateTraineeTrainerRequestDTO.getTraineeUsername();
-        Trainee trainee = traineeRepository.findByUsername(updateTraineeTrainerRequestDTO.getTraineeUsername())
-                .orElseThrow(() -> new NoSuchElementException("Trainee with username " + traineeUsername + " not found"));
+    public TrainerResponseDTO updateTraineeTrainerList(String username, UpdateTraineeTrainerRequestDTO updateTraineeTrainerRequestDTO) {
+        Trainee trainee = traineeRepository.findByUsername(username)
+                .orElseThrow(() -> new NoSuchElementException("Trainee with username " + username + " not found"));
         List<String> trainerUsernames = updateTraineeTrainerRequestDTO.getTrainerUsernames();
-        List<Trainer> trainers = trainerUsernames.stream()
-                .map(username -> trainerRepository.findByUsername(username)
-                        .orElseThrow(() -> new NoSuchElementException("Trainer with username " + username + " not found")))
-                .toList();
         return null;
     }
 }

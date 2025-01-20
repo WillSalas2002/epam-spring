@@ -85,24 +85,26 @@ class TraineeServiceTest {
         String updateDateOfBirth = "2002-06-03";
 
         UpdateTraineeRequestDTO updateTraineeRequestDTO = UpdateTraineeRequestDTO.builder()
-                .username(userCredentialsResponseDTO.getUsername())
                 .firstName(updateFirstName)
                 .lastName(updatedLastName)
                 .isActive(Boolean.FALSE)
                 .dateOfBirth(updateDateOfBirth)
                 .build();
 
-        UpdateTraineeResponseDTO updateTraineeResponseDTO = traineeService.updateProfile(updateTraineeRequestDTO);
+        UpdateTraineeResponseDTO updateTraineeResponseDTO = traineeService.updateProfile(userCredentialsResponseDTO.getUsername(),updateTraineeRequestDTO);
 
         assertEquals(updateFirstName, updateTraineeResponseDTO.getFirstName());
         assertEquals(updatedLastName, updateTraineeResponseDTO.getLastName());
-        assertEquals(LocalDate.parse(updateDateOfBirth), updateTraineeResponseDTO.getDateOfBirth());
+        assertEquals(updateDateOfBirth, updateTraineeResponseDTO.getDateOfBirth());
     }
 
     @Test
     void whenUpdateNonExistingTraineeThenThrowException() {
-        UpdateTraineeRequestDTO notExists = UpdateTraineeRequestDTO.builder().username("Not exists").build();
-        assertThrows(NoSuchElementException.class, () -> traineeService.updateProfile(notExists), "Trainee with username " + notExists.getUsername() + " not found");
+        String username = "not exists";
+        UpdateTraineeRequestDTO updateTraineeRequestDTO = UpdateTraineeRequestDTO.builder()
+                .isActive(Boolean.FALSE)
+                .build();
+        assertThrows(NoSuchElementException.class, () -> traineeService.updateProfile(username, updateTraineeRequestDTO), "Trainee with username " + username + " not found");
     }
 
     @Test
@@ -113,7 +115,7 @@ class TraineeServiceTest {
 
         assertEquals(FIRST_NAME, userProfile.getFirstName());
         assertEquals(LAST_NAME, userProfile.getLastName());
-        assertEquals(LocalDate.now().minusYears(15), userProfile.getDateOfBirth());
+        assertEquals(LocalDate.now().minusYears(15).toString(), userProfile.getDateOfBirth());
     }
 
     @Test

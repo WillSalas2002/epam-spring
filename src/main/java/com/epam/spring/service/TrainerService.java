@@ -87,8 +87,7 @@ public class TrainerService extends BaseUserService implements TrainerSpecificOp
     }
 
     @Override
-    public UpdateTrainerResponseDTO updateProfile(UpdateTrainerRequestDTO updateRequestDto) {
-        String username = updateRequestDto.getUsername();
+    public UpdateTrainerResponseDTO updateProfile(String username, UpdateTrainerRequestDTO updateRequestDto) {
         Optional<Trainer> trainerOptional = trainerRepository.findByUsername(username);
         if (trainerOptional.isEmpty()) {
             throw new NoSuchElementException("Trainee with username " + username + " not found");

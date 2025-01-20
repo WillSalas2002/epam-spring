@@ -16,8 +16,8 @@ public abstract class BaseUserService {
 
     private final UserRepository userRepository;
 
-    public UserCredentialsResponseDTO changeCredentials(CredentialChangeRequestDTO credentialChangeRequest) {
-        User user = findUserOrThrowException(credentialChangeRequest.getUsername());
+    public UserCredentialsResponseDTO changeCredentials(String username, CredentialChangeRequestDTO credentialChangeRequest) {
+        User user = findUserOrThrowException(username);
         if (!Objects.equals(user.getPassword(), credentialChangeRequest.getOldPassword())) {
             throw new RuntimeException("Incorrect old password");
         }

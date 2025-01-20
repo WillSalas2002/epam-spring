@@ -12,5 +12,5 @@ import com.epam.spring.dto.response.trainer.TrainerResponseDTO;
 public interface TraineeSpecificOperationsService extends BaseUserOperationsService<CreateTraineeRequestDTO, UserCredentialsResponseDTO, FetchTraineeResponseDTO, UpdateTraineeRequestDTO, UpdateTraineeResponseDTO, UserActivationRequestDTO> {
 
     void deleteByUsername(String username);
-    TrainerResponseDTO updateTraineeTrainerList(UpdateTraineeTrainerRequestDTO request);
+    TrainerResponseDTO updateTraineeTrainerList(String username, UpdateTraineeTrainerRequestDTO request);
 }

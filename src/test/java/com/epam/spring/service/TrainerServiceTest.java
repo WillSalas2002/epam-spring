@@ -78,18 +78,17 @@ class TrainerServiceTest {
 
     @Test
     void testUpdate() {
-        trainerService.create(createTrainerRequestDTO);
+        UserCredentialsResponseDTO userCredentialsResponseDTO = trainerService.create(createTrainerRequestDTO);
         String updatedFirstName = "Will";
         String updateLastName = "Salas";
         UpdateTrainerRequestDTO updateRequest = UpdateTrainerRequestDTO.builder()
-                .username(firstName + "." + lastName)
                 .firstName(updatedFirstName)
                 .lastName(updateLastName)
                 .active(Boolean.TRUE)
                 .trainingType(new TrainingTypeDTO(1L, "Cardio"))
                 .build();
 
-        UpdateTrainerResponseDTO updateTrainerResponseDTO = trainerService.updateProfile(updateRequest);
+        UpdateTrainerResponseDTO updateTrainerResponseDTO = trainerService.updateProfile(userCredentialsResponseDTO.getUsername(), updateRequest);
 
         assertEquals(updatedFirstName, updateTrainerResponseDTO.getFirstName());
         assertEquals(updateLastName, updateTrainerResponseDTO.getLastName());
@@ -99,7 +98,7 @@ class TrainerServiceTest {
     @Test
     void whenUpdateNonExistingTrainerThenThrowException() {
         String nonExistingUsername = "not exists";
-        assertThrows(NoSuchElementException.class, () -> trainerService.updateProfile(UpdateTrainerRequestDTO.builder().username(nonExistingUsername).build()), "Trainer with username " + nonExistingUsername + " not found");
+        assertThrows(NoSuchElementException.class, () -> trainerService.updateProfile(nonExistingUsername, UpdateTrainerRequestDTO.builder().firstName(nonExistingUsername).build()), "Trainer with username " + nonExistingUsername + " not found");
     }
 
     @Test

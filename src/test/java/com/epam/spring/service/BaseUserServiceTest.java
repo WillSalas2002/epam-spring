@@ -57,11 +57,10 @@ class BaseUserServiceTest {
     public void testChangeCredentials() {
         UserCredentialsResponseDTO userCredentialsResponseDTO = baseUserService.create(createTraineeRequestDTO);
         CredentialChangeRequestDTO credentialChangeRequest = new CredentialChangeRequestDTO(
-                userCredentialsResponseDTO.getUsername(),
                 userCredentialsResponseDTO.getPassword(),
                 "1111111111");
 
-        UserCredentialsResponseDTO userCredentialsResponse = baseUserService.changeCredentials(credentialChangeRequest);
+        UserCredentialsResponseDTO userCredentialsResponse = baseUserService.changeCredentials(userCredentialsResponseDTO.getUsername(), credentialChangeRequest);
 
         assertEquals("1111111111", userCredentialsResponse.getPassword());
     }

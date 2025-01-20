@@ -19,8 +19,6 @@ import java.util.List;
 @Builder
 public class UpdateTraineeTrainerRequestDTO {
 
-    @NotBlank(message = "Trainee username is required")
-    private String traineeUsername;
     @NotEmpty(message = "Trainer usernames list cannot be empty.")
     private List<@NotBlank(message = "Trainer username is required") String> trainerUsernames;
 }
