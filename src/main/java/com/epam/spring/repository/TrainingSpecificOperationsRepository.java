@@ -2,6 +2,7 @@ package com.epam.spring.repository;
 
 import com.epam.spring.model.Training;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -9,12 +10,12 @@ public interface TrainingSpecificOperationsRepository extends BaseOperationsRepo
 
     Training create(Training training);
     List<Training> findTraineeTrainings(String traineeUsername,
-                                        LocalDateTime fromDate,
-                                        LocalDateTime toDate,
+                                        LocalDate fromDate,
+                                        LocalDate toDate,
                                         String trainerName,
                                         String trainingType);
     List<Training> findTrainerTrainings(String trainerUsername,
-                                        LocalDateTime fromDate,
-                                        LocalDateTime toDate,
+                                        LocalDate fromDate,
+                                        LocalDate toDate,
                                         String traineeName);
 }

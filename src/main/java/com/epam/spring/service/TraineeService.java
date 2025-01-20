@@ -139,6 +139,5 @@ public class TraineeService extends BaseUserService implements TraineeSpecificOp
 /* TODO: 2. implement controllers
 /* TODO: 3. error handling
 /* TODO: 4. add swagger documentation
-/* TODO: 5. JWT authorization
-/* TODO: 6. improved logger
+/* TODO: 5. improved logger
  */

@@ -2,9 +2,13 @@ package com.epam.spring.controller;
 
 import com.epam.spring.dto.request.training.CreateTrainingRequestDTO;
 import com.epam.spring.service.TrainingService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -14,7 +18,8 @@ public class TrainingController {
 
     private final TrainingService trainingService;
 
-    public void create(CreateTrainingRequestDTO request) {
+    @PostMapping
+    public void create(@Valid @RequestBody CreateTrainingRequestDTO request) {
         trainingService.create(request);
     }
 

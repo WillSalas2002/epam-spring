@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -44,7 +45,7 @@ public class TrainingService implements TrainingSpecificOperationsService {
                 .name(createTrainingRequest.getTrainingName())
                 .trainingType(trainer.getSpecialization())
                 .duration(Integer.valueOf(createTrainingRequest.getDuration()))
-                .date(LocalDateTime.parse(createTrainingRequest.getTrainingDate()))
+                .date(LocalDate.parse(createTrainingRequest.getTrainingDate()))
                 .build();
 
         trainingRepository.create(training);
@@ -54,15 +55,15 @@ public class TrainingService implements TrainingSpecificOperationsService {
     public List<FetchUserTrainingsResponseDTO> findTraineeTrainings(String username, FetchTraineeTrainingsRequestDTO fetchTraineeTrainingsRequest) {
         List<Training> traineeTrainings = trainingRepository.findTraineeTrainings(
                 username,
-                LocalDateTime.parse(fetchTraineeTrainingsRequest.getFromDate()),
-                LocalDateTime.parse(fetchTraineeTrainingsRequest.getToDate()),
+                fetchTraineeTrainingsRequest.getFromDate(),
+                fetchTraineeTrainingsRequest.getToDate(),
                 fetchTraineeTrainingsRequest.getTrainerUsername(),
-                fetchTraineeTrainingsRequest.getTrainingType().getTrainingTypeName());
+                fetchTraineeTrainingsRequest.getTrainingTypeName());
 
         return traineeTrainings.stream()
                 .map(training -> new FetchUserTrainingsResponseDTO(
                         training.getName(),
-                        training.getDate(),
+                        training.getDate().toString(),
                         new TrainingTypeDTO(training.getTrainingType().getId(), training.getTrainingType().getTrainingTypeName()),
                         training.getDuration(),
                         training.getTrainee().getUser().getUsername()
@@ -81,10 +82,10 @@ public class TrainingService implements TrainingSpecificOperationsService {
         return trainerTrainings.stream()
                 .map(training -> new FetchUserTrainingsResponseDTO(
                         training.getName(),
-                        training.getDate(),
+                        training.getDate().toString(),
                         new TrainingTypeDTO(training.getTrainingType().getId(), training.getTrainingType().getTrainingTypeName()),
                         training.getDuration(),
-                        training.getTrainee().getUser().getUsername()
+                        training.getTrainer().getUser().getUsername()
                 ))
                 .toList();
     }

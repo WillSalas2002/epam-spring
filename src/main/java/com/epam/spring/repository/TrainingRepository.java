@@ -13,6 +13,7 @@ import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -68,8 +69,8 @@ public class TrainingRepository implements TrainingSpecificOperationsRepository 
 
     @Override
     public List<Training> findTraineeTrainings(String traineeUsername,
-                                               LocalDateTime fromDate,
-                                               LocalDateTime toDate,
+                                               LocalDate fromDate,
+                                               LocalDate toDate,
                                                String trainerName,
                                                String trainingTypeName) {
         try (Session session = sessionFactory.openSession()) {
@@ -82,8 +83,8 @@ public class TrainingRepository implements TrainingSpecificOperationsRepository 
 
     @Override
     public List<Training> findTrainerTrainings(String trainerUsername,
-                                               LocalDateTime fromDate,
-                                               LocalDateTime toDate,
+                                               LocalDate fromDate,
+                                               LocalDate toDate,
                                                String traineeName) {
         try (Session session = sessionFactory.openSession()) {
             Query<Training> query = QueryBuilder.buildFindTrainerTrainings(

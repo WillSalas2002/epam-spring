@@ -82,6 +82,7 @@ public class TrainerService extends BaseUserService implements TrainerSpecificOp
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .active(trainer.getUser().isActive())
+                .specializationId(trainer.getSpecialization().getId())
                 .trainees(trainees)
                 .build();
     }
@@ -100,10 +101,11 @@ public class TrainerService extends BaseUserService implements TrainerSpecificOp
         user.setActive(updateRequestDto.getActive());
 
         TrainingType specialization = new TrainingType();
-        specialization.setId(updateRequestDto.getTrainingType().getId());
+        specialization.setId(updateRequestDto.getSpecializationId());
         trainer.setSpecialization(specialization);
 
         Trainer updatedTrainer = trainerRepository.update(trainer);
+
         List<TraineeResponseDTO> traineeDTOList = updatedTrainer.getTrainings().stream()
                 .map(training -> new TraineeResponseDTO(
                         training.getTrainee().getUser().getUsername(),

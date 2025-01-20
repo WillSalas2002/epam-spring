@@ -26,13 +26,13 @@ public abstract class BaseUserService {
         return new UserCredentialsResponseDTO(user.getUsername(), user.getPassword());
     }
 
-    public boolean login(UserCredentialsRequestDTO userCredentialsRequest) {
-        User user = findUserOrThrowException(userCredentialsRequest.getUsername());
+    public boolean login(String username, UserCredentialsRequestDTO userCredentialsRequest) {
+        User user = findUserOrThrowException(username);
         return Objects.equals(user.getPassword(), userCredentialsRequest.getPassword());
     }
 
-    public void activateProfile(UserActivationRequestDTO activationRequest) {
-        User user = findUserOrThrowException(activationRequest.getUsername());
+    public void activateProfile(String username, UserActivationRequestDTO activationRequest) {
+        User user = findUserOrThrowException(username);
         user.setActive(!user.isActive());
         userRepository.update(user);
     }

@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -164,7 +163,7 @@ class TrainingRepositoryTest {
                 .trainer(trainer)
                 .name("Hard Cardio")
                 .trainingType(trainingType)
-                .date(LocalDateTime.now().plusHours(5))
+                .date(LocalDate.now().plusDays(2))
                 .duration(90)
                 .build();
     }

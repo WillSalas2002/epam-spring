@@ -1,7 +1,7 @@
 package com.epam.spring.dto.request.trainer;
 
-import com.epam.spring.dto.TrainingTypeDTO;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,7 +21,7 @@ public class UpdateTrainerRequestDTO {
     private String firstName;
     @NotBlank(message = "Lastname is required")
     private String lastName;
-    private TrainingTypeDTO trainingType;
-    @NotBlank(message = "Lastname is required")
+    private Long specializationId;
+    @NotNull(message = "Is active is required")
     private Boolean active;
 }

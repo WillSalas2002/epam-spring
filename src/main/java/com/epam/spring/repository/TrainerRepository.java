@@ -18,10 +18,10 @@ import java.util.Optional;
 public class TrainerRepository implements TrainerSpecificOperationsRepository {
 
     public static final String FIND_ALL_QUERY = "SELECT t FROM Trainer t";
-    public static final String FIND_BY_ID_QUERY = "SELECT t FROM Trainer t LEFT JOIN FETCH t.trainings WHERE t.id = :id";
-    public static final String FIND_BY_USERNAME_QUERY = "SELECT t FROM Trainer t LEFT JOIN FETCH t.trainings WHERE t.user.username =: username";
+    public static final String FIND_BY_ID_QUERY = "SELECT t FROM Trainer t LEFT JOIN FETCH t.trainings LEFT JOIN FETCH t.specialization WHERE t.id = :id";
+    public static final String FIND_BY_USERNAME_QUERY = "SELECT t FROM Trainer t LEFT JOIN FETCH t.trainings LEFT JOIN FETCH t.specialization WHERE t.user.username =: username";
     public static final String FIND_BY_TRAINEE_USERNAME_QUERY = """
-            SELECT DISTINCT t.id AS trainer_id, u.firstName, u.lastName
+            SELECT DISTINCT t
             FROM Trainer t
                      JOIN User u ON t.user.id = u.id
             WHERE t.id NOT IN (SELECT tr.id

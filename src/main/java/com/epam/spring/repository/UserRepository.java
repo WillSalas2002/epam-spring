@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -29,7 +30,9 @@ public class UserRepository implements UserOperationsRepository {
     @Override
     public void update(User user) {
         try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
             session.merge(user);
+            transaction.commit();
         }
     }
 }

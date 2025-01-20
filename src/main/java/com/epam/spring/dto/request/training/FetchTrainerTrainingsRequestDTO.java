@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class FetchTrainerTrainingsRequestDTO {
 
-    private LocalDateTime fromDate;
-    private LocalDateTime toDate;
+    private LocalDate fromDate;
+    private LocalDate toDate;
     private String traineeUsername;
 }

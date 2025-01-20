@@ -4,6 +4,7 @@ import com.epam.spring.model.Training;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class QueryBuilder {
@@ -25,8 +26,8 @@ public class QueryBuilder {
 
     public static Query<Training> buildFindTraineeTrainingsQuery(Session session,
                                                                  String traineeUsername,
-                                                                 LocalDateTime fromDate,
-                                                                 LocalDateTime toDate,
+                                                                 LocalDate fromDate,
+                                                                 LocalDate toDate,
                                                                  String trainerName,
                                                                  String trainingTypeName) {
         StringBuilder baseHQL = new StringBuilder(FIND_TRAINEE_TRAININGS_LIST_BASE_QUERY);
@@ -52,8 +53,8 @@ public class QueryBuilder {
 
     public static Query<Training> buildFindTrainerTrainings(Session session,
                                                             String trainerUsername,
-                                                            LocalDateTime fromDate,
-                                                            LocalDateTime toDate,
+                                                            LocalDate fromDate,
+                                                            LocalDate toDate,
                                                             String traineeName) {
         StringBuilder baseHQL = new StringBuilder(FIND_TRAINER_TRAININGS_LIST_BASE_QUERY);
         StringBuilder hql = buildHQL(baseHQL, fromDate, toDate, traineeName, null);
@@ -74,8 +75,8 @@ public class QueryBuilder {
     }
 
     private static StringBuilder buildHQL(StringBuilder hql,
-                                          LocalDateTime fromDate,
-                                          LocalDateTime toDate,
+                                          LocalDate fromDate,
+                                          LocalDate toDate,
                                           String secondaryUsername,
                                           String trainingTypeName) {
         if (fromDate != null) {

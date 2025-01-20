@@ -12,7 +12,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Objects;
 
 @SuperBuilder
@@ -28,7 +28,7 @@ public class Training extends BaseEntity {
     @JoinColumn(name = "trainee_id", nullable = false)
     private Trainee trainee;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "trainer_id", nullable = false)
     private Trainer trainer;
 
@@ -40,7 +40,7 @@ public class Training extends BaseEntity {
     private TrainingType trainingType;
 
     @Column(name = "date", nullable = false)
-    private LocalDateTime date;
+    private LocalDate date;
 
     @Column(name = "duration", nullable = false)
     private Integer duration;

@@ -69,9 +69,8 @@ class BaseUserServiceTest {
     public void testLoginShouldReturnTrueWhenCredentialsCorrect() {
         UserCredentialsResponseDTO userCredentialsResponseDTO = baseUserService.create(createTraineeRequestDTO);
         UserCredentialsRequestDTO userCredentialsRequest = new UserCredentialsRequestDTO(
-                userCredentialsResponseDTO.getUsername(),
                 userCredentialsResponseDTO.getPassword());
-        boolean login = baseUserService.login(userCredentialsRequest);
+        boolean login = baseUserService.login(userCredentialsResponseDTO.getUsername(), userCredentialsRequest);
 
         assertTrue(login);
     }
@@ -81,10 +80,9 @@ class BaseUserServiceTest {
         UserCredentialsResponseDTO userCredentialsResponseDTO = baseUserService.create(createTraineeRequestDTO);
 
         UserCredentialsRequestDTO userCredentialsRequest = new UserCredentialsRequestDTO(
-                userCredentialsResponseDTO.getUsername(),
                 "incorrect password");
 
-        boolean login = baseUserService.login(userCredentialsRequest);
+        boolean login = baseUserService.login(userCredentialsResponseDTO.getUsername(), userCredentialsRequest);
 
         assertFalse(login);
     }
@@ -92,11 +90,9 @@ class BaseUserServiceTest {
     @Test
     void testActivateProfile() {
         UserCredentialsResponseDTO userCredentialsResponseDTO = baseUserService.create(createTraineeRequestDTO);
-        UserActivationRequestDTO userActivationRequestDTO = new UserActivationRequestDTO(
-                userCredentialsResponseDTO.getUsername(),
-                Boolean.TRUE);
+        UserActivationRequestDTO userActivationRequestDTO = new UserActivationRequestDTO(Boolean.TRUE);
 
-        baseUserService.activateProfile(userActivationRequestDTO);
+        baseUserService.activateProfile(userCredentialsResponseDTO.getUsername(), userActivationRequestDTO);
         FetchTraineeResponseDTO userProfile = baseUserService.getUserProfile(userCredentialsResponseDTO.getUsername());
 
         assertTrue(userProfile.isActive());

@@ -14,8 +14,6 @@ import lombok.ToString;
 @AllArgsConstructor
 public class UserCredentialsRequestDTO {
 
-    @NotBlank(message = "Username is required")
-    private String username;
     @NotBlank(message = "Password is required")
     private String password;
 }

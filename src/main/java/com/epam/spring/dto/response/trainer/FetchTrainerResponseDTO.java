@@ -20,7 +20,7 @@ public class FetchTrainerResponseDTO {
 
     private String firstName;
     private String lastName;
-    private String specialization;
+    private Long specializationId;
     private Boolean active;
     private List<TraineeResponseDTO> trainees;
 }

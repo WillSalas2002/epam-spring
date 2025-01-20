@@ -1,7 +1,6 @@
 package com.epam.spring.service;
 
 import com.epam.spring.config.AppConfig;
-import com.epam.spring.dto.TrainingTypeDTO;
 import com.epam.spring.dto.request.trainer.CreateTrainerRequestDTO;
 import com.epam.spring.dto.request.trainer.UpdateTrainerRequestDTO;
 import com.epam.spring.dto.response.UserCredentialsResponseDTO;
@@ -85,7 +84,7 @@ class TrainerServiceTest {
                 .firstName(updatedFirstName)
                 .lastName(updateLastName)
                 .active(Boolean.TRUE)
-                .trainingType(new TrainingTypeDTO(1L, "Cardio"))
+                .specializationId(1L)
                 .build();
 
         UpdateTrainerResponseDTO updateTrainerResponseDTO = trainerService.updateProfile(userCredentialsResponseDTO.getUsername(), updateRequest);

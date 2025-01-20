@@ -1,6 +1,5 @@
 package com.epam.spring.controller;
 
-import com.epam.spring.dto.request.ResourceIdentifierRequest;
 import com.epam.spring.dto.request.trainee.CreateTraineeRequestDTO;
 import com.epam.spring.dto.request.trainee.UpdateTraineeRequestDTO;
 import com.epam.spring.dto.request.trainee.UpdateTraineeTrainerRequestDTO;
@@ -22,18 +21,18 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/trainees", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/trainees", produces = MediaType.APPLICATION_JSON_VALUE)
 public class TraineeController {
 
     private final TraineeService traineeService;
@@ -45,48 +44,48 @@ public class TraineeController {
         return traineeService.create(request);
     }
 
-    @GetMapping("/{username}")
-    public FetchTraineeResponseDTO getTraineeProfile(@PathVariable("username") String username) {
+    @GetMapping
+    public FetchTraineeResponseDTO getTraineeProfile(@RequestParam("username") String username) {
         return traineeService.getUserProfile(username);
     }
 
-    @PutMapping("/{username}")
-    public UpdateTraineeResponseDTO updateProfile(@PathVariable("username") String username, @Valid @RequestBody UpdateTraineeRequestDTO request) {
+    @PutMapping
+    public UpdateTraineeResponseDTO updateProfile(@RequestParam("username") String username, @Valid @RequestBody UpdateTraineeRequestDTO request) {
         return traineeService.updateProfile(username, request);
     }
 
     @DeleteMapping
-    public void delete(@Valid @RequestBody ResourceIdentifierRequest request) {
-        traineeService.deleteByUsername(request.getUsername());
+    public void delete(@RequestParam("username") String username) {
+        traineeService.deleteByUsername(username);
     }
 
-    @PatchMapping("/activate")
-    public void activateProfile(@Valid @RequestBody UserActivationRequestDTO request) {
-        traineeService.activateProfile(request);
+    @PatchMapping("/activate/status")
+    public void activateProfile(@RequestParam("username") String username, @Valid @RequestBody UserActivationRequestDTO request) {
+        traineeService.activateProfile(username, request);
     }
 
-    @PutMapping("/login/{username}/password")
-    public void changeLogin(@PathVariable("username") String username, @Valid @RequestBody CredentialChangeRequestDTO request) {
+    @PutMapping("/login/password")
+    public void changeLogin(@RequestParam("username") String username, @Valid @RequestBody CredentialChangeRequestDTO request) {
         traineeService.changeCredentials(username, request);
     }
 
     @GetMapping("/login")
-    public void login(@Valid @RequestBody UserCredentialsRequestDTO request) {
-        traineeService.login(request);
+    public void login(@RequestParam(value = "username") String username, @Valid @RequestBody UserCredentialsRequestDTO request) {
+        traineeService.login(username, request);
     }
 
-    @GetMapping("/{username}/unassigned-trainers")
-    public void findUnassignedTrainersByTraineeUsername(@PathVariable("username") String username) {
-        trainerService.findUnassignedTrainersByTraineeUsername(username);
+    @GetMapping("/unassigned-trainers")
+    public List<TrainerResponseDTO> findUnassignedTrainersByTraineeUsername(@RequestParam("username") String username) {
+        return trainerService.findUnassignedTrainersByTraineeUsername(username);
     }
 
-    @GetMapping("/{username}/trainings")
-    public List<FetchUserTrainingsResponseDTO> getTraineeTrainings(@PathVariable("username") String username, FetchTraineeTrainingsRequestDTO request) {
+    @GetMapping("/trainings")
+    public List<FetchUserTrainingsResponseDTO> getTraineeTrainings(@RequestParam("username") String username, FetchTraineeTrainingsRequestDTO request) {
         return trainingService.findTraineeTrainings(username, request);
     }
 
-    @PutMapping("/{username}/trainers")
-    public TrainerResponseDTO updateTraineeTrainees(@PathVariable("username") String username, UpdateTraineeTrainerRequestDTO updateTraineeTrainerRequestDTO) {
+    @PutMapping("/trainers")
+    public TrainerResponseDTO updateTraineeTrainers(@RequestParam("username") String username, UpdateTraineeTrainerRequestDTO updateTraineeTrainerRequestDTO) {
         return traineeService.updateTraineeTrainerList(username, updateTraineeTrainerRequestDTO);
     }
 }
