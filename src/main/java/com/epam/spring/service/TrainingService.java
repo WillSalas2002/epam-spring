@@ -1,9 +1,9 @@
 package com.epam.spring.service;
 
-import com.epam.spring.dto.TrainingTypeDTO;
 import com.epam.spring.dto.request.training.CreateTrainingRequestDTO;
 import com.epam.spring.dto.request.training.FetchTraineeTrainingsRequestDTO;
 import com.epam.spring.dto.request.training.FetchTrainerTrainingsRequestDTO;
+import com.epam.spring.dto.response.TrainingTypeDTO;
 import com.epam.spring.dto.response.training.FetchUserTrainingsResponseDTO;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;

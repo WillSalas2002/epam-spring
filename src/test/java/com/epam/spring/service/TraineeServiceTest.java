@@ -6,6 +6,7 @@ import com.epam.spring.dto.request.trainee.UpdateTraineeRequestDTO;
 import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.dto.response.trainee.FetchTraineeResponseDTO;
 import com.epam.spring.dto.response.trainee.UpdateTraineeResponseDTO;
+import com.epam.spring.exception.UserNotFoundException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -19,7 +20,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
-import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -109,7 +109,7 @@ class TraineeServiceTest {
         UpdateTraineeRequestDTO updateTraineeRequestDTO = UpdateTraineeRequestDTO.builder()
                 .isActive(Boolean.FALSE)
                 .build();
-        assertThrows(NoSuchElementException.class, () -> traineeService.updateProfile(username, updateTraineeRequestDTO), "Trainee with username " + username + " not found");
+        assertThrows(UserNotFoundException.class, () -> traineeService.updateProfile(username, updateTraineeRequestDTO), "User with username " + username + " not found");
     }
 
     @Test
@@ -130,6 +130,6 @@ class TraineeServiceTest {
 
         traineeService.deleteByUsername(username);
 
-        assertThrows(RuntimeException.class, () -> traineeService.getUserProfile(username), "Trainer with username " + username + " not found");
+        assertThrows(UserNotFoundException.class, () -> traineeService.getUserProfile(username), "User with username " + username + " not found");
     }
 }

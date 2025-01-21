@@ -6,6 +6,7 @@ import com.epam.spring.dto.request.trainer.UpdateTrainerRequestDTO;
 import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.dto.response.trainer.FetchTrainerResponseDTO;
 import com.epam.spring.dto.response.trainer.UpdateTrainerResponseDTO;
+import com.epam.spring.exception.UserNotFoundException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -17,8 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -102,7 +101,7 @@ class TrainerServiceTest {
     @Test
     void whenUpdateNonExistingTrainerThenThrowException() {
         String nonExistingUsername = "not exists";
-        assertThrows(NoSuchElementException.class, () -> trainerService.updateProfile(nonExistingUsername, UpdateTrainerRequestDTO.builder().firstName(nonExistingUsername).build()), "Trainer with username " + nonExistingUsername + " not found");
+        assertThrows(UserNotFoundException.class, () -> trainerService.updateProfile(nonExistingUsername, UpdateTrainerRequestDTO.builder().firstName(nonExistingUsername).build()), "User with username " + nonExistingUsername + " not found");
     }
 
     @Test

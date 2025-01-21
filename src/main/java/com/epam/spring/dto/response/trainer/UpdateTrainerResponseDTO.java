@@ -1,6 +1,6 @@
 package com.epam.spring.dto.response.trainer;
 
-import com.epam.spring.dto.TrainingTypeDTO;
+import com.epam.spring.dto.response.TrainingTypeDTO;
 import com.epam.spring.dto.response.trainee.TraineeResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

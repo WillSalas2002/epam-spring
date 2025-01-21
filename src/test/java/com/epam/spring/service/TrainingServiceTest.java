@@ -1,19 +1,29 @@
 package com.epam.spring.service;
 
 import com.epam.spring.config.AppConfig;
+import com.epam.spring.dto.request.trainee.CreateTraineeRequestDTO;
+import com.epam.spring.dto.request.trainer.CreateTrainerRequestDTO;
 import com.epam.spring.dto.request.training.CreateTrainingRequestDTO;
-import com.epam.spring.model.Trainee;
-import com.epam.spring.model.Trainer;
+import com.epam.spring.dto.request.training.FetchTraineeTrainingsRequestDTO;
+import com.epam.spring.dto.request.training.FetchTrainerTrainingsRequestDTO;
+import com.epam.spring.dto.response.UserCredentialsResponseDTO;
+import com.epam.spring.dto.response.training.FetchUserTrainingsResponseDTO;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {AppConfig.class})
@@ -29,13 +39,13 @@ class TrainingServiceTest {
     @Autowired
     private TrainerService trainerService;
 
-    private Trainer trainer;
-    private Trainee trainee;
-    private CreateTrainingRequestDTO createTrainingRequest;
+    private CreateTraineeRequestDTO createTraineeRequest;
+    private CreateTrainerRequestDTO createTrainerRequest;
 
     @BeforeEach
     void setUp() {
-//        createTrainingRequest = buildTrainingRequest();
+        createTraineeRequest = buildCreateTraineeRequestDTO("Trainee", "Trainee");
+        createTrainerRequest = buildCreateTrainerRequest("Trainer", "Trainer", "1");
     }
 
     @AfterEach
@@ -46,88 +56,58 @@ class TrainingServiceTest {
             session.createMutationQuery("DELETE FROM Trainer").executeUpdate();
             session.createMutationQuery("DELETE FROM Trainee").executeUpdate();
             session.createMutationQuery("DELETE FROM User").executeUpdate();
-            session.createMutationQuery("DELETE FROM TrainingType").executeUpdate();
             transaction.commit();
         }
     }
 
-/*
     @Test
     public void testFindTraineeAndTrainerTrainings() {
-        Trainee trainee1 = buildTrainee("trainee1", "trainee1");
-        traineeService.create(trainee1);
-        Trainer trainer1 = buildTrainer("trainer1", "trainer1");
-        trainerService.create(trainer1);
-        TrainingType trainingType1 = trainer1.getSpecialization();
-        Training training1 = new Training(trainee1, trainer1, "Strong man training", trainingType1, LocalDateTime.now().plusHours(3), 120);
+        UserCredentialsResponseDTO traineeResponse = traineeService.create(createTraineeRequest);
+        UserCredentialsResponseDTO trainerResponse = trainerService.create(createTrainerRequest);
 
-        Trainer trainer2 = buildTrainer("trainer2", "trainer2");
-        trainerService.create(trainer2);
-        TrainingType trainingType2 = trainer1.getSpecialization();
-        Training training2 = new Training(trainee1, trainer2, "Strong man training", trainingType2, LocalDateTime.now().plusHours(3), 120);
+        CreateTrainingRequestDTO trainingRequest1 = buildTrainingRequest(traineeResponse.getUsername(), trainerResponse.getUsername());
 
-        trainingService.create(training1);
-        trainingService.create(training2);
+        CreateTrainerRequestDTO trainerRequest2 = buildCreateTrainerRequest("Trainer2", "Trainer2", "2");
+        UserCredentialsResponseDTO trainerResponse2 = trainerService.create(trainerRequest2);
+        CreateTrainingRequestDTO trainingRequest2 = buildTrainingRequest(traineeResponse.getUsername(), trainerResponse2.getUsername());
 
-        List<Training> traineeTrainings = trainingService.findTraineeTrainings(trainee1.getUser().getUsername(), null, null, null, null);
-        List<Training> trainerTrainings = trainingService.findTrainerTrainings(trainer1.getUser().getUsername(), null, null, null, null);
+        trainingService.create(trainingRequest1);
+        trainingService.create(trainingRequest2);
+
+        FetchTraineeTrainingsRequestDTO fetchTraineeTrainingsRequest = new FetchTraineeTrainingsRequestDTO();
+        FetchTrainerTrainingsRequestDTO fetchTrainerTrainingsRequest = new FetchTrainerTrainingsRequestDTO();
+
+        List<FetchUserTrainingsResponseDTO> traineeTrainings = trainingService.findTraineeTrainings(traineeResponse.getUsername(), fetchTraineeTrainingsRequest);
+        List<FetchUserTrainingsResponseDTO> trainerTrainings = trainingService.findTrainerTrainings(trainerResponse.getUsername(), fetchTrainerTrainingsRequest);
 
         assertEquals(2, traineeTrainings.size());
         assertEquals(1, trainerTrainings.size());
-    }
-    @Test
-    public void testCreateTraining() {
-        trainingService.create(createTrainingRequest);
-        TrainingType trainingType = trainer.getSpecialization();
-        Training training = new Training(trainee, trainer, "Strong man training", trainingType, LocalDateTime.now().plusHours(3), 120);
-
-        Training createdTraining = trainingService.create(training);
-
-        assertNotNull(createdTraining);
-        assertEquals(createdTraining.getName(), trainingService.findById(createdTraining.getId()).getName());
-        assertEquals(1, trainingService.findAll().size());
     }
 
     private CreateTrainingRequestDTO buildTrainingRequest(String traineeUsername, String trainerUsername) {
         return CreateTrainingRequestDTO.builder()
                 .traineeUsername(traineeUsername)
                 .trainerUsername(trainerUsername)
-                .trainingName("Calisthenics")
-                .trainingDate(LocalDateTime.now().plusDays(1).toString())
+                .trainingName("Cardio")
+                .trainingDate(LocalDate.now().plusDays(1).toString())
                 .duration(String.valueOf(90))
                 .build();
     }
 
-    private Trainer buildTrainer(String firstName, String lastName) {
-        return Trainer.builder()
-                .user(User.builder()
-                        .firstName(firstName)
-                        .lastName(lastName)
-                        .isActive(true)
-                        .build()
-                )
-                .specialization(buildTrainingType())
+    private static CreateTraineeRequestDTO buildCreateTraineeRequestDTO(String firstName, String lastName) {
+        return CreateTraineeRequestDTO.builder()
+                .firstName(firstName)
+                .lastName(lastName)
+                .dateOfBirth(LocalDate.now().minusYears(15).toString())
+                .address("Street 77")
                 .build();
     }
 
-    private Trainee buildTrainee(String firstName, String lastName) {
-        return Trainee.builder()
-                .user(User.builder()
-                        .firstName(firstName)
-                        .lastName(lastName)
-                        .isActive(true)
-                        .build()
-                )
-                .dataOfBirth(LocalDate.now().minusYears(25))
-                .address("Test Address")
+    private static CreateTrainerRequestDTO buildCreateTrainerRequest(String firstName, String lastName, String trainingTypeId) {
+        return CreateTrainerRequestDTO.builder()
+                .firstName(firstName)
+                .lastName(lastName)
+                .trainingTypeId(trainingTypeId)
                 .build();
     }
-
-    private static TrainingType buildTrainingType() {
-        return TrainingType.builder()
-                .trainingTypeName("Cardio")
-                .build();
-    }
-
- */
 }

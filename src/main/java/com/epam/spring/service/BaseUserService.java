@@ -4,11 +4,11 @@ import com.epam.spring.dto.request.user.CredentialChangeRequestDTO;
 import com.epam.spring.dto.request.user.UserActivationRequestDTO;
 import com.epam.spring.dto.request.user.UserCredentialsRequestDTO;
 import com.epam.spring.dto.response.UserCredentialsResponseDTO;
+import com.epam.spring.exception.UserNotFoundException;
 import com.epam.spring.model.User;
 import com.epam.spring.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
-import java.util.NoSuchElementException;
 import java.util.Objects;
 
 @RequiredArgsConstructor
@@ -39,6 +39,6 @@ public abstract class BaseUserService {
 
     private User findUserOrThrowException(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new NoSuchElementException("User with username " + username + " not found"));
+                .orElseThrow(() -> new UserNotFoundException(username));
     }
 }

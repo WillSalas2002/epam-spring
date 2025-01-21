@@ -1,13 +1,14 @@
 package com.epam.spring.service;
 
-import com.epam.spring.dto.TrainingTypeDTO;
 import com.epam.spring.dto.request.trainer.CreateTrainerRequestDTO;
 import com.epam.spring.dto.request.trainer.UpdateTrainerRequestDTO;
+import com.epam.spring.dto.response.TrainingTypeDTO;
 import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.dto.response.trainee.TraineeResponseDTO;
 import com.epam.spring.dto.response.trainer.FetchTrainerResponseDTO;
 import com.epam.spring.dto.response.trainer.TrainerResponseDTO;
 import com.epam.spring.dto.response.trainer.UpdateTrainerResponseDTO;
+import com.epam.spring.exception.UserNotFoundException;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
 import com.epam.spring.model.TrainingType;
@@ -21,8 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -63,12 +62,9 @@ public class TrainerService extends BaseUserService implements TrainerSpecificOp
 
     @Override
     public FetchTrainerResponseDTO getUserProfile(String username) {
-        Optional<Trainer> trainerOptional = trainerRepository.findByUsername(username);
-        if (trainerOptional.isEmpty()) {
-            throw new RuntimeException("Trainer with username " + username + " not found");
-        }
+        Trainer trainer = trainerRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(username));
 
-        Trainer trainer = trainerOptional.get();
         User user = trainer.getUser();
         List<Training> trainings = trainer.getTrainings();
 
@@ -89,11 +85,8 @@ public class TrainerService extends BaseUserService implements TrainerSpecificOp
 
     @Override
     public UpdateTrainerResponseDTO updateProfile(String username, UpdateTrainerRequestDTO updateRequestDto) {
-        Optional<Trainer> trainerOptional = trainerRepository.findByUsername(username);
-        if (trainerOptional.isEmpty()) {
-            throw new NoSuchElementException("Trainee with username " + username + " not found");
-        }
-        Trainer trainer = trainerOptional.get();
+        Trainer trainer = trainerRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(username));
 
         User user = trainer.getUser();
         user.setFirstName(updateRequestDto.getFirstName());

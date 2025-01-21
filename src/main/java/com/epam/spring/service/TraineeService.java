@@ -1,13 +1,14 @@
 package com.epam.spring.service;
 
-import com.epam.spring.dto.TrainingTypeDTO;
 import com.epam.spring.dto.request.trainee.CreateTraineeRequestDTO;
 import com.epam.spring.dto.request.trainee.UpdateTraineeRequestDTO;
 import com.epam.spring.dto.request.trainee.UpdateTraineeTrainerRequestDTO;
+import com.epam.spring.dto.response.TrainingTypeDTO;
 import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.dto.response.trainee.FetchTraineeResponseDTO;
 import com.epam.spring.dto.response.trainee.UpdateTraineeResponseDTO;
 import com.epam.spring.dto.response.trainer.TrainerResponseDTO;
+import com.epam.spring.exception.UserNotFoundException;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Training;
 import com.epam.spring.model.User;
@@ -23,7 +24,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -54,7 +54,7 @@ public class TraineeService extends BaseUserService implements TraineeSpecificOp
         user.setLastName(createRequest.getLastName());
         user.setUsername(uniqueUsername);
         user.setPassword(password);
-        user.setActive(true);
+        user.setActive(false);
         trainee.setUser(user);
         trainee.setAddress(createRequest.getAddress());
         if (createRequest.getDateOfBirth() != null) {
@@ -67,11 +67,9 @@ public class TraineeService extends BaseUserService implements TraineeSpecificOp
 
     @Override
     public UpdateTraineeResponseDTO updateProfile(String username, UpdateTraineeRequestDTO updateRequest) {
-        Optional<Trainee> traineeOptional = traineeRepository.findByUsername(username);
-        if (traineeOptional.isEmpty()) {
-            throw new NoSuchElementException("Trainee with username " + username + " not found");
-        }
-        Trainee trainee = traineeOptional.get();
+        Trainee trainee = traineeRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(username));
+
         User user = trainee.getUser();
 
         user.setFirstName(updateRequest.getFirstName());
@@ -94,12 +92,9 @@ public class TraineeService extends BaseUserService implements TraineeSpecificOp
 
     @Override
     public FetchTraineeResponseDTO getUserProfile(String username) {
-        Optional<Trainee> traineeOptional = traineeRepository.findByUsername(username);
-        if (traineeOptional.isEmpty()) {
-            throw new RuntimeException("Trainee with username " + username + " not found");
-        }
+        Trainee trainee = traineeRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(username));
 
-        Trainee trainee = traineeOptional.get();
         User user = trainee.getUser();
         List<Training> trainings = trainee.getTrainings();
 
@@ -136,7 +131,6 @@ public class TraineeService extends BaseUserService implements TraineeSpecificOp
 }
 
 /* TODO: 1. need to create separate mapper classes
-/* TODO: 2. implement controllers
 /* TODO: 3. error handling
 /* TODO: 4. add swagger documentation
 /* TODO: 5. improved logger

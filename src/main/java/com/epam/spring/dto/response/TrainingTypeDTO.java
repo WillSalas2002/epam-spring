@@ -1,4 +1,4 @@
-package com.epam.spring.dto;
+package com.epam.spring.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
