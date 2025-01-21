@@ -1,12 +1,12 @@
 package com.epam.spring.config;
 
 import com.zaxxer.hikari.HikariDataSource;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
@@ -17,26 +17,25 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 @Configuration
-@PropertySource("classpath:application.properties")
-@ComponentScan("com.epam.spring")
-@RequiredArgsConstructor
-@Slf4j
-public class AppConfig {
+@Profile("test")
+@PropertySource("classpath:application-test.properties")
+@ComponentScan(basePackages = {
+        "com.epam.spring.repository",
+        "com.epam.spring.service",
+        "com.epam.spring.util"
+})
+public class TestConfig {
 
-    private final Environment ENV;
+    @Autowired
+    private Environment env;
 
     @Bean
     public DataSource dataSource() {
         HikariDataSource dataSource = new HikariDataSource();
-        dataSource.setDriverClassName(ENV.getProperty("db.driver"));
-        dataSource.setJdbcUrl(ENV.getProperty("db.url"));
-        dataSource.setUsername(ENV.getProperty("db.username"));
-        dataSource.setPassword(ENV.getProperty("db.password"));
-
-        dataSource.setMaximumPoolSize(10);
-        dataSource.setMinimumIdle(5);
-        dataSource.setIdleTimeout(300000);
-
+        dataSource.setDriverClassName(env.getProperty("db.driver"));
+        dataSource.setJdbcUrl(env.getProperty("db.url"));
+        dataSource.setUsername(env.getProperty("db.username"));
+        dataSource.setPassword(env.getProperty("db.password"));
         return dataSource;
     }
 
@@ -51,10 +50,10 @@ public class AppConfig {
 
     private Properties hibernateProperties() {
         Properties properties = new Properties();
-        properties.setProperty("hibernate.show_sql", ENV.getProperty("hibernate.show_sql"));
-        properties.setProperty("hibernate.format_sql", ENV.getProperty("hibernate.format_sql"));
-        properties.setProperty("hibernate.hbm2ddl.auto", ENV.getProperty("hibernate.hbm2ddl.auto"));
-        properties.setProperty("hibernate.hbm2ddl.import_files", ENV.getProperty("hibernate.hbm2ddl.import_files"));
+        properties.setProperty("hibernate.show_sql", env.getProperty("hibernate.show_sql", "true"));
+        properties.setProperty("hibernate.format_sql", env.getProperty("hibernate.format_sql", "true"));
+        properties.setProperty("hibernate.hbm2ddl.auto", env.getProperty("hibernate.hbm2ddl.auto", "create-drop"));
+        properties.setProperty("hibernate.hbm2ddl.import_files", env.getProperty("hibernate.hbm2ddl.import_files"));
         return properties;
     }
 

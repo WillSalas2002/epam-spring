@@ -1,6 +1,6 @@
 package com.epam.spring.service;
 
-import com.epam.spring.config.AppConfig;
+import com.epam.spring.config.TestConfig;
 import com.epam.spring.dto.request.trainee.CreateTraineeRequestDTO;
 import com.epam.spring.dto.request.user.CredentialChangeRequestDTO;
 import com.epam.spring.dto.request.user.UserActivationRequestDTO;
@@ -17,7 +17,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
@@ -27,8 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {AppConfig.class})
-@TestPropertySource("classpath:application-test.properties")
+@ContextConfiguration(classes = {TestConfig.class})
 class BaseUserServiceTest {
 
     @Qualifier("traineeService")

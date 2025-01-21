@@ -1,6 +1,6 @@
 package com.epam.spring.service;
 
-import com.epam.spring.config.AppConfig;
+import com.epam.spring.config.TestConfig;
 import com.epam.spring.dto.request.trainee.CreateTraineeRequestDTO;
 import com.epam.spring.dto.request.trainer.CreateTrainerRequestDTO;
 import com.epam.spring.dto.request.training.CreateTrainingRequestDTO;
@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
@@ -26,8 +25,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {AppConfig.class})
-@TestPropertySource("classpath:application-test.properties")
+@ContextConfiguration(classes = {TestConfig.class})
 class TrainingServiceTest {
 
     @Autowired
