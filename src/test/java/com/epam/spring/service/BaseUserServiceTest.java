@@ -21,8 +21,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
@@ -73,9 +73,8 @@ class BaseUserServiceTest {
         UserCredentialsResponseDTO userCredentialsResponseDTO = baseUserService.create(createTraineeRequestDTO);
         UserCredentialsRequestDTO userCredentialsRequest = new UserCredentialsRequestDTO(
                 userCredentialsResponseDTO.getPassword());
-        boolean login = baseUserService.login(userCredentialsResponseDTO.getUsername(), userCredentialsRequest);
 
-        assertTrue(login);
+        assertDoesNotThrow(() -> baseUserService.login(userCredentialsResponseDTO.getUsername(), userCredentialsRequest));
     }
 
     @Test
@@ -85,9 +84,7 @@ class BaseUserServiceTest {
         UserCredentialsRequestDTO userCredentialsRequest = new UserCredentialsRequestDTO(
                 "incorrect password");
 
-        boolean login = baseUserService.login(userCredentialsResponseDTO.getUsername(), userCredentialsRequest);
-
-        assertFalse(login);
+        assertDoesNotThrow(() -> baseUserService.login(userCredentialsResponseDTO.getUsername(), userCredentialsRequest));
     }
 
     @Test

@@ -1,11 +1,16 @@
 package com.epam.spring.config;
 
+import com.epam.spring.filter.AuthFilter;
+import com.epam.spring.service.TraineeService;
+import jakarta.servlet.FilterRegistration;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRegistration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.servlet.DispatcherServlet;
 
 @Configuration
@@ -29,5 +34,9 @@ public class WebConfig implements WebApplicationInitializer {
                 "dispatcher", new DispatcherServlet(dispatcherContext));
         dispatcher.setLoadOnStartup(1);
         dispatcher.addMapping("/");
+
+// Register the filter using DelegatingFilterProxy
+        container.addFilter("authFilter", new DelegatingFilterProxy("authFilter"))
+                .addMappingForUrlPatterns(null, false, "/*");
     }
 }

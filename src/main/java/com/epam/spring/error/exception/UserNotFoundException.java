@@ -1,4 +1,4 @@
-package com.epam.spring.exception;
+package com.epam.spring.error.exception;
 
 public class UserNotFoundException extends RuntimeException {
 

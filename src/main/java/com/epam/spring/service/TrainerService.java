@@ -8,7 +8,7 @@ import com.epam.spring.dto.response.trainee.TraineeResponseDTO;
 import com.epam.spring.dto.response.trainer.FetchTrainerResponseDTO;
 import com.epam.spring.dto.response.trainer.TrainerResponseDTO;
 import com.epam.spring.dto.response.trainer.UpdateTrainerResponseDTO;
-import com.epam.spring.exception.UserNotFoundException;
+import com.epam.spring.error.exception.UserNotFoundException;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
 import com.epam.spring.model.TrainingType;

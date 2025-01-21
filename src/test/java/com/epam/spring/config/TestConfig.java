@@ -17,7 +17,7 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 @Configuration
-@Profile("test")
+//@Profile("test")
 @PropertySource("classpath:application-test.properties")
 @ComponentScan(basePackages = {
         "com.epam.spring.repository",

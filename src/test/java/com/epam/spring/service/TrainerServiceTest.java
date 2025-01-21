@@ -6,7 +6,7 @@ import com.epam.spring.dto.request.trainer.UpdateTrainerRequestDTO;
 import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.dto.response.trainer.FetchTrainerResponseDTO;
 import com.epam.spring.dto.response.trainer.UpdateTrainerResponseDTO;
-import com.epam.spring.exception.UserNotFoundException;
+import com.epam.spring.error.exception.UserNotFoundException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
