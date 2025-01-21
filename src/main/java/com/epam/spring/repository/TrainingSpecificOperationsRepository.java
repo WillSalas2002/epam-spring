@@ -3,7 +3,6 @@ package com.epam.spring.repository;
 import com.epam.spring.model.Training;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TrainingSpecificOperationsRepository extends BaseOperationsRepository<Training> {

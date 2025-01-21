@@ -5,7 +5,6 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 public class QueryBuilder {
 
