@@ -14,7 +14,9 @@ import com.epam.spring.service.TrainerService;
 import com.epam.spring.service.TrainingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,37 +37,40 @@ public class TrainerController {
     private final TrainingService trainingService;
 
     @PostMapping
-    public UserCredentialsResponseDTO register(@Valid @RequestBody CreateTrainerRequestDTO request) {
-        return trainerService.create(request);
+    public ResponseEntity<UserCredentialsResponseDTO> register(@Valid @RequestBody CreateTrainerRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(trainerService.create(request));
     }
 
     @GetMapping
-    public FetchTrainerResponseDTO getTraineeProfile(@RequestParam("username") String username) {
-        return trainerService.getUserProfile(username);
+    public ResponseEntity<FetchTrainerResponseDTO> getTraineeProfile(@RequestParam("username") String username) {
+        return ResponseEntity.ok(trainerService.getUserProfile(username));
     }
 
     @PutMapping
-    public UpdateTrainerResponseDTO updateProfile(@RequestParam("username") String username, @Valid @RequestBody UpdateTrainerRequestDTO request) {
-        return trainerService.updateProfile(username, request);
+    public ResponseEntity<UpdateTrainerResponseDTO> updateProfile(@RequestParam("username") String username, @Valid @RequestBody UpdateTrainerRequestDTO request) {
+        return ResponseEntity.ok(trainerService.updateProfile(username, request));
     }
 
     @PatchMapping("/activate/status")
-    public void activateProfile(@RequestParam("username") String username, @Valid @RequestBody UserActivationRequestDTO request) {
+    public ResponseEntity<Void> activateProfile(@RequestParam("username") String username, @Valid @RequestBody UserActivationRequestDTO request) {
         trainerService.activateProfile(username, request);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/login/password")
-    public void changeLogin(@RequestParam("username") String username, @Valid @RequestBody CredentialChangeRequestDTO request) {
+    public ResponseEntity<Void> changeLogin(@RequestParam("username") String username, @Valid @RequestBody CredentialChangeRequestDTO request) {
         trainerService.changeCredentials(username, request);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/login")
-    public void login(@RequestParam("username") String username, @Valid @RequestBody UserCredentialsRequestDTO request) {
+    public ResponseEntity<Void> login(@RequestParam("username") String username, @Valid @RequestBody UserCredentialsRequestDTO request) {
         trainerService.login(username, request);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/trainings")
-    public List<FetchUserTrainingsResponseDTO> getTrainerTraining(@RequestParam("username") String username, FetchTrainerTrainingsRequestDTO request) {
-        return trainingService.findTrainerTrainings(username, request);
+    public ResponseEntity<List<FetchUserTrainingsResponseDTO>> getTrainerTraining(@RequestParam("username") String username, FetchTrainerTrainingsRequestDTO request) {
+        return ResponseEntity.ok(trainingService.findTrainerTrainings(username, request));
     }
 }

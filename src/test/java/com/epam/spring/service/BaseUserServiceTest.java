@@ -7,6 +7,7 @@ import com.epam.spring.dto.request.user.UserActivationRequestDTO;
 import com.epam.spring.dto.request.user.UserCredentialsRequestDTO;
 import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.dto.response.trainee.FetchTraineeResponseDTO;
+import com.epam.spring.error.exception.IncorrectCredentialsException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -23,6 +24,7 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
@@ -84,7 +86,7 @@ class BaseUserServiceTest {
         UserCredentialsRequestDTO userCredentialsRequest = new UserCredentialsRequestDTO(
                 "incorrect password");
 
-        assertDoesNotThrow(() -> baseUserService.login(userCredentialsResponseDTO.getUsername(), userCredentialsRequest));
+        assertThrows(IncorrectCredentialsException.class, () -> baseUserService.login(userCredentialsResponseDTO.getUsername(), userCredentialsRequest));
     }
 
     @Test

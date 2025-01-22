@@ -17,7 +17,9 @@ import com.epam.spring.service.TrainerService;
 import com.epam.spring.service.TrainingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -40,52 +42,56 @@ public class TraineeController {
     private final TrainingService trainingService;
 
     @PostMapping
-    public UserCredentialsResponseDTO register(@Valid @RequestBody CreateTraineeRequestDTO request) {
-        return traineeService.create(request);
+    public ResponseEntity<UserCredentialsResponseDTO> register(@Valid @RequestBody CreateTraineeRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(traineeService.create(request));
     }
 
     @GetMapping
-    public FetchTraineeResponseDTO getTraineeProfile(@RequestParam("username") String username) {
-        return traineeService.getUserProfile(username);
+    public ResponseEntity<FetchTraineeResponseDTO> getTraineeProfile(@RequestParam("username") String username) {
+        return ResponseEntity.ok(traineeService.getUserProfile(username));
     }
 
     @PutMapping
-    public UpdateTraineeResponseDTO updateProfile(@RequestParam("username") String username, @Valid @RequestBody UpdateTraineeRequestDTO request) {
-        return traineeService.updateProfile(username, request);
+    public ResponseEntity<UpdateTraineeResponseDTO> updateProfile(@RequestParam("username") String username, @Valid @RequestBody UpdateTraineeRequestDTO request) {
+        return ResponseEntity.ok(traineeService.updateProfile(username, request));
     }
 
     @DeleteMapping
-    public void delete(@RequestParam("username") String username) {
+    public ResponseEntity<Void> delete(@RequestParam("username") String username) {
         traineeService.deleteByUsername(username);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/activate/status")
-    public void activateProfile(@RequestParam("username") String username, @Valid @RequestBody UserActivationRequestDTO request) {
+    public ResponseEntity<Void> activateProfile(@RequestParam("username") String username, @Valid @RequestBody UserActivationRequestDTO request) {
         traineeService.activateProfile(username, request);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/login/password")
-    public void changeLogin(@RequestParam("username") String username, @Valid @RequestBody CredentialChangeRequestDTO request) {
+    public ResponseEntity<Void> changeLogin(@RequestParam("username") String username, @Valid @RequestBody CredentialChangeRequestDTO request) {
         traineeService.changeCredentials(username, request);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/login")
-    public void login(@RequestParam(value = "username") String username, @Valid @RequestBody UserCredentialsRequestDTO request) {
+    public ResponseEntity<Void> login(@RequestParam(value = "username") String username, @Valid @RequestBody UserCredentialsRequestDTO request) {
         traineeService.login(username, request);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/unassigned-trainers")
-    public List<TrainerResponseDTO> findUnassignedTrainersByTraineeUsername(@RequestParam("username") String username) {
-        return trainerService.findUnassignedTrainersByTraineeUsername(username);
+    public ResponseEntity<List<TrainerResponseDTO>> findUnassignedTrainersByTraineeUsername(@RequestParam("username") String username) {
+        return ResponseEntity.ok(trainerService.findUnassignedTrainersByTraineeUsername(username));
     }
 
     @GetMapping("/trainings")
-    public List<FetchUserTrainingsResponseDTO> getTraineeTrainings(@RequestParam("username") String username, FetchTraineeTrainingsRequestDTO request) {
-        return trainingService.findTraineeTrainings(username, request);
+    public ResponseEntity<List<FetchUserTrainingsResponseDTO>> getTraineeTrainings(@RequestParam("username") String username, FetchTraineeTrainingsRequestDTO request) {
+        return ResponseEntity.ok(trainingService.findTraineeTrainings(username, request));
     }
 
     @PutMapping("/trainers")
-    public TrainerResponseDTO updateTraineeTrainers(@RequestParam("username") String username, UpdateTraineeTrainerRequestDTO updateTraineeTrainerRequestDTO) {
-        return traineeService.updateTraineeTrainerList(username, updateTraineeTrainerRequestDTO);
+    public ResponseEntity<TrainerResponseDTO> updateTraineeTrainers(@RequestParam("username") String username, UpdateTraineeTrainerRequestDTO updateTraineeTrainerRequestDTO) {
+        return ResponseEntity.ok(traineeService.updateTraineeTrainerList(username, updateTraineeTrainerRequestDTO));
     }
 }

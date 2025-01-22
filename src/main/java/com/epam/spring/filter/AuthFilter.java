@@ -27,7 +27,7 @@ public class AuthFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
-            throws IOException, ServletException {
+            throws IOException {
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
         HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
 
@@ -44,17 +44,21 @@ public class AuthFilter implements Filter {
             if (username == null || password == null) {
                 throw new ServletException("Missing username or password in the request");
             }
-
             traineeService.authenticate(username, password);
+
+            filterChain.doFilter(servletRequest, servletResponse);
         } catch (UserNotFoundException ex) {
+            httpResponse.resetBuffer();
             httpResponse.setStatus(HttpServletResponse.SC_NOT_FOUND);
             objectMapper.writeValue(httpResponse.getWriter(), createErrorResponse(ex.getMessage()));
+            httpResponse.flushBuffer();
         } catch (Exception ex) {
+            httpResponse.resetBuffer();
             httpResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             objectMapper.writeValue(httpResponse.getWriter(), createErrorResponse(ex.getMessage()));
+            httpResponse.flushBuffer();
         }
 
-        filterChain.doFilter(servletRequest, servletResponse);
     }
 
     private ErrorResponseDTO createErrorResponse(String message) {

@@ -1,11 +1,7 @@
 package com.epam.spring.config;
 
-import com.epam.spring.filter.AuthFilter;
-import com.epam.spring.service.TraineeService;
-import jakarta.servlet.FilterRegistration;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRegistration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
