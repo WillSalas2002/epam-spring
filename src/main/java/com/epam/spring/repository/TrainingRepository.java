@@ -1,5 +1,6 @@
 package com.epam.spring.repository;
 
+import com.epam.spring.error.exception.UniqueConstraintException;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
@@ -45,8 +46,10 @@ public class TrainingRepository implements TrainingSpecificOperationsRepository 
             session.persist(training);
 
             transaction.commit();
-            return training;
+        } catch (RuntimeException e) {
+            throw new UniqueConstraintException("This Training already exists");
         }
+        return training;
     }
 
     public List<Training> findAll() {

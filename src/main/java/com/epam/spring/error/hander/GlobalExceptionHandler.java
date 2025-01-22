@@ -2,6 +2,7 @@ package com.epam.spring.error.hander;
 
 import com.epam.spring.dto.response.ErrorResponseDTO;
 import com.epam.spring.error.exception.IncorrectCredentialsException;
+import com.epam.spring.error.exception.UniqueConstraintException;
 import com.epam.spring.error.exception.UserNotFoundException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
@@ -66,5 +67,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 List.of(ex.getMessage())
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(UniqueConstraintException.class)
+    public ResponseEntity<ErrorResponseDTO> handleUniqueConstraint(UniqueConstraintException ex) {
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+                LocalDateTime.now(),
+                HttpStatus.UNAUTHORIZED.toString(),
+                List.of(ex.getMessage())
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 }

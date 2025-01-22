@@ -6,6 +6,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,7 +22,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @ToString(callSuper = true, exclude = {"trainee", "trainer", "trainingType"})
 @Entity
-@Table(name = "trainings")
+@Table(name = "trainings", uniqueConstraints = {@UniqueConstraint(columnNames = {"trainee_id", "trainer_id"})})
 public class Training extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
