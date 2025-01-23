@@ -28,12 +28,14 @@ public class AuthFilter implements Filter {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException {
-        HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
-        HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        HttpServletResponse response = (HttpServletResponse) servletResponse;
 
         try {
-            if (httpRequest.getMethod().equalsIgnoreCase("POST")
-                    && (httpRequest.getRequestURI().equals("/api/v1/trainees") || httpRequest.getRequestURI().equals("/api/v1/trainers"))) {
+            String method = request.getMethod();
+            String requestURI = request.getRequestURI();
+            if (method.equalsIgnoreCase("POST") && (requestURI.equals("/api/v1/trainees")|| requestURI.equals("/api/v1/trainers"))
+                    || method.equalsIgnoreCase("GET") && (requestURI.contains("swagger-ui") || requestURI.contains("favicon.ico") || requestURI.contains("api-docs"))) {
                 filterChain.doFilter(servletRequest, servletResponse);
                 return;
             }
@@ -48,17 +50,14 @@ public class AuthFilter implements Filter {
 
             filterChain.doFilter(servletRequest, servletResponse);
         } catch (UserNotFoundException ex) {
-            httpResponse.resetBuffer();
-            httpResponse.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            objectMapper.writeValue(httpResponse.getWriter(), createErrorResponse(ex.getMessage()));
-            httpResponse.flushBuffer();
+            response.setContentType("application/json");
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            objectMapper.writeValue(response.getWriter(), createErrorResponse(ex.getMessage()));
         } catch (Exception ex) {
-            httpResponse.resetBuffer();
-            httpResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            objectMapper.writeValue(httpResponse.getWriter(), createErrorResponse(ex.getMessage()));
-            httpResponse.flushBuffer();
+            response.setContentType("application/json");
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            objectMapper.writeValue(response.getWriter(), createErrorResponse(ex.getMessage()));
         }
-
     }
 
     private ErrorResponseDTO createErrorResponse(String message) {
