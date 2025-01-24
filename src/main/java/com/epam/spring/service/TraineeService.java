@@ -120,7 +120,6 @@ public class TraineeService extends BaseUserService implements TraineeSpecificOp
         traineeRepository.deleteByUsername(username);
     }
 
-    // TODO: need to implement after clarifying with Daria
     @Override
     public TrainerResponseDTO updateTraineeTrainerList(String username, UpdateTraineeTrainerRequestDTO updateTraineeTrainerRequestDTO) {
         Trainee trainee = traineeRepository.findByUsername(username)
@@ -129,9 +128,3 @@ public class TraineeService extends BaseUserService implements TraineeSpecificOp
         return null;
     }
 }
-
-/* TODO: 1. need to create separate mapper classes
-/* TODO: 3. error handling
-/* TODO: 4. add swagger documentation
-/* TODO: 5. improved logger
- */

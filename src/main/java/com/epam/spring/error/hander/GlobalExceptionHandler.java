@@ -28,7 +28,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 LocalDateTime.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.toString(),
-                List.of(ex.getMessage())
+                List.of("Unknown error occurred, try again later.")
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -43,7 +43,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.toString(),
+                status.toString(),
                 errors
         );
         return new ResponseEntity<>(errorResponse, status);
@@ -73,7 +73,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleUniqueConstraint(UniqueConstraintException ex) {
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 LocalDateTime.now(),
-                HttpStatus.UNAUTHORIZED.toString(),
+                HttpStatus.CONFLICT.toString(),
                 List.of(ex.getMessage())
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);

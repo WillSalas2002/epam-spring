@@ -65,19 +65,19 @@ public class TraineeController {
     @PatchMapping("/activate/status")
     public ResponseEntity<Void> activateProfile(@RequestParam("username") String username, @Valid @RequestBody UserActivationRequestDTO request) {
         traineeService.activateProfile(username, request);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/login/password")
     public ResponseEntity<Void> changeLogin(@RequestParam("username") String username, @Valid @RequestBody CredentialChangeRequestDTO request) {
         traineeService.changeCredentials(username, request);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<Void> login(@RequestParam(value = "username") String username, @Valid @RequestBody UserCredentialsRequestDTO request) {
         traineeService.login(username, request);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/unassigned-trainers")
