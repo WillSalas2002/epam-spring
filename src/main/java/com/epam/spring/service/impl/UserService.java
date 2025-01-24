@@ -1,4 +1,4 @@
-package com.epam.spring.service;
+package com.epam.spring.service.impl;
 
 import com.epam.spring.dto.request.user.CredentialChangeRequestDTO;
 import com.epam.spring.dto.request.user.UserActivationRequestDTO;
@@ -7,21 +7,21 @@ import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.error.exception.IncorrectCredentialsException;
 import com.epam.spring.error.exception.UserNotFoundException;
 import com.epam.spring.model.User;
-import com.epam.spring.repository.UserRepository;
+import com.epam.spring.repository.impl.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
+@Service
 @RequiredArgsConstructor
-public abstract class BaseUserService {
+public class UserService {
 
     private final UserRepository userRepository;
 
     public UserCredentialsResponseDTO changeCredentials(String username, CredentialChangeRequestDTO credentialChangeRequest) {
         User user = findUserOrThrowException(username);
-        if (!Objects.equals(user.getPassword(), credentialChangeRequest.getOldPassword())) {
-            throw new RuntimeException("Incorrect old password");
-        }
+        checkPassword(credentialChangeRequest.getOldPassword(), user);
         user.setPassword(credentialChangeRequest.getNewPassword());
         userRepository.update(user);
         return new UserCredentialsResponseDTO(user.getUsername(), user.getPassword());
@@ -29,9 +29,7 @@ public abstract class BaseUserService {
 
     public void login(String username, UserCredentialsRequestDTO userCredentialsRequest) {
         User user = findUserOrThrowException(username);
-        if (!Objects.equals(user.getPassword(), userCredentialsRequest.getPassword())) {
-            throw new IncorrectCredentialsException("Incorrect password");
-        }
+        checkPassword(userCredentialsRequest.getPassword(), user);
     }
 
     public void activateProfile(String username, UserActivationRequestDTO activationRequest) {
@@ -42,6 +40,10 @@ public abstract class BaseUserService {
 
     public void authenticate(String username, String password) {
         User user = findUserOrThrowException(username);
+        checkPassword(password, user);
+    }
+
+    private static void checkPassword(String password, User user) {
         if (!Objects.equals(user.getPassword(), password)) {
             throw new IncorrectCredentialsException("Incorrect password");
         }

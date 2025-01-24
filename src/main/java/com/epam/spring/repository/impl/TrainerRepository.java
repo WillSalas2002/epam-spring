@@ -1,7 +1,8 @@
-package com.epam.spring.repository;
+package com.epam.spring.repository.impl;
 
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.TrainingType;
+import com.epam.spring.repository.base.TrainerSpecificOperationsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;

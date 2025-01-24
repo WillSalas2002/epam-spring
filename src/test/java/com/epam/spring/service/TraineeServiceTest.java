@@ -7,6 +7,7 @@ import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.dto.response.trainee.FetchTraineeResponseDTO;
 import com.epam.spring.dto.response.trainee.UpdateTraineeResponseDTO;
 import com.epam.spring.error.exception.UserNotFoundException;
+import com.epam.spring.service.impl.TraineeService;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -23,6 +24,7 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {TestConfig.class})
@@ -119,6 +121,7 @@ class TraineeServiceTest {
         assertEquals(FIRST_NAME, userProfile.getFirstName());
         assertEquals(LAST_NAME, userProfile.getLastName());
         assertEquals(LocalDate.now().minusYears(15).toString(), userProfile.getDateOfBirth());
+        assertTrue(userProfile.getTrainers().isEmpty());
     }
 
     @Test

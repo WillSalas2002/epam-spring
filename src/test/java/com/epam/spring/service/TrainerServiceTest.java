@@ -7,6 +7,7 @@ import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.dto.response.trainer.FetchTrainerResponseDTO;
 import com.epam.spring.dto.response.trainer.UpdateTrainerResponseDTO;
 import com.epam.spring.error.exception.UserNotFoundException;
+import com.epam.spring.service.impl.TrainerService;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -21,6 +22,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {TestConfig.class})
@@ -94,6 +96,7 @@ class TrainerServiceTest {
         assertEquals(updatedFirstName, updateTrainerResponseDTO.getFirstName());
         assertEquals(updateLastName, updateTrainerResponseDTO.getLastName());
         assertEquals(Boolean.TRUE, updateTrainerResponseDTO.getActive());
+        assertTrue(updateTrainerResponseDTO.getTrainees().isEmpty());
     }
 
     @Test

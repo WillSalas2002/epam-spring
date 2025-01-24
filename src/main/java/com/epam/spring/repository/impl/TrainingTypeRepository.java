@@ -1,6 +1,7 @@
-package com.epam.spring.repository;
+package com.epam.spring.repository.impl;
 
 import com.epam.spring.model.TrainingType;
+import com.epam.spring.repository.base.TrainingTypeOperationsRepository;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;

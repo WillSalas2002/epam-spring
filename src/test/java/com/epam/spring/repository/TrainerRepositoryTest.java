@@ -4,6 +4,7 @@ import com.epam.spring.config.TestConfig;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.TrainingType;
 import com.epam.spring.model.User;
+import com.epam.spring.repository.impl.TrainerRepository;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;

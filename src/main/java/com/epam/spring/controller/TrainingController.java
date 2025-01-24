@@ -1,7 +1,7 @@
 package com.epam.spring.controller;
 
 import com.epam.spring.dto.request.training.CreateTrainingRequestDTO;
-import com.epam.spring.service.TrainingService;
+import com.epam.spring.service.impl.TrainingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

@@ -8,6 +8,8 @@ import com.epam.spring.dto.request.user.UserCredentialsRequestDTO;
 import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.dto.response.trainee.FetchTraineeResponseDTO;
 import com.epam.spring.error.exception.IncorrectCredentialsException;
+import com.epam.spring.service.impl.TraineeService;
+import com.epam.spring.service.impl.UserService;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -16,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -29,11 +30,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {TestConfig.class})
-class BaseUserServiceTest {
+class UserServiceTest {
 
-    @Qualifier("traineeService")
     @Autowired
-    private TraineeService baseUserService;
+    private UserService userService;
+
+    @Autowired
+    private TraineeService traineeService;
 
     @Autowired
     private SessionFactory sessionFactory;
@@ -60,44 +63,61 @@ class BaseUserServiceTest {
 
     @Test
     public void testChangeCredentials() {
-        UserCredentialsResponseDTO userCredentialsResponseDTO = baseUserService.create(createTraineeRequestDTO);
+        UserCredentialsResponseDTO userCredentialsResponseDTO = traineeService.create(createTraineeRequestDTO);
         CredentialChangeRequestDTO credentialChangeRequest = new CredentialChangeRequestDTO(
                 userCredentialsResponseDTO.getPassword(),
                 "1111111111");
 
-        UserCredentialsResponseDTO userCredentialsResponse = baseUserService.changeCredentials(userCredentialsResponseDTO.getUsername(), credentialChangeRequest);
+        UserCredentialsResponseDTO userCredentialsResponse = userService.changeCredentials(userCredentialsResponseDTO.getUsername(), credentialChangeRequest);
 
         assertEquals("1111111111", userCredentialsResponse.getPassword());
     }
 
     @Test
+    public void testChangeCredentialsWithIncorrectOldPassword() {
+        UserCredentialsResponseDTO userCredentialsResponseDTO = traineeService.create(createTraineeRequestDTO);
+        CredentialChangeRequestDTO credentialChangeRequest = new CredentialChangeRequestDTO(
+                "incorrect password",
+                "1111111111");
+
+        assertThrows(IncorrectCredentialsException.class, () -> userService.changeCredentials(userCredentialsResponseDTO.getUsername(), credentialChangeRequest), "Incorrect old password");
+    }
+
+    @Test
     public void testLoginShouldReturnTrueWhenCredentialsCorrect() {
-        UserCredentialsResponseDTO userCredentialsResponseDTO = baseUserService.create(createTraineeRequestDTO);
+        UserCredentialsResponseDTO userCredentialsResponseDTO = traineeService.create(createTraineeRequestDTO);
         UserCredentialsRequestDTO userCredentialsRequest = new UserCredentialsRequestDTO(
                 userCredentialsResponseDTO.getPassword());
 
-        assertDoesNotThrow(() -> baseUserService.login(userCredentialsResponseDTO.getUsername(), userCredentialsRequest));
+        assertDoesNotThrow(() -> userService.login(userCredentialsResponseDTO.getUsername(), userCredentialsRequest));
     }
 
     @Test
     public void testLoginShouldReturnFalseWhenCredentialsCorrect() {
-        UserCredentialsResponseDTO userCredentialsResponseDTO = baseUserService.create(createTraineeRequestDTO);
+        UserCredentialsResponseDTO userCredentialsResponseDTO = traineeService.create(createTraineeRequestDTO);
 
         UserCredentialsRequestDTO userCredentialsRequest = new UserCredentialsRequestDTO(
                 "incorrect password");
 
-        assertThrows(IncorrectCredentialsException.class, () -> baseUserService.login(userCredentialsResponseDTO.getUsername(), userCredentialsRequest));
+        assertThrows(IncorrectCredentialsException.class, () -> userService.login(userCredentialsResponseDTO.getUsername(), userCredentialsRequest));
     }
 
     @Test
     void testActivateProfile() {
-        UserCredentialsResponseDTO userCredentialsResponseDTO = baseUserService.create(createTraineeRequestDTO);
+        UserCredentialsResponseDTO userCredentialsResponseDTO = traineeService.create(createTraineeRequestDTO);
         UserActivationRequestDTO userActivationRequestDTO = new UserActivationRequestDTO(Boolean.TRUE);
 
-        baseUserService.activateProfile(userCredentialsResponseDTO.getUsername(), userActivationRequestDTO);
-        FetchTraineeResponseDTO userProfile = baseUserService.getUserProfile(userCredentialsResponseDTO.getUsername());
+        userService.activateProfile(userCredentialsResponseDTO.getUsername(), userActivationRequestDTO);
+        FetchTraineeResponseDTO userProfile = traineeService.getUserProfile(userCredentialsResponseDTO.getUsername());
 
         assertTrue(userProfile.isActive());
+    }
+
+    @Test
+    void testAuthenticate() {
+        UserCredentialsResponseDTO userCredentialsResponseDTO = traineeService.create(createTraineeRequestDTO);
+
+        assertDoesNotThrow(() -> userService.authenticate(userCredentialsResponseDTO.getUsername(), userCredentialsResponseDTO.getPassword()));
     }
 
     private static CreateTraineeRequestDTO buildCreateTraineeRequestDTO(String firstName, String lastName) {

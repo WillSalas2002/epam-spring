@@ -1,4 +1,4 @@
-package com.epam.spring.repository;
+package com.epam.spring.repository.base;
 
 import com.epam.spring.model.Training;
 

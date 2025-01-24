@@ -1,10 +1,11 @@
-package com.epam.spring.repository;
+package com.epam.spring.repository.impl;
 
 import com.epam.spring.error.exception.UniqueConstraintException;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
 import com.epam.spring.model.TrainingType;
+import com.epam.spring.repository.base.TrainingSpecificOperationsRepository;
 import com.epam.spring.util.QueryBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

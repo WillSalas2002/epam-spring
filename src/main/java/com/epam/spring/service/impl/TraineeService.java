@@ -1,4 +1,4 @@
-package com.epam.spring.service;
+package com.epam.spring.service.impl;
 
 import com.epam.spring.dto.request.trainee.CreateTraineeRequestDTO;
 import com.epam.spring.dto.request.trainee.UpdateTraineeRequestDTO;
@@ -12,13 +12,13 @@ import com.epam.spring.error.exception.UserNotFoundException;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Training;
 import com.epam.spring.model.User;
-import com.epam.spring.repository.TraineeRepository;
-import com.epam.spring.repository.TrainerRepository;
-import com.epam.spring.repository.UserRepository;
+import com.epam.spring.repository.impl.TraineeRepository;
+import com.epam.spring.repository.impl.TrainerRepository;
+import com.epam.spring.service.base.TraineeSpecificOperationsService;
 import com.epam.spring.util.PasswordGenerator;
 import com.epam.spring.util.UsernameGenerator;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -27,21 +27,13 @@ import java.util.NoSuchElementException;
 
 @Slf4j
 @Service
-public class TraineeService extends BaseUserService implements TraineeSpecificOperationsService {
+@RequiredArgsConstructor
+public class TraineeService implements TraineeSpecificOperationsService {
 
     private final UsernameGenerator usernameGenerator;
     private final TraineeRepository traineeRepository;
     private final PasswordGenerator passwordGenerator;
     private final TrainerRepository trainerRepository;
-
-    @Autowired
-    public TraineeService(UserRepository userRepository, UsernameGenerator usernameGenerator, TraineeRepository traineeRepository, PasswordGenerator passwordGenerator, TrainerRepository trainerRepository) {
-        super(userRepository);
-        this.usernameGenerator = usernameGenerator;
-        this.traineeRepository = traineeRepository;
-        this.passwordGenerator = passwordGenerator;
-        this.trainerRepository = trainerRepository;
-    }
 
     @Override
     public UserCredentialsResponseDTO create(CreateTraineeRequestDTO createRequest) {

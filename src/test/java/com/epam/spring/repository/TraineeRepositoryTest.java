@@ -3,6 +3,7 @@ package com.epam.spring.repository;
 import com.epam.spring.config.TestConfig;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.User;
+import com.epam.spring.repository.impl.TraineeRepository;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;

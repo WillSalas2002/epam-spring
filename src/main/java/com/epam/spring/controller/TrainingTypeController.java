@@ -1,7 +1,7 @@
 package com.epam.spring.controller;
 
 import com.epam.spring.dto.response.TrainingTypeDTO;
-import com.epam.spring.service.TrainingTypeService;
+import com.epam.spring.service.impl.TrainingTypeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package com.epam.spring.service;
+package com.epam.spring.service.impl;
 
 import com.epam.spring.dto.request.training.CreateTrainingRequestDTO;
 import com.epam.spring.dto.request.training.FetchTraineeTrainingsRequestDTO;
@@ -8,9 +8,10 @@ import com.epam.spring.dto.response.training.FetchUserTrainingsResponseDTO;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
-import com.epam.spring.repository.TraineeRepository;
-import com.epam.spring.repository.TrainerRepository;
-import com.epam.spring.repository.TrainingRepository;
+import com.epam.spring.repository.impl.TraineeRepository;
+import com.epam.spring.repository.impl.TrainerRepository;
+import com.epam.spring.repository.impl.TrainingRepository;
+import com.epam.spring.service.base.TrainingSpecificOperationsService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

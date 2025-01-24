@@ -1,4 +1,4 @@
-package com.epam.spring.service;
+package com.epam.spring.service.base;
 
 import com.epam.spring.dto.response.TrainingTypeDTO;
 import org.springframework.stereotype.Service;

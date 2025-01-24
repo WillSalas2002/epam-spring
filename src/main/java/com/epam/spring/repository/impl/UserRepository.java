@@ -1,6 +1,7 @@
-package com.epam.spring.repository;
+package com.epam.spring.repository.impl;
 
 import com.epam.spring.model.User;
+import com.epam.spring.repository.base.UserOperationsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;

@@ -1,7 +1,8 @@
-package com.epam.spring.service;
+package com.epam.spring.service.impl;
 
 import com.epam.spring.dto.response.TrainingTypeDTO;
-import com.epam.spring.repository.TrainingTypeRepository;
+import com.epam.spring.repository.impl.TrainingTypeRepository;
+import com.epam.spring.service.base.TrainingTypeOperationsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

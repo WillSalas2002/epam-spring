@@ -2,7 +2,7 @@ package com.epam.spring.filter;
 
 import com.epam.spring.dto.response.ErrorResponseDTO;
 import com.epam.spring.error.exception.UserNotFoundException;
-import com.epam.spring.service.TraineeService;
+import com.epam.spring.service.impl.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -22,7 +22,7 @@ import java.util.List;
 @AllArgsConstructor
 public class AuthFilter implements Filter {
 
-    private final TraineeService traineeService;
+    private final UserService userService;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -46,7 +46,7 @@ public class AuthFilter implements Filter {
             if (username == null || password == null) {
                 throw new ServletException("Missing username or password in the request");
             }
-            traineeService.authenticate(username, password);
+            userService.authenticate(username, password);
 
             filterChain.doFilter(servletRequest, servletResponse);
         } catch (UserNotFoundException ex) {
