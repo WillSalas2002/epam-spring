@@ -2,6 +2,7 @@ package com.epam.spring.dto.request.trainer;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,7 +22,8 @@ public class UpdateTrainerRequestDTO {
     private String firstName;
     @NotBlank(message = "Lastname is required")
     private String lastName;
-    private Long specializationId;
+    @Pattern(regexp = "^[0-9]+$", message = "The id should only be a number.")
+    private String specializationId;
     @NotNull(message = "Is active is required")
     private Boolean active;
 }

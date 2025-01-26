@@ -3,8 +3,8 @@ package com.epam.spring.service.impl;
 import com.epam.spring.dto.request.training.CreateTrainingRequestDTO;
 import com.epam.spring.dto.request.training.FetchTraineeTrainingsRequestDTO;
 import com.epam.spring.dto.request.training.FetchTrainerTrainingsRequestDTO;
-import com.epam.spring.dto.response.TrainingTypeDTO;
 import com.epam.spring.dto.response.training.FetchUserTrainingsResponseDTO;
+import com.epam.spring.mapper.TrainingMapper;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
@@ -28,6 +28,7 @@ public class TrainingService implements TrainingSpecificOperationsService {
     private final TrainingRepository trainingRepository;
     private final TrainerRepository trainerRepository;
     private final TraineeRepository traineeRepository;
+    private final TrainingMapper trainingMapper;
 
     @Override
     public void create(CreateTrainingRequestDTO createTrainingRequest) {
@@ -47,7 +48,6 @@ public class TrainingService implements TrainingSpecificOperationsService {
                 .duration(Integer.valueOf(createTrainingRequest.getDuration()))
                 .date(LocalDate.parse(createTrainingRequest.getTrainingDate()))
                 .build();
-
         trainingRepository.create(training);
     }
 
@@ -58,17 +58,9 @@ public class TrainingService implements TrainingSpecificOperationsService {
                 fetchTraineeTrainingsRequest.getFromDate(),
                 fetchTraineeTrainingsRequest.getToDate(),
                 fetchTraineeTrainingsRequest.getTrainerUsername(),
-                fetchTraineeTrainingsRequest.getTrainingTypeName());
-
-        return traineeTrainings.stream()
-                .map(training -> new FetchUserTrainingsResponseDTO(
-                        training.getName(),
-                        training.getDate().toString(),
-                        new TrainingTypeDTO(training.getTrainingType().getId(), training.getTrainingType().getTrainingTypeName()),
-                        training.getDuration(),
-                        training.getTrainee().getUser().getUsername()
-                ))
-                .toList();
+                fetchTraineeTrainingsRequest.getTrainingTypeName()
+        );
+        return trainingMapper.fromUserListToFetchUserTrainingsResponseList(traineeTrainings);
     }
 
     @Override
@@ -77,16 +69,8 @@ public class TrainingService implements TrainingSpecificOperationsService {
                 username,
                 fetchTrainerTrainingsRequest.getFromDate(),
                 fetchTrainerTrainingsRequest.getToDate(),
-                fetchTrainerTrainingsRequest.getTraineeUsername());
-
-        return trainerTrainings.stream()
-                .map(training -> new FetchUserTrainingsResponseDTO(
-                        training.getName(),
-                        training.getDate().toString(),
-                        new TrainingTypeDTO(training.getTrainingType().getId(), training.getTrainingType().getTrainingTypeName()),
-                        training.getDuration(),
-                        training.getTrainer().getUser().getUsername()
-                ))
-                .toList();
+                fetchTrainerTrainingsRequest.getTraineeUsername()
+        );
+        return trainingMapper.fromUserListToFetchUserTrainingsResponseList(trainerTrainings);
     }
 }

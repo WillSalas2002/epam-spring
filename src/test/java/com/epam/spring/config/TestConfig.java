@@ -21,7 +21,8 @@ import java.util.Properties;
 @ComponentScan(basePackages = {
         "com.epam.spring.repository",
         "com.epam.spring.service",
-        "com.epam.spring.util"
+        "com.epam.spring.util",
+        "com.epam.spring.mapper"
 })
 public class TestConfig {
 

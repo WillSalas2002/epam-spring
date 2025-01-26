@@ -88,7 +88,7 @@ class TrainerServiceTest {
                 .firstName(updatedFirstName)
                 .lastName(updateLastName)
                 .active(Boolean.TRUE)
-                .specializationId(1L)
+                .specializationId(String.valueOf(1L))
                 .build();
 
         UpdateTrainerResponseDTO updateTrainerResponseDTO = trainerService.updateProfile(userCredentialsResponseDTO.getUsername(), updateRequest);

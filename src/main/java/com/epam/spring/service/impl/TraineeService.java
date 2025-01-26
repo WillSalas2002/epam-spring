@@ -3,15 +3,13 @@ package com.epam.spring.service.impl;
 import com.epam.spring.dto.request.trainee.CreateTraineeRequestDTO;
 import com.epam.spring.dto.request.trainee.UpdateTraineeRequestDTO;
 import com.epam.spring.dto.request.trainee.UpdateTraineeTrainerRequestDTO;
-import com.epam.spring.dto.response.TrainingTypeDTO;
 import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.dto.response.trainee.FetchTraineeResponseDTO;
 import com.epam.spring.dto.response.trainee.UpdateTraineeResponseDTO;
 import com.epam.spring.dto.response.trainer.TrainerResponseDTO;
 import com.epam.spring.error.exception.UserNotFoundException;
+import com.epam.spring.mapper.TraineeMapper;
 import com.epam.spring.model.Trainee;
-import com.epam.spring.model.Training;
-import com.epam.spring.model.User;
 import com.epam.spring.repository.impl.TraineeRepository;
 import com.epam.spring.repository.impl.TrainerRepository;
 import com.epam.spring.service.base.TraineeSpecificOperationsService;
@@ -21,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -34,26 +31,14 @@ public class TraineeService implements TraineeSpecificOperationsService {
     private final TraineeRepository traineeRepository;
     private final PasswordGenerator passwordGenerator;
     private final TrainerRepository trainerRepository;
+    private final TraineeMapper traineeMapper;
 
     @Override
     public UserCredentialsResponseDTO create(CreateTraineeRequestDTO createRequest) {
         String uniqueUsername = usernameGenerator.generateUniqueUsername(createRequest.getFirstName(), createRequest.getLastName());
         String password = passwordGenerator.generatePassword();
-
-        Trainee trainee = new Trainee();
-        User user = new User();
-        user.setFirstName(createRequest.getFirstName());
-        user.setLastName(createRequest.getLastName());
-        user.setUsername(uniqueUsername);
-        user.setPassword(password);
-        user.setActive(false);
-        trainee.setUser(user);
-        trainee.setAddress(createRequest.getAddress());
-        if (createRequest.getDateOfBirth() != null) {
-            trainee.setDataOfBirth(LocalDate.parse(createRequest.getDateOfBirth()));
-        }
+        Trainee trainee = traineeMapper.fromCreateTraineeRequestToTrainee(createRequest, uniqueUsername, password);
         traineeRepository.create(trainee);
-
         return new UserCredentialsResponseDTO(uniqueUsername, password);
     }
 
@@ -61,50 +46,16 @@ public class TraineeService implements TraineeSpecificOperationsService {
     public UpdateTraineeResponseDTO updateProfile(String username, UpdateTraineeRequestDTO updateRequest) {
         Trainee trainee = traineeRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException(username));
-
-        User user = trainee.getUser();
-
-        user.setFirstName(updateRequest.getFirstName());
-        user.setLastName(updateRequest.getLastName());
-        user.setActive(updateRequest.getIsActive());
-        trainee.setAddress(updateRequest.getAddress());
-        trainee.setDataOfBirth(LocalDate.parse(updateRequest.getDateOfBirth()));
-
+        traineeMapper.fromUpdateTraineeRequestToTrainee(trainee, updateRequest);
         Trainee updatedTrainee = traineeRepository.update(trainee);
-
-        return UpdateTraineeResponseDTO.builder()
-                .username(updatedTrainee.getUser().getUsername())
-                .firstName(updatedTrainee.getUser().getFirstName())
-                .lastName(updatedTrainee.getUser().getLastName())
-                .dateOfBirth(String.valueOf(updatedTrainee.getDataOfBirth()))
-                .isActive(updatedTrainee.getUser().isActive())
-                .address(updatedTrainee.getAddress())
-                .build();
+        return traineeMapper.fromTraineeToUpdateTraineeResponse(updatedTrainee);
     }
 
     @Override
     public FetchTraineeResponseDTO getUserProfile(String username) {
         Trainee trainee = traineeRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException(username));
-
-        User user = trainee.getUser();
-        List<Training> trainings = trainee.getTrainings();
-
-        List<TrainerResponseDTO> trainers = trainings.stream().map(training -> new TrainerResponseDTO(
-                training.getTrainer().getUser().getUsername(),
-                training.getTrainer().getUser().getFirstName(),
-                training.getTrainer().getUser().getLastName(),
-                new TrainingTypeDTO(training.getTrainingType().getId(), training.getTrainingType().getTrainingTypeName())
-        )).toList();
-
-        return FetchTraineeResponseDTO.builder()
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .dateOfBirth(String.valueOf(trainee.getDataOfBirth()))
-                .address(trainee.getAddress())
-                .isActive(trainee.getUser().isActive())
-                .trainers(trainers)
-                .build();
+        return traineeMapper.fromTraineeToFetchTraineeResponse(trainee);
     }
 
     @Override
