@@ -1,8 +1,10 @@
 package com.epam.spring.service.impl;
 
 import com.epam.spring.dto.request.trainee.CreateTraineeRequestDTO;
+import com.epam.spring.dto.request.trainee.TrainingIdTrainerUsernamePair;
 import com.epam.spring.dto.request.trainee.UpdateTraineeRequestDTO;
 import com.epam.spring.dto.request.trainee.UpdateTraineeTrainerRequestDTO;
+import com.epam.spring.dto.response.TrainingTypeDTO;
 import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.dto.response.trainee.FetchTraineeResponseDTO;
 import com.epam.spring.dto.response.trainee.UpdateTraineeResponseDTO;
@@ -10,6 +12,8 @@ import com.epam.spring.dto.response.trainer.TrainerResponseDTO;
 import com.epam.spring.error.exception.UserNotFoundException;
 import com.epam.spring.mapper.TraineeMapper;
 import com.epam.spring.model.Trainee;
+import com.epam.spring.model.Trainer;
+import com.epam.spring.model.Training;
 import com.epam.spring.repository.impl.TraineeRepository;
 import com.epam.spring.repository.impl.TrainerRepository;
 import com.epam.spring.service.base.TraineeSpecificOperationsService;
@@ -64,10 +68,27 @@ public class TraineeService implements TraineeSpecificOperationsService {
     }
 
     @Override
-    public TrainerResponseDTO updateTraineeTrainerList(String username, UpdateTraineeTrainerRequestDTO updateTraineeTrainerRequestDTO) {
+    public List<TrainerResponseDTO> updateTraineeTrainerList(String username, UpdateTraineeTrainerRequestDTO updateTraineeTrainerRequestDTO) {
         Trainee trainee = traineeRepository.findByUsername(username)
                 .orElseThrow(() -> new NoSuchElementException("Trainee with username " + username + " not found"));
-        List<String> trainerUsernames = updateTraineeTrainerRequestDTO.getTrainerUsernames();
-        return null;
+        List<Training> trainings = trainee.getTrainings();
+        for (Training training : trainings) {
+            List<TrainingIdTrainerUsernamePair> trainingIdTrainerUsernamePairs = updateTraineeTrainerRequestDTO.getTrainingIdTrainerUsernamePairs();
+            for (TrainingIdTrainerUsernamePair pair : trainingIdTrainerUsernamePairs) {
+                if (Long.valueOf(pair.getTrainingId()).equals(training.getId())) {
+                    Trainer trainer = trainerRepository.findByUsername(pair.getTrainerUsername()).orElseThrow(NoSuchElementException::new);
+                    training.setTrainer(trainer);
+                    training.setTrainingType(trainer.getSpecialization());
+                }
+            }
+        }
+        Trainee updatedTrainee = traineeRepository.update(trainee);
+
+        return updatedTrainee.getTrainings().stream().map(t -> new TrainerResponseDTO(
+                t.getTrainer().getUser().getUsername(),
+                t.getTrainer().getUser().getFirstName(),
+                t.getTrainer().getUser().getLastName(),
+                new TrainingTypeDTO(t.getTrainingType().getId(), t.getTrainingType().getTrainingTypeName())
+        )).toList();
     }
 }

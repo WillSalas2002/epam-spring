@@ -23,6 +23,8 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
+    private final static String MESSAGE = "User not found";
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleUnknownExceptions(Exception ex) {
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
@@ -50,11 +52,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorResponseDTO> handleResourceNotFound(UserNotFoundException ex) {
+    public ResponseEntity<ErrorResponseDTO> handleResourceNotFound() {
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 LocalDateTime.now(),
                 HttpStatus.NOT_FOUND.toString(),
-                List.of(ex.getMessage())
+                List.of(MESSAGE)
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }

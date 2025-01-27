@@ -69,7 +69,7 @@ public class TraineeController {
     }
 
     @PutMapping("/trainers")
-    public ResponseEntity<TrainerResponseDTO> updateTraineeTrainers(@RequestParam("username") String username, UpdateTraineeTrainerRequestDTO updateTraineeTrainerRequestDTO) {
+    public ResponseEntity<List<TrainerResponseDTO>> updateTraineeTrainers(@RequestParam("username") String username, @RequestBody UpdateTraineeTrainerRequestDTO updateTraineeTrainerRequestDTO) {
         return ResponseEntity.ok(traineeService.updateTraineeTrainerList(username, updateTraineeTrainerRequestDTO));
     }
 }

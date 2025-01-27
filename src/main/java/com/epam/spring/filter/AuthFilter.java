@@ -6,7 +6,6 @@ import com.epam.spring.service.impl.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,7 +33,7 @@ public class AuthFilter implements Filter {
         try {
             String method = request.getMethod();
             String requestURI = request.getRequestURI();
-            if (method.equalsIgnoreCase("POST") && (requestURI.equals("/api/v1/trainees")|| requestURI.equals("/api/v1/trainers"))
+            if (method.equalsIgnoreCase("POST") && (requestURI.equals("/api/v1/trainees") || requestURI.equals("/api/v1/trainers"))
                     || method.equalsIgnoreCase("GET") && (requestURI.contains("swagger-ui") || requestURI.contains("favicon.ico") || requestURI.contains("api-docs"))) {
                 filterChain.doFilter(servletRequest, servletResponse);
                 return;
@@ -44,7 +43,7 @@ public class AuthFilter implements Filter {
             String password = servletRequest.getParameter("password");
 
             if (username == null || password == null) {
-                throw new ServletException("Missing username or password in the request");
+                throw new IllegalArgumentException("Missing username or password in the request");
             }
             userService.authenticate(username, password);
 
@@ -65,6 +64,6 @@ public class AuthFilter implements Filter {
                 LocalDateTime.now(),
                 "Not Found",
                 List.of(message)
-        );
+                );
     }
 }
