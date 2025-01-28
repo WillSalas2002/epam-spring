@@ -1,7 +1,6 @@
 package com.epam.spring.controller;
 
 import com.epam.spring.dto.request.user.CredentialChangeRequestDTO;
-import com.epam.spring.dto.request.user.UserActivationRequestDTO;
 import com.epam.spring.dto.request.user.UserCredentialsRequestDTO;
 import com.epam.spring.service.impl.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,8 +39,6 @@ class UserControllerTest {
     @Captor
     private ArgumentCaptor<UserCredentialsRequestDTO> credentialsCaptor;
     @Captor
-    private ArgumentCaptor<UserActivationRequestDTO> activationCaptor;
-    @Captor
     private ArgumentCaptor<CredentialChangeRequestDTO> credentialChangeCaptor;
 
     @BeforeEach
@@ -52,27 +49,23 @@ class UserControllerTest {
 
     @Test
     public void testActivateProfile() throws Exception {
-        UserActivationRequestDTO request = new UserActivationRequestDTO();
 
         mockMvc.perform(patch("/api/v1/users/activate/status")
                         .param("username", "testUser")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
                         .content("{}")
                 )
                 .andExpect(status().isOk());
 
-        verify(userService).activateProfile(eq("testUser"), activationCaptor.capture());
-
-        UserActivationRequestDTO capturedRequest = activationCaptor.getValue();
-        assertEquals(request.getActive(), capturedRequest.getActive());
+        verify(userService).activateProfile(eq("testUser"));
     }
 
     @Test
     public void testChangeLogin() throws Exception {
         String oldPass = "oldPass";
         String newPass = "newPass";
-        CredentialChangeRequestDTO request = new CredentialChangeRequestDTO(oldPass, newPass);
+        String username = "testUser";
+        CredentialChangeRequestDTO request = new CredentialChangeRequestDTO(username, oldPass, newPass);
 
         mockMvc.perform(put("/api/v1/users/login/password")
                         .param("username", "testUser")
@@ -80,7 +73,7 @@ class UserControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
-        verify(userService).changeCredentials(eq("testUser"), credentialChangeCaptor.capture());
+        verify(userService).changeCredentials(credentialChangeCaptor.capture());
 
         CredentialChangeRequestDTO capturedRequest = credentialChangeCaptor.getValue();
         assertEquals(oldPass, capturedRequest.getOldPassword());
@@ -89,17 +82,14 @@ class UserControllerTest {
 
     @Test
     public void testLogin() throws Exception {
-        UserCredentialsRequestDTO request = new UserCredentialsRequestDTO();
-        request.setPassword("password123");
+        UserCredentialsRequestDTO request = new UserCredentialsRequestDTO("testUser", "password123");
 
         mockMvc.perform(post("/api/v1/users/login")
-                        .param("username", "testUser")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
         verify(userService).login(
-                eq("testUser"),
                 credentialsCaptor.capture()
         );
 

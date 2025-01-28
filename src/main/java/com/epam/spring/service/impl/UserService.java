@@ -1,7 +1,6 @@
 package com.epam.spring.service.impl;
 
 import com.epam.spring.dto.request.user.CredentialChangeRequestDTO;
-import com.epam.spring.dto.request.user.UserActivationRequestDTO;
 import com.epam.spring.dto.request.user.UserCredentialsRequestDTO;
 import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.error.exception.IncorrectCredentialsException;
@@ -19,20 +18,20 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public UserCredentialsResponseDTO changeCredentials(String username, CredentialChangeRequestDTO credentialChangeRequest) {
-        User user = findUserOrThrowException(username);
+    public UserCredentialsResponseDTO changeCredentials(CredentialChangeRequestDTO credentialChangeRequest) {
+        User user = findUserOrThrowException(credentialChangeRequest.getUsername());
         checkPassword(credentialChangeRequest.getOldPassword(), user);
         user.setPassword(credentialChangeRequest.getNewPassword());
         userRepository.update(user);
         return new UserCredentialsResponseDTO(user.getUsername(), user.getPassword());
     }
 
-    public void login(String username, UserCredentialsRequestDTO userCredentialsRequest) {
-        User user = findUserOrThrowException(username);
+    public void login(UserCredentialsRequestDTO userCredentialsRequest) {
+        User user = findUserOrThrowException(userCredentialsRequest.getUsername());
         checkPassword(userCredentialsRequest.getPassword(), user);
     }
 
-    public void activateProfile(String username, UserActivationRequestDTO activationRequest) {
+    public void activateProfile(String username) {
         User user = findUserOrThrowException(username);
         user.setActive(!user.isActive());
         userRepository.update(user);

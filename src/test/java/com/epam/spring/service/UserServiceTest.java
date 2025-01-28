@@ -3,7 +3,6 @@ package com.epam.spring.service;
 import com.epam.spring.config.TestConfig;
 import com.epam.spring.dto.request.trainee.CreateTraineeRequestDTO;
 import com.epam.spring.dto.request.user.CredentialChangeRequestDTO;
-import com.epam.spring.dto.request.user.UserActivationRequestDTO;
 import com.epam.spring.dto.request.user.UserCredentialsRequestDTO;
 import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.dto.response.trainee.FetchTraineeResponseDTO;
@@ -65,10 +64,11 @@ class UserServiceTest {
     public void testChangeCredentials() {
         UserCredentialsResponseDTO userCredentialsResponseDTO = traineeService.create(createTraineeRequestDTO);
         CredentialChangeRequestDTO credentialChangeRequest = new CredentialChangeRequestDTO(
+                userCredentialsResponseDTO.getUsername(),
                 userCredentialsResponseDTO.getPassword(),
                 "1111111111");
 
-        UserCredentialsResponseDTO userCredentialsResponse = userService.changeCredentials(userCredentialsResponseDTO.getUsername(), credentialChangeRequest);
+        UserCredentialsResponseDTO userCredentialsResponse = userService.changeCredentials(credentialChangeRequest);
 
         assertEquals("1111111111", userCredentialsResponse.getPassword());
     }
@@ -77,19 +77,21 @@ class UserServiceTest {
     public void testChangeCredentialsWithIncorrectOldPassword() {
         UserCredentialsResponseDTO userCredentialsResponseDTO = traineeService.create(createTraineeRequestDTO);
         CredentialChangeRequestDTO credentialChangeRequest = new CredentialChangeRequestDTO(
+                userCredentialsResponseDTO.getUsername(),
                 "incorrect password",
                 "1111111111");
 
-        assertThrows(IncorrectCredentialsException.class, () -> userService.changeCredentials(userCredentialsResponseDTO.getUsername(), credentialChangeRequest), "Incorrect old password");
+        assertThrows(IncorrectCredentialsException.class, () -> userService.changeCredentials(credentialChangeRequest), "Incorrect old password");
     }
 
     @Test
     public void testLoginShouldReturnTrueWhenCredentialsCorrect() {
         UserCredentialsResponseDTO userCredentialsResponseDTO = traineeService.create(createTraineeRequestDTO);
         UserCredentialsRequestDTO userCredentialsRequest = new UserCredentialsRequestDTO(
+                userCredentialsResponseDTO.getUsername(),
                 userCredentialsResponseDTO.getPassword());
 
-        assertDoesNotThrow(() -> userService.login(userCredentialsResponseDTO.getUsername(), userCredentialsRequest));
+        assertDoesNotThrow(() -> userService.login(userCredentialsRequest));
     }
 
     @Test
@@ -97,17 +99,17 @@ class UserServiceTest {
         UserCredentialsResponseDTO userCredentialsResponseDTO = traineeService.create(createTraineeRequestDTO);
 
         UserCredentialsRequestDTO userCredentialsRequest = new UserCredentialsRequestDTO(
+                userCredentialsResponseDTO.getUsername(),
                 "incorrect password");
 
-        assertThrows(IncorrectCredentialsException.class, () -> userService.login(userCredentialsResponseDTO.getUsername(), userCredentialsRequest));
+        assertThrows(IncorrectCredentialsException.class, () -> userService.login(userCredentialsRequest));
     }
 
     @Test
     void testActivateProfile() {
         UserCredentialsResponseDTO userCredentialsResponseDTO = traineeService.create(createTraineeRequestDTO);
-        UserActivationRequestDTO userActivationRequestDTO = new UserActivationRequestDTO(Boolean.TRUE);
 
-        userService.activateProfile(userCredentialsResponseDTO.getUsername(), userActivationRequestDTO);
+        userService.activateProfile(userCredentialsResponseDTO.getUsername());
         FetchTraineeResponseDTO userProfile = traineeService.getUserProfile(userCredentialsResponseDTO.getUsername());
 
         assertTrue(userProfile.isActive());

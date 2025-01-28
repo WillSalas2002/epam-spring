@@ -108,7 +108,7 @@ class TrainerControllerTest {
 
         UpdateTrainerResponseDTO expectedResponse = new UpdateTrainerResponseDTO("trainerUser", "John", "Doe", new TrainingTypeDTO(1L, "Fitness"), true, new ArrayList<>());
 
-        when(trainerService.updateProfile(eq(username), eq(request))).thenReturn(expectedResponse);
+        when(trainerService.updateProfile(eq(request))).thenReturn(expectedResponse);
 
         mockMvc.perform(put("/api/v1/trainers")
                         .param("username", username)
@@ -119,7 +119,7 @@ class TrainerControllerTest {
                 .andExpect(jsonPath("$.firstName").value("John"))
                 .andExpect(jsonPath("$.active").value(true));
 
-        verify(trainerService).updateProfile(eq(username), updateTrainerCaptor.capture());
+        verify(trainerService).updateProfile(updateTrainerCaptor.capture());
 
         UpdateTrainerRequestDTO capturedRequest = updateTrainerCaptor.getValue();
         assertEquals("John", capturedRequest.getFirstName());

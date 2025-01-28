@@ -13,5 +13,5 @@ import java.util.List;
 public interface TraineeSpecificOperationsService extends BaseUserOperationsService<CreateTraineeRequestDTO, UserCredentialsResponseDTO, FetchTraineeResponseDTO, UpdateTraineeRequestDTO, UpdateTraineeResponseDTO> {
 
     void deleteByUsername(String username);
-    List<TrainerResponseDTO> updateTraineeTrainerList(String username, UpdateTraineeTrainerRequestDTO request);
+    List<TrainerResponseDTO> updateTraineeTrainerList(UpdateTraineeTrainerRequestDTO request);
 }

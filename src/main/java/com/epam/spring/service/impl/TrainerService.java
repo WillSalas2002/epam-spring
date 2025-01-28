@@ -46,9 +46,9 @@ public class TrainerService implements TrainerSpecificOperationsService {
     }
 
     @Override
-    public UpdateTrainerResponseDTO updateProfile(String username, UpdateTrainerRequestDTO updateRequestDto) {
-        Trainer trainer = trainerRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException(username));
+    public UpdateTrainerResponseDTO updateProfile(UpdateTrainerRequestDTO updateRequestDto) {
+        Trainer trainer = trainerRepository.findByUsername(updateRequestDto.getUsername())
+                .orElseThrow(() -> new UserNotFoundException(updateRequestDto.getUsername()));
         trainerMapper.fromUpdateTrainerRequestToTrainer(trainer, updateRequestDto);
         Trainer updatedTrainer = trainerRepository.update(trainer);
         return trainerMapper.fromTrainerToUpdatedTrainerResponse(updatedTrainer);

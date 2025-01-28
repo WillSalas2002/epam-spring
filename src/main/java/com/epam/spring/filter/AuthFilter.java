@@ -1,8 +1,6 @@
 package com.epam.spring.filter;
 
 import com.epam.spring.dto.response.ErrorResponseDTO;
-import com.epam.spring.error.exception.UserNotFoundException;
-import com.epam.spring.service.impl.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -14,14 +12,15 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 
 @Component
 @AllArgsConstructor
 public class AuthFilter implements Filter {
 
-    private final UserService userService;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -31,39 +30,55 @@ public class AuthFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
         try {
-            String method = request.getMethod();
-            String requestURI = request.getRequestURI();
-            if (method.equalsIgnoreCase("POST") && (requestURI.equals("/api/v1/trainees") || requestURI.equals("/api/v1/trainers"))
-                    || method.equalsIgnoreCase("GET") && (requestURI.contains("swagger-ui") || requestURI.contains("favicon.ico") || requestURI.contains("api-docs"))) {
+            if (isPublicEndpoint(request)) {
                 filterChain.doFilter(servletRequest, servletResponse);
                 return;
             }
 
-            String username = servletRequest.getParameter("username");
-            String password = servletRequest.getParameter("password");
-
-            if (username == null || password == null) {
-                throw new IllegalArgumentException("Missing username or password in the request");
+            if (!isAuthorized(request)) {
+                sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid token or credentials");
+                return;
             }
-            userService.authenticate(username, password);
 
             filterChain.doFilter(servletRequest, servletResponse);
-        } catch (UserNotFoundException ex) {
-            response.setContentType("application/json");
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            objectMapper.writeValue(response.getWriter(), createErrorResponse(ex.getMessage()));
         } catch (Exception ex) {
-            response.setContentType("application/json");
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            objectMapper.writeValue(response.getWriter(), createErrorResponse(ex.getMessage()));
+            sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
         }
+    }
+
+    private boolean isPublicEndpoint(HttpServletRequest request) {
+        String method = request.getMethod();
+        String uri = request.getRequestURI();
+        return (method.equalsIgnoreCase("POST") && (uri.equals("/api/v1/trainees") || uri.equals("/api/v1/trainers"))) ||
+                (method.equalsIgnoreCase("GET") && (uri.contains("swagger-ui") || uri.contains("favicon.ico") || uri.contains("api-docs")));
+    }
+
+    private boolean isAuthorized(HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        if (authorization != null && authorization.startsWith("Basic ")) {
+            String credentials = decodeCredentials(authorization.substring("Basic ".length()));
+            String[] values = credentials.split(":", 2);
+            return values.length == 2 && "Admin".equals(values[0]) && "Admin".equals(values[1]);
+        }
+        return false;
+    }
+
+    private String decodeCredentials(String base64Credentials) {
+        byte[] credDecoded = Base64.getDecoder().decode(base64Credentials);
+        return new String(credDecoded, StandardCharsets.UTF_8);
+    }
+
+    private void sendErrorResponse(HttpServletResponse response, int status, String message) throws IOException {
+        response.setContentType("application/json");
+        response.setStatus(status);
+        objectMapper.writeValue(response.getWriter(), createErrorResponse(message));
     }
 
     private ErrorResponseDTO createErrorResponse(String message) {
         return new ErrorResponseDTO(
                 LocalDateTime.now(),
-                "Not Found",
+                "Error",
                 List.of(message)
-                );
+        );
     }
 }

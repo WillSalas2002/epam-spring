@@ -90,13 +90,14 @@ class TraineeServiceTest {
         String updateDateOfBirth = "2002-06-03";
 
         UpdateTraineeRequestDTO updateTraineeRequestDTO = UpdateTraineeRequestDTO.builder()
+                .username(userCredentialsResponseDTO.getUsername())
                 .firstName(updateFirstName)
                 .lastName(updatedLastName)
                 .isActive(Boolean.FALSE)
                 .dateOfBirth(updateDateOfBirth)
                 .build();
 
-        UpdateTraineeResponseDTO updateTraineeResponseDTO = traineeService.updateProfile(userCredentialsResponseDTO.getUsername(),updateTraineeRequestDTO);
+        UpdateTraineeResponseDTO updateTraineeResponseDTO = traineeService.updateProfile(updateTraineeRequestDTO);
 
         assertEquals(updateFirstName, updateTraineeResponseDTO.getFirstName());
         assertEquals(updatedLastName, updateTraineeResponseDTO.getLastName());
@@ -109,7 +110,7 @@ class TraineeServiceTest {
         UpdateTraineeRequestDTO updateTraineeRequestDTO = UpdateTraineeRequestDTO.builder()
                 .isActive(Boolean.FALSE)
                 .build();
-        assertThrows(UserNotFoundException.class, () -> traineeService.updateProfile(username, updateTraineeRequestDTO), "User with username " + username + " not found");
+        assertThrows(UserNotFoundException.class, () -> traineeService.updateProfile(updateTraineeRequestDTO), "User with username " + username + " not found");
     }
 
     @Test

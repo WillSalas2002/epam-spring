@@ -1,6 +1,7 @@
 package com.epam.spring.dto.request.trainee;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,6 +19,8 @@ import java.util.List;
 @Builder
 public class UpdateTraineeTrainerRequestDTO {
 
+    @NotBlank(message = "Trainee username is required")
+    private String traineeUsername;
     @JsonProperty("trainingIdTrainerUsernamePairs")
     private List<TrainingIdTrainerUsernamePair> trainingIdTrainerUsernamePairs;
 }

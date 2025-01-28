@@ -48,8 +48,8 @@ public class TraineeController {
     }
 
     @PutMapping
-    public ResponseEntity<UpdateTraineeResponseDTO> updateProfile(@RequestParam("username") String username, @Valid @RequestBody UpdateTraineeRequestDTO request) {
-        return ResponseEntity.ok(traineeService.updateProfile(username, request));
+    public ResponseEntity<UpdateTraineeResponseDTO> updateProfile(@Valid @RequestBody UpdateTraineeRequestDTO request) {
+        return ResponseEntity.ok(traineeService.updateProfile(request));
     }
 
     @DeleteMapping
@@ -64,12 +64,12 @@ public class TraineeController {
     }
 
     @GetMapping("/trainings")
-    public ResponseEntity<List<FetchUserTrainingsResponseDTO>> getTraineeTrainings(@RequestParam("username") String username, FetchTraineeTrainingsRequestDTO request) {
-        return ResponseEntity.ok(trainingService.findTraineeTrainings(username, request));
+    public ResponseEntity<List<FetchUserTrainingsResponseDTO>> getTraineeTrainings(FetchTraineeTrainingsRequestDTO request) {
+        return ResponseEntity.ok(trainingService.findTraineeTrainings(request));
     }
 
     @PutMapping("/trainers")
     public ResponseEntity<List<TrainerResponseDTO>> updateTraineeTrainers(@RequestParam("username") String username, @RequestBody UpdateTraineeTrainerRequestDTO updateTraineeTrainerRequestDTO) {
-        return ResponseEntity.ok(traineeService.updateTraineeTrainerList(username, updateTraineeTrainerRequestDTO));
+        return ResponseEntity.ok(traineeService.updateTraineeTrainerList(updateTraineeTrainerRequestDTO));
     }
 }

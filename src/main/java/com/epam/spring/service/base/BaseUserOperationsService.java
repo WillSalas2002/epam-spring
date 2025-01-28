@@ -4,5 +4,5 @@ public interface BaseUserOperationsService<CREATE_REQUEST, CREATE_RESPONSE, GET_
 
     CREATE_RESPONSE create(CREATE_REQUEST createRequest);
     GET_RESPONSE getUserProfile(String username);
-    UPDATE_RESPONSE updateProfile(String username, UPDATE_REQUEST updateRequest);
+    UPDATE_RESPONSE updateProfile(UPDATE_REQUEST updateRequest);
 }

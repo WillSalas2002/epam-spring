@@ -75,11 +75,11 @@ class TrainingServiceTest {
         trainingService.create(trainingRequest1);
         trainingService.create(trainingRequest2);
 
-        FetchTraineeTrainingsRequestDTO fetchTraineeTrainingsRequest = new FetchTraineeTrainingsRequestDTO();
-        FetchTrainerTrainingsRequestDTO fetchTrainerTrainingsRequest = new FetchTrainerTrainingsRequestDTO();
+        FetchTraineeTrainingsRequestDTO fetchTraineeTrainingsRequest = new FetchTraineeTrainingsRequestDTO(traineeResponse.getUsername());
+        FetchTrainerTrainingsRequestDTO fetchTrainerTrainingsRequest = new FetchTrainerTrainingsRequestDTO(trainerResponse.getUsername());
 
-        List<FetchUserTrainingsResponseDTO> traineeTrainings = trainingService.findTraineeTrainings(traineeResponse.getUsername(), fetchTraineeTrainingsRequest);
-        List<FetchUserTrainingsResponseDTO> trainerTrainings = trainingService.findTrainerTrainings(trainerResponse.getUsername(), fetchTrainerTrainingsRequest);
+        List<FetchUserTrainingsResponseDTO> traineeTrainings = trainingService.findTraineeTrainings(fetchTraineeTrainingsRequest);
+        List<FetchUserTrainingsResponseDTO> trainerTrainings = trainingService.findTrainerTrainings(fetchTrainerTrainingsRequest);
 
         assertEquals(2, traineeTrainings.size());
         assertEquals(1, trainerTrainings.size());

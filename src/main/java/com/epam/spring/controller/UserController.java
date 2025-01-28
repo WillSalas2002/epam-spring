@@ -1,7 +1,6 @@
 package com.epam.spring.controller;
 
 import com.epam.spring.dto.request.user.CredentialChangeRequestDTO;
-import com.epam.spring.dto.request.user.UserActivationRequestDTO;
 import com.epam.spring.dto.request.user.UserCredentialsRequestDTO;
 import com.epam.spring.service.impl.UserService;
 import jakarta.validation.Valid;
@@ -24,20 +23,20 @@ public class UserController {
     private final UserService userService;
 
     @PatchMapping("/activate/status")
-    public ResponseEntity<Void> activateProfile(@RequestParam("username") String username, @Valid @RequestBody UserActivationRequestDTO request) {
-        userService.activateProfile(username, request);
+    public ResponseEntity<Void> activateProfile(@RequestParam("username") String username) {
+        userService.activateProfile(username);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/login/password")
-    public ResponseEntity<Void> changeLogin(@RequestParam("username") String username, @Valid @RequestBody CredentialChangeRequestDTO request) {
-        userService.changeCredentials(username, request);
+    public ResponseEntity<Void> changeLogin(@Valid @RequestBody CredentialChangeRequestDTO request) {
+        userService.changeCredentials(request);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Void> login(@RequestParam(value = "username") String username, @Valid @RequestBody UserCredentialsRequestDTO request) {
-        userService.login(username, request);
+    public ResponseEntity<Void> login(@Valid @RequestBody UserCredentialsRequestDTO request) {
+        userService.login(request);
         return ResponseEntity.ok().build();
     }
 }

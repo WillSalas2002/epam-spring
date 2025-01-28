@@ -47,9 +47,9 @@ public class TraineeService implements TraineeSpecificOperationsService {
     }
 
     @Override
-    public UpdateTraineeResponseDTO updateProfile(String username, UpdateTraineeRequestDTO updateRequest) {
-        Trainee trainee = traineeRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException(username));
+    public UpdateTraineeResponseDTO updateProfile(UpdateTraineeRequestDTO updateRequest) {
+        Trainee trainee = traineeRepository.findByUsername(updateRequest.getUsername())
+                .orElseThrow(() -> new UserNotFoundException(updateRequest.getUsername()));
         traineeMapper.fromUpdateTraineeRequestToTrainee(trainee, updateRequest);
         Trainee updatedTrainee = traineeRepository.update(trainee);
         return traineeMapper.fromTraineeToUpdateTraineeResponse(updatedTrainee);
@@ -68,9 +68,9 @@ public class TraineeService implements TraineeSpecificOperationsService {
     }
 
     @Override
-    public List<TrainerResponseDTO> updateTraineeTrainerList(String username, UpdateTraineeTrainerRequestDTO updateTraineeTrainerRequestDTO) {
-        Trainee trainee = traineeRepository.findByUsername(username)
-                .orElseThrow(() -> new NoSuchElementException("Trainee with username " + username + " not found"));
+    public List<TrainerResponseDTO> updateTraineeTrainerList(UpdateTraineeTrainerRequestDTO updateTraineeTrainerRequestDTO) {
+        Trainee trainee = traineeRepository.findByUsername(updateTraineeTrainerRequestDTO.getTraineeUsername())
+                .orElseThrow(() -> new NoSuchElementException("Trainee with username " + updateTraineeTrainerRequestDTO.getTraineeUsername() + " not found"));
         List<Training> trainings = trainee.getTrainings();
         for (Training training : trainings) {
             List<TrainingIdTrainerUsernamePair> trainingIdTrainerUsernamePairs = updateTraineeTrainerRequestDTO.getTrainingIdTrainerUsernamePairs();

@@ -43,12 +43,12 @@ public class TrainerController {
     }
 
     @PutMapping
-    public ResponseEntity<UpdateTrainerResponseDTO> updateProfile(@RequestParam("username") String username, @Valid @RequestBody UpdateTrainerRequestDTO request) {
-        return ResponseEntity.ok(trainerService.updateProfile(username, request));
+    public ResponseEntity<UpdateTrainerResponseDTO> updateProfile(@Valid @RequestBody UpdateTrainerRequestDTO request) {
+        return ResponseEntity.ok(trainerService.updateProfile(request));
     }
 
     @GetMapping("/trainings")
-    public ResponseEntity<List<FetchUserTrainingsResponseDTO>> getTrainerTraining(@RequestParam("username") String username, FetchTrainerTrainingsRequestDTO request) {
-        return ResponseEntity.ok(trainingService.findTrainerTrainings(username, request));
+    public ResponseEntity<List<FetchUserTrainingsResponseDTO>> getTrainerTraining(FetchTrainerTrainingsRequestDTO request) {
+        return ResponseEntity.ok(trainingService.findTrainerTrainings(request));
     }
 }

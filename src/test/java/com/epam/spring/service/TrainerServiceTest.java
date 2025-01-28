@@ -85,13 +85,14 @@ class TrainerServiceTest {
         String updatedFirstName = "Will";
         String updateLastName = "Salas";
         UpdateTrainerRequestDTO updateRequest = UpdateTrainerRequestDTO.builder()
+                .username(userCredentialsResponseDTO.getUsername())
                 .firstName(updatedFirstName)
                 .lastName(updateLastName)
                 .active(Boolean.TRUE)
                 .specializationId(String.valueOf(1L))
                 .build();
 
-        UpdateTrainerResponseDTO updateTrainerResponseDTO = trainerService.updateProfile(userCredentialsResponseDTO.getUsername(), updateRequest);
+        UpdateTrainerResponseDTO updateTrainerResponseDTO = trainerService.updateProfile(updateRequest);
 
         assertEquals(updatedFirstName, updateTrainerResponseDTO.getFirstName());
         assertEquals(updateLastName, updateTrainerResponseDTO.getLastName());
@@ -102,7 +103,7 @@ class TrainerServiceTest {
     @Test
     void whenUpdateNonExistingTrainerThenThrowException() {
         String nonExistingUsername = "not exists";
-        assertThrows(UserNotFoundException.class, () -> trainerService.updateProfile(nonExistingUsername, UpdateTrainerRequestDTO.builder().firstName(nonExistingUsername).build()), "User with username " + nonExistingUsername + " not found");
+        assertThrows(UserNotFoundException.class, () -> trainerService.updateProfile(UpdateTrainerRequestDTO.builder().firstName(nonExistingUsername).build()), "User with username " + nonExistingUsername + " not found");
     }
 
     @Test
