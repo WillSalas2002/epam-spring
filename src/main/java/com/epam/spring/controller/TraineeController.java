@@ -19,11 +19,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -42,8 +42,8 @@ public class TraineeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(traineeService.create(request));
     }
 
-    @GetMapping
-    public ResponseEntity<FetchTraineeResponseDTO> getTraineeProfile(@RequestParam("username") String username) {
+    @GetMapping("/{username}")
+    public ResponseEntity<FetchTraineeResponseDTO> getTraineeProfile(@PathVariable("username") String username) {
         return ResponseEntity.ok(traineeService.getUserProfile(username));
     }
 
@@ -52,24 +52,24 @@ public class TraineeController {
         return ResponseEntity.ok(traineeService.updateProfile(request));
     }
 
-    @DeleteMapping
-    public ResponseEntity<Void> delete(@RequestParam("username") String username) {
+    @DeleteMapping("/{username}")
+    public ResponseEntity<Void> delete(@PathVariable("username") String username) {
         traineeService.deleteByUsername(username);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/unassigned-trainers")
-    public ResponseEntity<List<TrainerResponseDTO>> findUnassignedTrainersByTraineeUsername(@RequestParam("username") String username) {
+    @GetMapping("/unassigned-trainers/{username}")
+    public ResponseEntity<List<TrainerResponseDTO>> findUnassignedTrainersByTraineeUsername(@PathVariable("username") String username) {
         return ResponseEntity.ok(trainerService.findUnassignedTrainersByTraineeUsername(username));
     }
 
     @GetMapping("/trainings")
-    public ResponseEntity<List<FetchUserTrainingsResponseDTO>> getTraineeTrainings(FetchTraineeTrainingsRequestDTO request) {
+    public ResponseEntity<List<FetchUserTrainingsResponseDTO>> getTraineeTrainings(@Valid @RequestBody FetchTraineeTrainingsRequestDTO request) {
         return ResponseEntity.ok(trainingService.findTraineeTrainings(request));
     }
 
     @PutMapping("/trainers")
-    public ResponseEntity<List<TrainerResponseDTO>> updateTraineeTrainers(@RequestParam("username") String username, @RequestBody UpdateTraineeTrainerRequestDTO updateTraineeTrainerRequestDTO) {
+    public ResponseEntity<List<TrainerResponseDTO>> updateTraineeTrainers(@Valid @RequestBody UpdateTraineeTrainerRequestDTO updateTraineeTrainerRequestDTO) {
         return ResponseEntity.ok(traineeService.updateTraineeTrainerList(updateTraineeTrainerRequestDTO));
     }
 }

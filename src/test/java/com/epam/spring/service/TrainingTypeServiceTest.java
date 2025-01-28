@@ -12,6 +12,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {TestConfig.class})
@@ -24,5 +25,12 @@ class TrainingTypeServiceTest {
     public void testFindAll() {
         List<TrainingTypeDTO> trainingTypes = trainingTypeService.findAll();
         assertEquals(3, trainingTypes.size());
+    }
+
+    @Test
+    public void testFindById() {
+        TrainingTypeDTO trainingTypeDTO = trainingTypeService.findById(1L);
+        assertNotNull(trainingTypeDTO);
+        assertEquals(1L, trainingTypeDTO.getId());
     }
 }

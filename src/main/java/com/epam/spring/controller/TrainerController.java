@@ -15,11 +15,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -37,8 +37,8 @@ public class TrainerController {
         return ResponseEntity.status(HttpStatus.CREATED).body(trainerService.create(request));
     }
 
-    @GetMapping
-    public ResponseEntity<FetchTrainerResponseDTO> getTraineeProfile(@RequestParam("username") String username) {
+    @GetMapping("/{username}")
+    public ResponseEntity<FetchTrainerResponseDTO> getTraineeProfile(@PathVariable("username") String username) {
         return ResponseEntity.ok(trainerService.getUserProfile(username));
     }
 
@@ -48,7 +48,7 @@ public class TrainerController {
     }
 
     @GetMapping("/trainings")
-    public ResponseEntity<List<FetchUserTrainingsResponseDTO>> getTrainerTraining(FetchTrainerTrainingsRequestDTO request) {
+    public ResponseEntity<List<FetchUserTrainingsResponseDTO>> getTrainerTraining(@Valid @RequestBody FetchTrainerTrainingsRequestDTO request) {
         return ResponseEntity.ok(trainingService.findTrainerTrainings(request));
     }
 }

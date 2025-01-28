@@ -10,6 +10,7 @@ import com.epam.spring.error.exception.UserNotFoundException;
 import com.epam.spring.mapper.TrainerMapper;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.repository.impl.TrainerRepository;
+import com.epam.spring.repository.impl.TrainingTypeRepository;
 import com.epam.spring.service.base.TrainerSpecificOperationsService;
 import com.epam.spring.util.PasswordGenerator;
 import com.epam.spring.util.UsernameGenerator;
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @Service
@@ -26,16 +28,23 @@ public class TrainerService implements TrainerSpecificOperationsService {
 
     private final UsernameGenerator usernameGenerator;
     private final TrainerRepository trainerRepository;
+    private final TrainingTypeRepository trainingTypeRepository;
     private final PasswordGenerator passwordGenerator;
     private final TrainerMapper trainerMapper;
 
     @Override
     public UserCredentialsResponseDTO create(CreateTrainerRequestDTO createRequestDTO) {
+        checkIfTrainingTypeExistsOrElseThrow(createRequestDTO.getTrainingTypeId());
         String uniqueUsername = usernameGenerator.generateUniqueUsername(createRequestDTO.getFirstName(), createRequestDTO.getLastName());
         String password = passwordGenerator.generatePassword();
         Trainer trainer = trainerMapper.fromCreateTrainerRequestToTrainer(createRequestDTO, uniqueUsername, password);
         Trainer createTrainer = trainerRepository.create(trainer);
         return new UserCredentialsResponseDTO(createTrainer.getUser().getUsername(), createTrainer.getUser().getPassword());
+    }
+
+    private void checkIfTrainingTypeExistsOrElseThrow(String trainingTypeIdStr) {
+        Long trainingTypeId = Long.valueOf(trainingTypeIdStr);
+        trainingTypeRepository.findById(trainingTypeId).orElseThrow(NoSuchElementException::new);
     }
 
     @Override

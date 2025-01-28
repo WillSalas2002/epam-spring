@@ -53,6 +53,21 @@ public class TraineeMapper {
                 .lastName(trainee.getUser().getLastName())
                 .isActive(trainee.getUser().isActive())
                 .address(trainee.getAddress())
+                .trainers(
+                        trainee.getTrainings()
+                                .stream()
+                                .map(tgs -> new TrainerResponseDTO(
+                                                tgs.getTrainer().getUser().getUsername(),
+                                                tgs.getTrainer().getUser().getFirstName(),
+                                                tgs.getTrainer().getUser().getLastName(),
+                                                new TrainingTypeDTO(
+                                                        tgs.getTrainingType().getId(),
+                                                        tgs.getTrainingType().getTrainingTypeName()
+                                                )
+                                        )
+
+                                ).toList()
+                )
                 .build();
         if (trainee.getDataOfBirth() != null) {
             response.setDateOfBirth(String.valueOf(trainee.getDataOfBirth()));

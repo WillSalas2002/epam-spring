@@ -11,7 +11,7 @@ import java.util.List;
 @Scope("singleton")
 public class TrainingTypeMapper {
 
-    private TrainingTypeDTO fromEntityToDTO(TrainingType trainingType) {
+    public TrainingTypeDTO fromEntityToDTO(TrainingType trainingType) {
         return new TrainingTypeDTO(trainingType.getId(), trainingType.getTrainingTypeName());
     }
 

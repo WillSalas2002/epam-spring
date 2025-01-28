@@ -8,6 +8,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -20,6 +21,16 @@ public class TrainingTypeRepository implements TrainingTypeOperationsRepository 
         try(Session session = sessionFactory.openSession()) {
             return session.createQuery("FROM TrainingType", TrainingType.class)
                     .getResultList();
+        }
+    }
+
+    @Override
+    public Optional<TrainingType> findById(Long id) {
+        try(Session session = sessionFactory.openSession()) {
+            TrainingType trainingType = session.createQuery("FROM TrainingType tt WHERE tt.id = :id", TrainingType.class)
+                    .setParameter("id", id)
+                    .uniqueResult();
+            return Optional.ofNullable(trainingType);
         }
     }
 }
