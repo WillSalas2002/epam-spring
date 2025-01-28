@@ -71,11 +71,9 @@ public class TraineeRepository implements TraineeSpecificOperationsRepository {
 
     @Override
     public Trainee update(Trainee updatedTrainee) {
-        // TODO: java.lang.IllegalArgumentException: Unable to locate persister: org.hibernate.collection.spi.PersistentBag
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             session.merge(updatedTrainee.getUser());
-            session.merge(updatedTrainee.getTrainings());
             Trainee mergedTrainee = session.merge(updatedTrainee);
             transaction.commit();
             return mergedTrainee;
