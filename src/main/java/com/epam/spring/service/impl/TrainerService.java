@@ -6,9 +6,10 @@ import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.dto.response.trainer.FetchTrainerResponseDTO;
 import com.epam.spring.dto.response.trainer.TrainerResponseDTO;
 import com.epam.spring.dto.response.trainer.UpdateTrainerResponseDTO;
-import com.epam.spring.error.exception.UserNotFoundException;
+import com.epam.spring.error.exception.ResourceNotFoundException;
 import com.epam.spring.mapper.TrainerMapper;
 import com.epam.spring.model.Trainer;
+import com.epam.spring.repository.impl.TraineeRepository;
 import com.epam.spring.repository.impl.TrainerRepository;
 import com.epam.spring.repository.impl.TrainingTypeRepository;
 import com.epam.spring.service.base.TrainerSpecificOperationsService;
@@ -19,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Slf4j
 @Service
@@ -31,6 +31,7 @@ public class TrainerService implements TrainerSpecificOperationsService {
     private final TrainingTypeRepository trainingTypeRepository;
     private final PasswordGenerator passwordGenerator;
     private final TrainerMapper trainerMapper;
+    private final TraineeRepository traineeRepository;
 
     @Override
     public UserCredentialsResponseDTO create(CreateTrainerRequestDTO createRequestDTO) {
@@ -44,20 +45,20 @@ public class TrainerService implements TrainerSpecificOperationsService {
 
     private void checkIfTrainingTypeExistsOrElseThrow(String trainingTypeIdStr) {
         Long trainingTypeId = Long.valueOf(trainingTypeIdStr);
-        trainingTypeRepository.findById(trainingTypeId).orElseThrow(NoSuchElementException::new);
+        trainingTypeRepository.findById(trainingTypeId).orElseThrow(ResourceNotFoundException::new);
     }
 
     @Override
     public FetchTrainerResponseDTO getUserProfile(String username) {
         Trainer trainer = trainerRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException(username));
+                .orElseThrow(ResourceNotFoundException::new);
         return trainerMapper.fromTrainerToFetchTrainerResponse(trainer);
     }
 
     @Override
     public UpdateTrainerResponseDTO updateProfile(UpdateTrainerRequestDTO updateRequestDto) {
         Trainer trainer = trainerRepository.findByUsername(updateRequestDto.getUsername())
-                .orElseThrow(() -> new UserNotFoundException(updateRequestDto.getUsername()));
+                .orElseThrow(ResourceNotFoundException::new);
         trainerMapper.fromUpdateTrainerRequestToTrainer(trainer, updateRequestDto);
         Trainer updatedTrainer = trainerRepository.update(trainer);
         return trainerMapper.fromTrainerToUpdatedTrainerResponse(updatedTrainer);
@@ -65,6 +66,7 @@ public class TrainerService implements TrainerSpecificOperationsService {
 
     @Override
     public List<TrainerResponseDTO> findUnassignedTrainersByTraineeUsername(String username) {
+        traineeRepository.findByUsername(username).orElseThrow(ResourceNotFoundException::new);
         List<Trainer> trainers = trainerRepository.findUnassignedTrainersByTraineeUsername(username);
         return trainerMapper.fromTrainerListToTrainerResponseDTOList(trainers);
     }

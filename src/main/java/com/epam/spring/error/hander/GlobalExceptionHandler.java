@@ -2,8 +2,8 @@ package com.epam.spring.error.hander;
 
 import com.epam.spring.dto.response.ErrorResponseDTO;
 import com.epam.spring.error.exception.IncorrectCredentialsException;
+import com.epam.spring.error.exception.ResourceNotFoundException;
 import com.epam.spring.error.exception.UniqueConstraintException;
-import com.epam.spring.error.exception.UserNotFoundException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,14 +23,17 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private final static String MESSAGE = "User not found";
+    private final static String MESSAGE_RESOURCE_NOT_FOUND = "Resource not found.";
+    private final static String MESSAGE_INTERNAL_SERVER_ERROR = "Internal error occurred, please try again later.";
+    private final static String MESSAGE_INCORRECT_CREDENTIALS = "Incorrect credentials.";
+    private final static String MESSAGE_UNIQUE_CONSTRAINT = "This resource already exists in database.";
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponseDTO> handleUnknownExceptions(Exception ex) {
+    public ResponseEntity<ErrorResponseDTO> handleUnknownExceptions() {
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 LocalDateTime.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.toString(),
-                List.of("Unknown error occurred, try again later.")
+                List.of(MESSAGE_INTERNAL_SERVER_ERROR)
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -51,32 +54,32 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorResponse, status);
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
+    @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponseDTO> handleResourceNotFound() {
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 LocalDateTime.now(),
                 HttpStatus.NOT_FOUND.toString(),
-                List.of(MESSAGE)
+                List.of(MESSAGE_RESOURCE_NOT_FOUND)
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(IncorrectCredentialsException.class)
-    public ResponseEntity<ErrorResponseDTO> handleUnknownExceptions(IncorrectCredentialsException ex) {
+    public ResponseEntity<ErrorResponseDTO> handleIncorrectCredentialsException() {
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 LocalDateTime.now(),
                 HttpStatus.UNAUTHORIZED.toString(),
-                List.of(ex.getMessage())
+                List.of(MESSAGE_INCORRECT_CREDENTIALS)
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(UniqueConstraintException.class)
-    public ResponseEntity<ErrorResponseDTO> handleUniqueConstraint(UniqueConstraintException ex) {
+    public ResponseEntity<ErrorResponseDTO> handleUniqueConstraint() {
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 LocalDateTime.now(),
                 HttpStatus.CONFLICT.toString(),
-                List.of(ex.getMessage())
+                List.of(MESSAGE_UNIQUE_CONSTRAINT)
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }

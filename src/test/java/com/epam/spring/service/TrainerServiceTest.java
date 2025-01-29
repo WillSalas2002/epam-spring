@@ -6,7 +6,7 @@ import com.epam.spring.dto.request.trainer.UpdateTrainerRequestDTO;
 import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.dto.response.trainer.FetchTrainerResponseDTO;
 import com.epam.spring.dto.response.trainer.UpdateTrainerResponseDTO;
-import com.epam.spring.error.exception.UserNotFoundException;
+import com.epam.spring.error.exception.ResourceNotFoundException;
 import com.epam.spring.service.impl.TrainerService;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -103,7 +103,7 @@ class TrainerServiceTest {
     @Test
     void whenUpdateNonExistingTrainerThenThrowException() {
         String nonExistingUsername = "not exists";
-        assertThrows(UserNotFoundException.class, () -> trainerService.updateProfile(UpdateTrainerRequestDTO.builder().firstName(nonExistingUsername).build()), "User with username " + nonExistingUsername + " not found");
+        assertThrows(ResourceNotFoundException.class, () -> trainerService.updateProfile(UpdateTrainerRequestDTO.builder().firstName(nonExistingUsername).build()));
     }
 
     @Test

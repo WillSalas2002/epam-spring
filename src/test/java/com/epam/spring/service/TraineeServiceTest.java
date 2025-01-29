@@ -6,7 +6,7 @@ import com.epam.spring.dto.request.trainee.UpdateTraineeRequestDTO;
 import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.dto.response.trainee.FetchTraineeResponseDTO;
 import com.epam.spring.dto.response.trainee.UpdateTraineeResponseDTO;
-import com.epam.spring.error.exception.UserNotFoundException;
+import com.epam.spring.error.exception.ResourceNotFoundException;
 import com.epam.spring.service.impl.TraineeService;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -106,11 +106,10 @@ class TraineeServiceTest {
 
     @Test
     void whenUpdateNonExistingTraineeThenThrowException() {
-        String username = "not exists";
         UpdateTraineeRequestDTO updateTraineeRequestDTO = UpdateTraineeRequestDTO.builder()
                 .isActive(Boolean.FALSE)
                 .build();
-        assertThrows(UserNotFoundException.class, () -> traineeService.updateProfile(updateTraineeRequestDTO), "User with username " + username + " not found");
+        assertThrows(ResourceNotFoundException.class, () -> traineeService.updateProfile(updateTraineeRequestDTO));
     }
 
     @Test
@@ -132,6 +131,6 @@ class TraineeServiceTest {
 
         traineeService.deleteByUsername(username);
 
-        assertThrows(UserNotFoundException.class, () -> traineeService.getUserProfile(username), "User with username " + username + " not found");
+        assertThrows(ResourceNotFoundException.class, () -> traineeService.getUserProfile(username));
     }
 }

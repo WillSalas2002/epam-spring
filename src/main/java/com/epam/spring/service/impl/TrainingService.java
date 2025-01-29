@@ -4,6 +4,7 @@ import com.epam.spring.dto.request.training.CreateTrainingRequestDTO;
 import com.epam.spring.dto.request.training.FetchTraineeTrainingsRequestDTO;
 import com.epam.spring.dto.request.training.FetchTrainerTrainingsRequestDTO;
 import com.epam.spring.dto.response.training.FetchUserTrainingsResponseDTO;
+import com.epam.spring.error.exception.ResourceNotFoundException;
 import com.epam.spring.mapper.TrainingMapper;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
@@ -18,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Slf4j
 @AllArgsConstructor
@@ -35,10 +35,8 @@ public class TrainingService implements TrainingSpecificOperationsService {
         String traineeUsername = createTrainingRequest.getTraineeUsername();
         String trainerUsername = createTrainingRequest.getTrainerUsername();
 
-        Trainee trainee = traineeRepository.findByUsername(traineeUsername)
-                .orElseThrow(() -> new NoSuchElementException("Trainee with username " + traineeUsername + " not exists"));
-        Trainer trainer = trainerRepository.findByUsername(trainerUsername)
-                .orElseThrow(() -> new NoSuchElementException("Trainer with username " + trainerUsername + " not exists"));
+        Trainee trainee = traineeRepository.findByUsername(traineeUsername).orElseThrow(ResourceNotFoundException::new);
+        Trainer trainer = trainerRepository.findByUsername(trainerUsername).orElseThrow(ResourceNotFoundException::new);
 
         Training training = Training.builder()
                 .trainee(trainee)
@@ -53,6 +51,7 @@ public class TrainingService implements TrainingSpecificOperationsService {
 
     @Override
     public List<FetchUserTrainingsResponseDTO> findTraineeTrainings(FetchTraineeTrainingsRequestDTO fetchTraineeTrainingsRequest) {
+        traineeRepository.findByUsername(fetchTraineeTrainingsRequest.getTraineeUsername()).orElseThrow(ResourceNotFoundException::new);
         List<Training> traineeTrainings = trainingRepository.findTraineeTrainings(
                 fetchTraineeTrainingsRequest.getTraineeUsername(),
                 fetchTraineeTrainingsRequest.getFromDate(),
@@ -65,6 +64,7 @@ public class TrainingService implements TrainingSpecificOperationsService {
 
     @Override
     public List<FetchUserTrainingsResponseDTO> findTrainerTrainings(FetchTrainerTrainingsRequestDTO fetchTrainerTrainingsRequest) {
+        trainerRepository.findByUsername(fetchTrainerTrainingsRequest.getTrainerUsername()).orElseThrow(ResourceNotFoundException::new);
         List<Training> trainerTrainings = trainingRepository.findTrainerTrainings(
                 fetchTrainerTrainingsRequest.getTrainerUsername(),
                 fetchTrainerTrainingsRequest.getFromDate(),

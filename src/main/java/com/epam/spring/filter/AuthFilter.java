@@ -9,6 +9,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -20,8 +21,24 @@ import java.util.List;
 @Component
 @AllArgsConstructor
 public class AuthFilter implements Filter {
-
     private final ObjectMapper objectMapper;
+
+    private static final String HTTP_POST = "POST";
+    private static final String HTTP_GET = "GET";
+
+    private static final String TRAINEES_ENDPOINT = "/api/v1/trainees";
+    private static final String TRAINERS_ENDPOINT = "/api/v1/trainers";
+    private static final String SWAGGER_UI = "swagger-ui";
+    private static final String FAVICON = "favicon.ico";
+    private static final String API_DOCS = "api-docs";
+
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String BASIC_AUTH_PREFIX = "Basic ";
+    private static final String ADMIN_USERNAME = "Admin";
+    private static final String ADMIN_PASSWORD = "Admin";
+
+    private static final String ERROR_INVALID_CREDENTIALS = "Invalid token or credentials";
+    private static final String ERROR_INTERNAL_SERVER = "Internal server error";
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
@@ -36,29 +53,29 @@ public class AuthFilter implements Filter {
             }
 
             if (!isAuthorized(request)) {
-                sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid token or credentials");
+                sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, ERROR_INVALID_CREDENTIALS);
                 return;
             }
 
             filterChain.doFilter(servletRequest, servletResponse);
         } catch (Exception ex) {
-            sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
+            sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ERROR_INTERNAL_SERVER);
         }
     }
 
     private boolean isPublicEndpoint(HttpServletRequest request) {
         String method = request.getMethod();
         String uri = request.getRequestURI();
-        return (method.equalsIgnoreCase("POST") && (uri.equals("/api/v1/trainees") || uri.equals("/api/v1/trainers"))) ||
-                (method.equalsIgnoreCase("GET") && (uri.contains("swagger-ui") || uri.contains("favicon.ico") || uri.contains("api-docs")));
+        return (HTTP_POST.equalsIgnoreCase(method) && (TRAINEES_ENDPOINT.equals(uri) || TRAINERS_ENDPOINT.equals(uri))) ||
+                (HTTP_GET.equalsIgnoreCase(method) && (uri.contains(SWAGGER_UI) || uri.contains(FAVICON) || uri.contains(API_DOCS)));
     }
 
     private boolean isAuthorized(HttpServletRequest request) {
-        String authorization = request.getHeader("Authorization");
-        if (authorization != null && authorization.startsWith("Basic ")) {
-            String credentials = decodeCredentials(authorization.substring("Basic ".length()));
+        String authorization = request.getHeader(AUTHORIZATION_HEADER);
+        if (authorization != null && authorization.startsWith(BASIC_AUTH_PREFIX)) {
+            String credentials = decodeCredentials(authorization.substring(BASIC_AUTH_PREFIX.length()));
             String[] values = credentials.split(":", 2);
-            return values.length == 2 && "Admin".equals(values[0]) && "Admin".equals(values[1]);
+            return values.length == 2 && ADMIN_USERNAME.equals(values[0]) && ADMIN_PASSWORD.equals(values[1]);
         }
         return false;
     }
@@ -69,7 +86,7 @@ public class AuthFilter implements Filter {
     }
 
     private void sendErrorResponse(HttpServletResponse response, int status, String message) throws IOException {
-        response.setContentType("application/json");
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(status);
         objectMapper.writeValue(response.getWriter(), createErrorResponse(message));
     }

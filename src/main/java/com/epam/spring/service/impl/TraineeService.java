@@ -9,7 +9,7 @@ import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.dto.response.trainee.FetchTraineeResponseDTO;
 import com.epam.spring.dto.response.trainee.UpdateTraineeResponseDTO;
 import com.epam.spring.dto.response.trainer.TrainerResponseDTO;
-import com.epam.spring.error.exception.UserNotFoundException;
+import com.epam.spring.error.exception.ResourceNotFoundException;
 import com.epam.spring.mapper.TraineeMapper;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
@@ -49,7 +49,7 @@ public class TraineeService implements TraineeSpecificOperationsService {
     @Override
     public UpdateTraineeResponseDTO updateProfile(UpdateTraineeRequestDTO updateRequest) {
         Trainee trainee = traineeRepository.findByUsername(updateRequest.getUsername())
-                .orElseThrow(() -> new UserNotFoundException(updateRequest.getUsername()));
+                .orElseThrow(ResourceNotFoundException::new);
         traineeMapper.fromUpdateTraineeRequestToTrainee(trainee, updateRequest);
         Trainee updatedTrainee = traineeRepository.update(trainee);
         return traineeMapper.fromTraineeToUpdateTraineeResponse(updatedTrainee);
@@ -58,7 +58,7 @@ public class TraineeService implements TraineeSpecificOperationsService {
     @Override
     public FetchTraineeResponseDTO getUserProfile(String username) {
         Trainee trainee = traineeRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException(username));
+                .orElseThrow(ResourceNotFoundException::new);
         return traineeMapper.fromTraineeToFetchTraineeResponse(trainee);
     }
 
@@ -70,7 +70,7 @@ public class TraineeService implements TraineeSpecificOperationsService {
     @Override
     public List<TrainerResponseDTO> updateTraineeTrainerList(UpdateTraineeTrainerRequestDTO updateTraineeTrainerRequestDTO) {
         Trainee trainee = traineeRepository.findByUsername(updateTraineeTrainerRequestDTO.getTraineeUsername())
-                .orElseThrow(() -> new NoSuchElementException("Trainee with username " + updateTraineeTrainerRequestDTO.getTraineeUsername() + " not found"));
+                .orElseThrow(ResourceNotFoundException::new);
         List<Training> trainings = trainee.getTrainings();
         for (Training training : trainings) {
             List<TrainingIdTrainerUsernamePair> trainingIdTrainerUsernamePairs = updateTraineeTrainerRequestDTO.getTrainingIdTrainerUsernamePairs();

@@ -4,7 +4,7 @@ import com.epam.spring.dto.request.user.CredentialChangeRequestDTO;
 import com.epam.spring.dto.request.user.UserCredentialsRequestDTO;
 import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.error.exception.IncorrectCredentialsException;
-import com.epam.spring.error.exception.UserNotFoundException;
+import com.epam.spring.error.exception.ResourceNotFoundException;
 import com.epam.spring.model.User;
 import com.epam.spring.repository.impl.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +50,6 @@ public class UserService {
 
     private User findUserOrThrowException(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException(username));
+                .orElseThrow(ResourceNotFoundException::new);
     }
 }
