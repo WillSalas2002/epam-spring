@@ -50,14 +50,12 @@ class UserControllerTest {
     @Test
     public void testActivateProfile() throws Exception {
 
-        mockMvc.perform(patch("/api/v1/users/activate/status")
-                        .param("username", "testUser")
+        mockMvc.perform(patch("/api/v1/users/activate/{username}/status", "username")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}")
                 )
                 .andExpect(status().isOk());
-
-        verify(userService).activateProfile(eq("testUser"));
+        verify(userService).activateProfile(eq("username"));
     }
 
     @Test

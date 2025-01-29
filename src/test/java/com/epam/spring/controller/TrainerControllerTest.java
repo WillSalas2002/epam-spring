@@ -45,8 +45,6 @@ class TrainerControllerTest {
     private ArgumentCaptor<CreateTrainerRequestDTO> createTrainerCaptor;
     @Captor
     private ArgumentCaptor<UpdateTrainerRequestDTO> updateTrainerCaptor;
-    @Captor
-    private ArgumentCaptor<String> usernameCaptor;
 
     @BeforeEach
     void setup() {
@@ -88,42 +86,40 @@ class TrainerControllerTest {
 
         when(trainerService.getUserProfile(username)).thenReturn(expectedResponse);
 
-        mockMvc.perform(get("/api/v1/trainers")
-                        .param("username", username))
+        mockMvc.perform(get("/api/v1/trainers/{username}", username)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName").value("John"))
                 .andExpect(jsonPath("$.lastName").value("Doe"))
+                .andExpect(jsonPath("$.specializationId").value(1L))
+                .andExpect(jsonPath("$.trainees").isEmpty())
                 .andExpect(jsonPath("$.active").value(true));
 
-        verify(trainerService).getUserProfile(usernameCaptor.capture());
-
-        String capturedUsername = usernameCaptor.getValue();
-        assertEquals(username, capturedUsername);
     }
 
-//    @Test
+    @Test
     public void testUpdateProfile() throws Exception {
-        String username = "trainerUser";
-        UpdateTrainerRequestDTO request = new UpdateTrainerRequestDTO();
-
+        UpdateTrainerRequestDTO request = new UpdateTrainerRequestDTO("trainerUser", "John", "Doe", "1L", true);
         UpdateTrainerResponseDTO expectedResponse = new UpdateTrainerResponseDTO("trainerUser", "John", "Doe", new TrainingTypeDTO(1L, "Fitness"), true, new ArrayList<>());
 
-        when(trainerService.updateProfile(eq(request))).thenReturn(expectedResponse);
+        when(trainerService.updateProfile(any())).thenReturn(expectedResponse);
 
         mockMvc.perform(put("/api/v1/trainers")
-                        .param("username", username)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value("trainerUser"))
                 .andExpect(jsonPath("$.firstName").value("John"))
-                .andExpect(jsonPath("$.active").value(true));
+                .andExpect(jsonPath("$.lastName").value("Doe"))
+                .andExpect(jsonPath("$.active").value(true))
+                .andExpect(jsonPath("$.specialization.id").value(1L))
+                .andExpect(jsonPath("$.specialization.trainingTypeName").value("Fitness"))
+                .andExpect(jsonPath("$.trainees").isEmpty());
 
         verify(trainerService).updateProfile(updateTrainerCaptor.capture());
 
         UpdateTrainerRequestDTO capturedRequest = updateTrainerCaptor.getValue();
         assertEquals("John", capturedRequest.getFirstName());
         assertEquals("Doe", capturedRequest.getLastName());
-        assertEquals(1L, capturedRequest.getSpecializationId());
     }
 }
