@@ -23,7 +23,7 @@ import java.util.Objects;
 @Table(name = "training_types")
 public class TrainingType extends BaseEntity {
 
-    @Column(name = "training_type_name", nullable = false)
+    @Column(name = "training_type_name", nullable = false, unique = true)
     private String trainingTypeName;
 
     @OneToMany(mappedBy = "specialization", fetch = FetchType.LAZY)

@@ -1,17 +1,20 @@
 package com.epam.spring.repository;
 
-import com.epam.spring.config.AppConfig;
+import com.epam.spring.config.TestConfig;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.TrainingType;
 import com.epam.spring.model.User;
+import com.epam.spring.repository.impl.TrainerRepository;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringJUnitConfig(AppConfig.class)
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {TestConfig.class})
 class TrainerRepositoryTest {
 
     @Autowired
@@ -153,6 +157,7 @@ class TrainerRepositoryTest {
 
     private static TrainingType buildTrainingType() {
         return TrainingType.builder()
+                .id(1L)
                 .trainingTypeName("Cardio")
                 .build();
     }

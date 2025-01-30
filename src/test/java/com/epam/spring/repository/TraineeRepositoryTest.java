@@ -1,16 +1,19 @@
 package com.epam.spring.repository;
 
-import com.epam.spring.config.AppConfig;
+import com.epam.spring.config.TestConfig;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.User;
+import com.epam.spring.repository.impl.TraineeRepository;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,7 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringJUnitConfig(AppConfig.class)
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {TestConfig.class})
 class TraineeRepositoryTest {
 
     @Autowired

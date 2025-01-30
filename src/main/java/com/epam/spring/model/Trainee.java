@@ -37,7 +37,7 @@ public class Trainee extends BaseEntity {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    @OneToMany(mappedBy = "trainee", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "trainee", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE, CascadeType.MERGE})
     private List<Training> trainings;
 
     @Override
