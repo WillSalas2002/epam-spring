@@ -3,7 +3,7 @@ package com.epam.spring.service.impl;
 import com.epam.spring.dto.response.TrainingTypeDTO;
 import com.epam.spring.mapper.TrainingTypeMapper;
 import com.epam.spring.model.TrainingType;
-import com.epam.spring.repository.impl.TrainingTypeRepository;
+import com.epam.spring.repository.implnew.TrainingTypeRepository;
 import com.epam.spring.service.base.TrainingTypeOperationsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

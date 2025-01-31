@@ -14,8 +14,8 @@ import com.epam.spring.mapper.TraineeMapper;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
-import com.epam.spring.repository.impl.TraineeRepository;
-import com.epam.spring.repository.impl.TrainerRepository;
+import com.epam.spring.repository.implnew.TraineeRepository;
+import com.epam.spring.repository.implnew.TrainerRepository;
 import com.epam.spring.service.base.TraineeSpecificOperationsService;
 import com.epam.spring.util.PasswordGenerator;
 import com.epam.spring.util.UsernameGenerator;
@@ -42,7 +42,7 @@ public class TraineeService implements TraineeSpecificOperationsService {
         String uniqueUsername = usernameGenerator.generateUniqueUsername(createRequest.getFirstName(), createRequest.getLastName());
         String password = passwordGenerator.generatePassword();
         Trainee trainee = traineeMapper.fromCreateTraineeRequestToTrainee(createRequest, uniqueUsername, password);
-        traineeRepository.create(trainee);
+        traineeRepository.save(trainee);
         return new UserCredentialsResponseDTO(uniqueUsername, password);
     }
 
@@ -51,7 +51,7 @@ public class TraineeService implements TraineeSpecificOperationsService {
         Trainee trainee = traineeRepository.findByUsername(updateRequest.getUsername())
                 .orElseThrow(ResourceNotFoundException::new);
         traineeMapper.fromUpdateTraineeRequestToTrainee(trainee, updateRequest);
-        Trainee updatedTrainee = traineeRepository.update(trainee);
+        Trainee updatedTrainee = traineeRepository.save(trainee);
         return traineeMapper.fromTraineeToUpdateTraineeResponse(updatedTrainee);
     }
 
@@ -82,7 +82,7 @@ public class TraineeService implements TraineeSpecificOperationsService {
                 }
             }
         }
-        Trainee updatedTrainee = traineeRepository.update(trainee);
+        Trainee updatedTrainee = traineeRepository.save(trainee);
 
         return updatedTrainee.getTrainings().stream().map(t -> new TrainerResponseDTO(
                 t.getTrainer().getUser().getUsername(),

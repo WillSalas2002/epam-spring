@@ -4,7 +4,7 @@ import com.epam.spring.config.TestConfig;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.TrainingType;
 import com.epam.spring.model.User;
-import com.epam.spring.repository.impl.TrainerRepository;
+import com.epam.spring.repository.implnew.TrainerRepository;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -55,7 +55,7 @@ class TrainerRepositoryTest {
 
     @Test
     void testCreate() {
-        Trainer createdTrainer = trainerRepository.create(trainer1);
+        Trainer createdTrainer = trainerRepository.save(trainer1);
 
         assertNotNull(createdTrainer.getId());
         assertNotNull(createdTrainer.getUser().getId());
@@ -65,8 +65,8 @@ class TrainerRepositoryTest {
 
     @Test
     void testFindAll() {
-        trainerRepository.create(trainer1);
-        trainerRepository.create(trainer2);
+        trainerRepository.save(trainer1);
+        trainerRepository.save(trainer2);
 
         List<Trainer> trainers = trainerRepository.findAll();
 
@@ -77,7 +77,7 @@ class TrainerRepositoryTest {
 
     @Test
     void testFindById() {
-        Trainer createdTrainer = trainerRepository.create(trainer1);
+        Trainer createdTrainer = trainerRepository.save(trainer1);
 
         Optional<Trainer> foundTrainerOptional = trainerRepository.findById(createdTrainer.getId());
 
@@ -94,11 +94,11 @@ class TrainerRepositoryTest {
 
     @Test
     void testUpdate() {
-        Trainer createdTrainer = trainerRepository.create(trainer1);
+        Trainer createdTrainer = trainerRepository.save(trainer1);
 
         createdTrainer.getUser().setFirstName("Updated");
         createdTrainer.getUser().setLastName("Name");
-        Trainer updatedTrainer = trainerRepository.update(createdTrainer);
+        Trainer updatedTrainer = trainerRepository.save(createdTrainer);
 
         assertEquals(createdTrainer.getUser().getId(), updatedTrainer.getUser().getId());
         assertEquals("Updated", updatedTrainer.getUser().getFirstName());
@@ -107,7 +107,7 @@ class TrainerRepositoryTest {
 
     @Test
     void testDelete() {
-        Trainer createdTrainer = trainerRepository.create(trainer1);
+        Trainer createdTrainer = trainerRepository.save(trainer1);
 
         trainerRepository.delete(createdTrainer);
 
@@ -121,13 +121,13 @@ class TrainerRepositoryTest {
 
     @Test
     void testMultipleOperations() {
-        Trainer createdTrainer1 = trainerRepository.create(trainer1);
+        Trainer createdTrainer1 = trainerRepository.save(trainer1);
 
         String expectedName = "Adam";
         createdTrainer1.getUser().setFirstName(expectedName);
-        Trainer updatedTrainer1 = trainerRepository.update(createdTrainer1);
+        Trainer updatedTrainer1 = trainerRepository.save(createdTrainer1);
 
-        trainerRepository.create(trainer2);
+        trainerRepository.save(trainer2);
 
         List<Trainer> trainers = trainerRepository.findAll();
         Optional<Trainer> foundTrainerOptional = trainerRepository.findById(createdTrainer1.getId());

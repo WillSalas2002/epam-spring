@@ -9,9 +9,9 @@ import com.epam.spring.mapper.TrainingMapper;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
-import com.epam.spring.repository.impl.TraineeRepository;
-import com.epam.spring.repository.impl.TrainerRepository;
-import com.epam.spring.repository.impl.TrainingRepository;
+import com.epam.spring.repository.implnew.TraineeRepository;
+import com.epam.spring.repository.implnew.TrainerRepository;
+import com.epam.spring.repository.implnew.TrainingRepository;
 import com.epam.spring.service.base.TrainingSpecificOperationsService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +46,7 @@ public class TrainingService implements TrainingSpecificOperationsService {
                 .duration(Integer.valueOf(createTrainingRequest.getDuration()))
                 .date(LocalDate.parse(createTrainingRequest.getTrainingDate()))
                 .build();
-        trainingRepository.create(training);
+        trainingRepository.save(training);
     }
 
     @Override
