@@ -1,6 +1,6 @@
 package com.epam.spring.util;
 
-import com.epam.spring.repository.implnew.UserRepository;
+import com.epam.spring.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

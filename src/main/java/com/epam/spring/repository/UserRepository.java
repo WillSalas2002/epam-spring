@@ -1,4 +1,4 @@
-package com.epam.spring.repository.implnew;
+package com.epam.spring.repository;
 
 import com.epam.spring.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,6 +11,6 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    @Query("SELECT u FROM User u WHERE u.username =: username")
+    @Query("SELECT u FROM User u WHERE u.username = :username")
     Optional<User> findByUsername(@Param("username") String username);
 }

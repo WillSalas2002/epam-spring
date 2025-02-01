@@ -1,4 +1,4 @@
-package com.epam.spring.repository.implnew;
+package com.epam.spring.repository;
 
 import com.epam.spring.model.Trainee;
 import org.springframework.data.jpa.repository.JpaRepository;
