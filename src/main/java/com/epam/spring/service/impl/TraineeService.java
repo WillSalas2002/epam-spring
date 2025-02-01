@@ -71,11 +71,12 @@ public class TraineeService implements TraineeSpecificOperationsService {
     public List<TrainerResponseDTO> updateTraineeTrainerList(UpdateTraineeTrainerRequestDTO updateTraineeTrainerRequestDTO) {
         Trainee trainee = traineeRepository.findByUsername(updateTraineeTrainerRequestDTO.getTraineeUsername())
                 .orElseThrow(ResourceNotFoundException::new);
+
         List<Training> trainings = trainee.getTrainings();
-        for (Training training : trainings) {
-            List<TrainingIdTrainerUsernamePair> trainingIdTrainerUsernamePairs = updateTraineeTrainerRequestDTO.getTrainingIdTrainerUsernamePairs();
-            for (TrainingIdTrainerUsernamePair pair : trainingIdTrainerUsernamePairs) {
-                if (Long.valueOf(pair.getTrainingId()).equals(training.getId())) {
+        List<TrainingIdTrainerUsernamePair> trainingIdTrainerUsernamePairs = updateTraineeTrainerRequestDTO.getTrainingIdTrainerUsernamePairs();
+        for (TrainingIdTrainerUsernamePair pair : trainingIdTrainerUsernamePairs) {
+            for (Training training : trainings) {
+                if (pair.getTrainingId().equals(training.getId())) {
                     Trainer trainer = trainerRepository.findByUsername(pair.getTrainerUsername()).orElseThrow(NoSuchElementException::new);
                     training.setTrainer(trainer);
                     training.setTrainingType(trainer.getSpecialization());

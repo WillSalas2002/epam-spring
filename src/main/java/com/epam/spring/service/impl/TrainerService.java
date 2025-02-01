@@ -9,6 +9,7 @@ import com.epam.spring.dto.response.trainer.UpdateTrainerResponseDTO;
 import com.epam.spring.error.exception.ResourceNotFoundException;
 import com.epam.spring.mapper.TrainerMapper;
 import com.epam.spring.model.Trainer;
+import com.epam.spring.model.TrainingType;
 import com.epam.spring.repository.TraineeRepository;
 import com.epam.spring.repository.TrainerRepository;
 import com.epam.spring.repository.TrainingTypeRepository;
@@ -35,17 +36,14 @@ public class TrainerService implements TrainerSpecificOperationsService {
 
     @Override
     public UserCredentialsResponseDTO create(CreateTrainerRequestDTO createRequestDTO) {
-        checkIfTrainingTypeExistsOrElseThrow(createRequestDTO.getTrainingTypeId());
+        TrainingType trainingType = trainingTypeRepository.findById(createRequestDTO.getTrainingTypeId())
+                .orElseThrow(ResourceNotFoundException::new);
         String uniqueUsername = usernameGenerator.generateUniqueUsername(createRequestDTO.getFirstName(), createRequestDTO.getLastName());
         String password = passwordGenerator.generatePassword();
         Trainer trainer = trainerMapper.fromCreateTrainerRequestToTrainer(createRequestDTO, uniqueUsername, password);
+        trainer.setSpecialization(trainingType);
         Trainer createTrainer = trainerRepository.save(trainer);
         return new UserCredentialsResponseDTO(createTrainer.getUser().getUsername(), createTrainer.getUser().getPassword());
-    }
-
-    private void checkIfTrainingTypeExistsOrElseThrow(String trainingTypeIdStr) {
-        Long trainingTypeId = Long.valueOf(trainingTypeIdStr);
-        trainingTypeRepository.findById(trainingTypeId).orElseThrow(ResourceNotFoundException::new);
     }
 
     @Override

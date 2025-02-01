@@ -13,7 +13,7 @@ import lombok.Setter;
 public class TrainingIdTrainerUsernamePair {
 
     @JsonProperty("trainingId")
-    private String trainingId;
+    private Long trainingId;
     @JsonProperty("trainerUsername")
     private String trainerUsername;
 }

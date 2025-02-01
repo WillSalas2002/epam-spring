@@ -1,6 +1,7 @@
 package com.epam.spring.filter;
 
 import com.epam.spring.dto.response.ErrorResponseDTO;
+import com.epam.spring.service.impl.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -22,6 +23,7 @@ import java.util.List;
 @AllArgsConstructor
 public class AuthFilter implements Filter {
     private final ObjectMapper objectMapper;
+    private final UserService userService;
 
     private static final String HTTP_POST = "POST";
     private static final String HTTP_GET = "GET";
@@ -34,8 +36,6 @@ public class AuthFilter implements Filter {
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BASIC_AUTH_PREFIX = "Basic ";
-    private static final String ADMIN_USERNAME = "Admin";
-    private static final String ADMIN_PASSWORD = "Admin";
 
     private static final String ERROR_INVALID_CREDENTIALS = "Invalid token or credentials";
     private static final String ERROR_INTERNAL_SERVER = "Internal server error";
@@ -75,7 +75,7 @@ public class AuthFilter implements Filter {
         if (authorization != null && authorization.startsWith(BASIC_AUTH_PREFIX)) {
             String credentials = decodeCredentials(authorization.substring(BASIC_AUTH_PREFIX.length()));
             String[] values = credentials.split(":", 2);
-            return values.length == 2 && ADMIN_USERNAME.equals(values[0]) && ADMIN_PASSWORD.equals(values[1]);
+            return values.length == 2 && userService.findByUsernameAndPassword(values[0], values[1]).isPresent();
         }
         return false;
     }

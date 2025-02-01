@@ -6,11 +6,12 @@ import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.error.exception.IncorrectCredentialsException;
 import com.epam.spring.error.exception.ResourceNotFoundException;
 import com.epam.spring.model.User;
-import com.epam.spring.repository.implnew.UserRepository;
+import com.epam.spring.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +41,10 @@ public class UserService {
     public void authenticate(String username, String password) {
         User user = findUserOrThrowException(username);
         checkPassword(password, user);
+    }
+
+    public Optional<User> findByUsernameAndPassword(String username, String password) {
+        return userRepository.findByUsernameAndPassword(username, password);
     }
 
     private static void checkPassword(String password, User user) {

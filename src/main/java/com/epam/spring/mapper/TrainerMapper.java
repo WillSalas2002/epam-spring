@@ -28,7 +28,6 @@ public class TrainerMapper {
                         .password(password)
                         .isActive(Boolean.FALSE)
                         .build())
-                .specialization(TrainingType.builder().id(Long.valueOf(createRequest.getTrainingTypeId())).build())
                 .build();
     }
 

@@ -24,7 +24,7 @@ public interface TrainerRepository extends JpaRepository<Trainer, Long> {
                                         JOIN Trainer tr ON tr.id = trn.trainer.id
                                         JOIN Trainee tn ON tn.id = trn.trainee.id
                                         JOIN User tu ON tu.id = tn.user.id
-                               WHERE tu.username =: username)
+                               WHERE tu.username = :username)
             """)
     List<Trainer> findUnassignedTrainersByTraineeUsername(@Param("username") String username);
 }
