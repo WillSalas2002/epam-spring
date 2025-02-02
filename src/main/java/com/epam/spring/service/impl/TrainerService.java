@@ -15,15 +15,18 @@ import com.epam.spring.repository.TrainerRepository;
 import com.epam.spring.repository.TrainingTypeRepository;
 import com.epam.spring.service.base.TrainerSpecificOperationsService;
 import com.epam.spring.util.PasswordGenerator;
+import com.epam.spring.util.TransactionContext;
 import com.epam.spring.util.UsernameGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class TrainerService implements TrainerSpecificOperationsService {
 
@@ -35,37 +38,67 @@ public class TrainerService implements TrainerSpecificOperationsService {
     private final TraineeRepository traineeRepository;
 
     @Override
-    public UserCredentialsResponseDTO create(CreateTrainerRequestDTO createRequestDTO) {
-        TrainingType trainingType = trainingTypeRepository.findById(createRequestDTO.getTrainingTypeId())
+    public UserCredentialsResponseDTO create(CreateTrainerRequestDTO createRequest) {
+        String transactionId = TransactionContext.getTransactionId();
+        log.info("Transaction ID: {}, Starting trainer creation for firstName: {}, lastName: {}",
+                transactionId, createRequest.getFirstName(), createRequest.getLastName());
+
+        log.info("Transaction ID: {}, Fetching training type with id: {}", transactionId, createRequest.getTrainingTypeId());
+        TrainingType trainingType = trainingTypeRepository.findById(createRequest.getTrainingTypeId())
                 .orElseThrow(ResourceNotFoundException::new);
-        String uniqueUsername = usernameGenerator.generateUniqueUsername(createRequestDTO.getFirstName(), createRequestDTO.getLastName());
+
+        String uniqueUsername = usernameGenerator.generateUniqueUsername(createRequest.getFirstName(), createRequest.getLastName());
         String password = passwordGenerator.generatePassword();
-        Trainer trainer = trainerMapper.fromCreateTrainerRequestToTrainer(createRequestDTO, uniqueUsername, password);
+
+        log.info("Transaction ID: {}, Generated username: {}", transactionId, uniqueUsername);
+        Trainer trainer = trainerMapper.fromCreateTrainerRequestToTrainer(createRequest, uniqueUsername, password);
         trainer.setSpecialization(trainingType);
+
         Trainer createTrainer = trainerRepository.save(trainer);
+        log.info("Transaction ID: {}, Successfully created trainer with username: {}", transactionId, uniqueUsername);
         return new UserCredentialsResponseDTO(createTrainer.getUser().getUsername(), createTrainer.getUser().getPassword());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public FetchTrainerResponseDTO getUserProfile(String username) {
+        String transactionId = TransactionContext.getTransactionId();
+        log.info("Transaction ID: {}, Fetching trainer with username: {}", transactionId, username);
+
         Trainer trainer = trainerRepository.findByUsername(username)
                 .orElseThrow(ResourceNotFoundException::new);
+        log.info("Transaction ID: {}, Successfully fetched trainer with username: {}", transactionId, username);
+
         return trainerMapper.fromTrainerToFetchTrainerResponse(trainer);
     }
 
     @Override
-    public UpdateTrainerResponseDTO updateProfile(UpdateTrainerRequestDTO updateRequestDto) {
-        Trainer trainer = trainerRepository.findByUsername(updateRequestDto.getUsername())
+    public UpdateTrainerResponseDTO updateProfile(UpdateTrainerRequestDTO updateRequest) {
+        String transactionId = TransactionContext.getTransactionId();
+        String username = updateRequest.getUsername();
+        log.info("Transaction ID: {}, Starting to update trainer with username: {}", transactionId, username);
+
+        Trainer trainer = trainerRepository.findByUsername(username)
                 .orElseThrow(ResourceNotFoundException::new);
-        trainerMapper.fromUpdateTrainerRequestToTrainer(trainer, updateRequestDto);
+        trainerMapper.fromUpdateTrainerRequestToTrainer(trainer, updateRequest);
+
         Trainer updatedTrainer = trainerRepository.save(trainer);
+        log.info("Transaction ID: {}, Successfully updated trainer with username: {}", transactionId, username);
+
         return trainerMapper.fromTrainerToUpdatedTrainerResponse(updatedTrainer);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TrainerResponseDTO> findUnassignedTrainersByTraineeUsername(String username) {
+        String transactionId = TransactionContext.getTransactionId();
+        log.info("Transaction ID: {}, Fetching unassigned trainers for trainee with username: {}", transactionId, username);
+
         traineeRepository.findByUsername(username).orElseThrow(ResourceNotFoundException::new);
+
         List<Trainer> trainers = trainerRepository.findUnassignedTrainersByTraineeUsername(username);
+        log.info("Transaction ID: {}, Successfully fetched unassigned trainers for trainee with username: {}", transactionId, username);
+
         return trainerMapper.fromTrainerListToTrainerResponseDTOList(trainers);
     }
 }

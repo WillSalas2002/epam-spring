@@ -1,11 +1,15 @@
 package com.epam.spring.mapper;
 
+import com.epam.spring.dto.request.training.CreateTrainingRequestDTO;
 import com.epam.spring.dto.response.TrainingTypeDTO;
 import com.epam.spring.dto.response.training.FetchUserTrainingsResponseDTO;
+import com.epam.spring.model.Trainee;
+import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -22,5 +26,16 @@ public class TrainingMapper {
                         training.getTrainee().getUser().getUsername()
                 ))
                 .toList();
+    }
+
+    public Training fromCreateTrainingRequestToTraining(CreateTrainingRequestDTO createTrainingRequest, Trainee trainee, Trainer trainer) {
+        return Training.builder()
+                .trainee(trainee)
+                .trainer(trainer)
+                .name(createTrainingRequest.getTrainingName())
+                .trainingType(trainer.getSpecialization())
+                .duration(Integer.valueOf(createTrainingRequest.getDuration()))
+                .date(LocalDate.parse(createTrainingRequest.getTrainingDate()))
+                .build();
     }
 }

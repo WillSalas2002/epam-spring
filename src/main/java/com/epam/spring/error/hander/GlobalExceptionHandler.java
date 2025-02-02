@@ -4,6 +4,8 @@ import com.epam.spring.dto.response.ErrorResponseDTO;
 import com.epam.spring.error.exception.IncorrectCredentialsException;
 import com.epam.spring.error.exception.ResourceNotFoundException;
 import com.epam.spring.error.exception.UniqueConstraintException;
+import com.epam.spring.util.TransactionContext;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -55,7 +58,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponseDTO> handleResourceNotFound() {
+    public ResponseEntity<ErrorResponseDTO> handleResourceNotFound(ResourceNotFoundException ex) {
+        log.info("Transaction ID: {}, User with username: {} not found",
+                TransactionContext.getTransactionId(), ex.getUsername());
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 LocalDateTime.now(),
                 HttpStatus.NOT_FOUND.toString(),

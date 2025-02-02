@@ -18,16 +18,19 @@ import com.epam.spring.repository.TraineeRepository;
 import com.epam.spring.repository.TrainerRepository;
 import com.epam.spring.service.base.TraineeSpecificOperationsService;
 import com.epam.spring.util.PasswordGenerator;
+import com.epam.spring.util.TransactionContext;
 import com.epam.spring.util.UsernameGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class TraineeService implements TraineeSpecificOperationsService {
 
@@ -39,41 +42,70 @@ public class TraineeService implements TraineeSpecificOperationsService {
 
     @Override
     public UserCredentialsResponseDTO create(CreateTraineeRequestDTO createRequest) {
+        String transactionId = TransactionContext.getTransactionId();
+        log.info("Transaction ID: {}, Starting trainee creation for firstName: {}, lastName: {}",
+                transactionId, createRequest.getFirstName(), createRequest.getLastName());
+
         String uniqueUsername = usernameGenerator.generateUniqueUsername(createRequest.getFirstName(), createRequest.getLastName());
         String password = passwordGenerator.generatePassword();
+
+        log.info("Transaction ID: {}, Generated username: {}", transactionId, uniqueUsername);
         Trainee trainee = traineeMapper.fromCreateTraineeRequestToTrainee(createRequest, uniqueUsername, password);
+
         traineeRepository.save(trainee);
+        log.info("Transaction ID: {}, Successfully saved trainee with username: {}", transactionId, uniqueUsername);
+
         return new UserCredentialsResponseDTO(uniqueUsername, password);
     }
 
     @Override
     public UpdateTraineeResponseDTO updateProfile(UpdateTraineeRequestDTO updateRequest) {
-        Trainee trainee = traineeRepository.findByUsername(updateRequest.getUsername())
-                .orElseThrow(ResourceNotFoundException::new);
+        String transactionId = TransactionContext.getTransactionId();
+        String username = updateRequest.getUsername();
+        log.info("Transaction ID: {}, Starting trainee update for username: {}", transactionId, username);
+
+        Trainee trainee = traineeRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException(username));
         traineeMapper.fromUpdateTraineeRequestToTrainee(trainee, updateRequest);
+
         Trainee updatedTrainee = traineeRepository.save(trainee);
+        log.info("Transaction ID: {}, Successfully updated trainee with username: {}", transactionId, username);
+
         return traineeMapper.fromTraineeToUpdateTraineeResponse(updatedTrainee);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public FetchTraineeResponseDTO getUserProfile(String username) {
+        String transactionId = TransactionContext.getTransactionId();
+        log.info("Transaction ID: {}, Fetching trainee with username: {}", transactionId, username);
+
         Trainee trainee = traineeRepository.findByUsername(username)
-                .orElseThrow(ResourceNotFoundException::new);
+                .orElseThrow(() -> new ResourceNotFoundException(username));
+        log.info("Transaction ID: {}, Successfully fetched trainee with username: {}", transactionId, username);
+
         return traineeMapper.fromTraineeToFetchTraineeResponse(trainee);
     }
 
     @Override
     public void deleteByUsername(String username) {
+        log.info("Transaction ID: {}, Deleting trainee with username: {}",
+                TransactionContext.getTransactionId(), username);
         traineeRepository.deleteByUsername(username);
     }
 
     @Override
-    public List<TrainerResponseDTO> updateTraineeTrainerList(UpdateTraineeTrainerRequestDTO updateTraineeTrainerRequestDTO) {
-        Trainee trainee = traineeRepository.findByUsername(updateTraineeTrainerRequestDTO.getTraineeUsername())
-                .orElseThrow(ResourceNotFoundException::new);
+    public List<TrainerResponseDTO> updateTraineeTrainerList(UpdateTraineeTrainerRequestDTO updateTraineeTrainerRequest) {
+        String transactionId = TransactionContext.getTransactionId();
+        String traineeUsername = updateTraineeTrainerRequest.getTraineeUsername();
+        log.info("Transaction ID: {}, Starting to update trainee trainer list with trainee username: {}",
+                transactionId, traineeUsername);
 
+        Trainee trainee = traineeRepository.findByUsername(traineeUsername)
+                .orElseThrow(ResourceNotFoundException::new);
         List<Training> trainings = trainee.getTrainings();
-        List<TrainingIdTrainerUsernamePair> trainingIdTrainerUsernamePairs = updateTraineeTrainerRequestDTO.getTrainingIdTrainerUsernamePairs();
+        List<TrainingIdTrainerUsernamePair> trainingIdTrainerUsernamePairs = updateTraineeTrainerRequest.getTrainingIdTrainerUsernamePairs();
+
         for (TrainingIdTrainerUsernamePair pair : trainingIdTrainerUsernamePairs) {
             for (Training training : trainings) {
                 if (pair.getTrainingId().equals(training.getId())) {
@@ -85,6 +117,7 @@ public class TraineeService implements TraineeSpecificOperationsService {
         }
         Trainee updatedTrainee = traineeRepository.save(trainee);
 
+        log.info("Transaction ID: {}, Successfully updated trainee trainer list with trainee username: {}", transactionId, traineeUsername);
         return updatedTrainee.getTrainings().stream().map(t -> new TrainerResponseDTO(
                 t.getTrainer().getUser().getUsername(),
                 t.getTrainer().getUser().getFirstName(),
