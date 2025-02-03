@@ -17,7 +17,10 @@ import com.epam.spring.service.base.TrainerSpecificOperationsService;
 import com.epam.spring.util.PasswordGenerator;
 import com.epam.spring.util.TransactionContext;
 import com.epam.spring.util.UsernameGenerator;
-import lombok.RequiredArgsConstructor;
+import io.micrometer.core.annotation.Timed;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +30,6 @@ import java.util.List;
 @Slf4j
 @Service
 @Transactional
-@RequiredArgsConstructor
 public class TrainerService implements TrainerSpecificOperationsService {
 
     private final UsernameGenerator usernameGenerator;
@@ -36,6 +38,34 @@ public class TrainerService implements TrainerSpecificOperationsService {
     private final PasswordGenerator passwordGenerator;
     private final TrainerMapper trainerMapper;
     private final TraineeRepository traineeRepository;
+    private final MeterRegistry meterRegistry;
+
+    // Metrics
+    private final Counter trainerCreationCounter;
+    private final Timer trainerCreationTimer;
+
+    public TrainerService(UsernameGenerator usernameGenerator,
+                          TrainerRepository trainerRepository,
+                          TrainingTypeRepository trainingTypeRepository,
+                          PasswordGenerator passwordGenerator,
+                          TrainerMapper trainerMapper,
+                          TraineeRepository traineeRepository,
+                          MeterRegistry meterRegistry) {
+        this.usernameGenerator = usernameGenerator;
+        this.trainerRepository = trainerRepository;
+        this.trainingTypeRepository = trainingTypeRepository;
+        this.passwordGenerator = passwordGenerator;
+        this.trainerMapper = trainerMapper;
+        this.traineeRepository = traineeRepository;
+        this.meterRegistry = meterRegistry;
+
+        this.trainerCreationCounter = Counter.builder("trainer_creation_total")
+                .description("Total number of trainer creations")
+                .register(meterRegistry);
+        this.trainerCreationTimer = Timer.builder("trainer_creation_duration_seconds")
+                .description("Time taken to record trainer creation")
+                .register(meterRegistry);
+    }
 
     @Override
     public UserCredentialsResponseDTO create(CreateTrainerRequestDTO createRequest) {
@@ -55,12 +85,14 @@ public class TrainerService implements TrainerSpecificOperationsService {
         trainer.setSpecialization(trainingType);
 
         Trainer createTrainer = trainerRepository.save(trainer);
+        trainerCreationCounter.increment();
         log.info("Transaction ID: {}, Successfully created trainer with username: {}", transactionId, uniqueUsername);
         return new UserCredentialsResponseDTO(createTrainer.getUser().getUsername(), createTrainer.getUser().getPassword());
     }
 
     @Override
     @Transactional(readOnly = true)
+    @Timed(value = "trainer.find.duration_seconds", description = "Time taken to get a trainer")
     public FetchTrainerResponseDTO getUserProfile(String username) {
         String transactionId = TransactionContext.getTransactionId();
         log.info("Transaction ID: {}, Fetching trainer with username: {}", transactionId, username);
@@ -73,6 +105,7 @@ public class TrainerService implements TrainerSpecificOperationsService {
     }
 
     @Override
+    @Timed(value = "trainer.update.duration_seconds", description = "Time taken to update a trainer")
     public UpdateTrainerResponseDTO updateProfile(UpdateTrainerRequestDTO updateRequest) {
         String transactionId = TransactionContext.getTransactionId();
         String username = updateRequest.getUsername();
@@ -90,6 +123,7 @@ public class TrainerService implements TrainerSpecificOperationsService {
 
     @Override
     @Transactional(readOnly = true)
+    @Timed(value = "trainer.by.trainee.duration_seconds", description = "Time taken to find unassigned trainers by trainee username")
     public List<TrainerResponseDTO> findUnassignedTrainersByTraineeUsername(String username) {
         String transactionId = TransactionContext.getTransactionId();
         log.info("Transaction ID: {}, Fetching unassigned trainers for trainee with username: {}", transactionId, username);

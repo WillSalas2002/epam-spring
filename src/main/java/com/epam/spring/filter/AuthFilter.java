@@ -33,6 +33,7 @@ public class AuthFilter implements Filter {
     private static final String SWAGGER_UI = "swagger-ui";
     private static final String FAVICON = "favicon.ico";
     private static final String API_DOCS = "api-docs";
+    private static final String ACTUATOR = "actuator";
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BASIC_AUTH_PREFIX = "Basic ";
@@ -67,7 +68,7 @@ public class AuthFilter implements Filter {
         String method = request.getMethod();
         String uri = request.getRequestURI();
         return (HTTP_POST.equalsIgnoreCase(method) && (TRAINEES_ENDPOINT.equals(uri) || TRAINERS_ENDPOINT.equals(uri))) ||
-                (HTTP_GET.equalsIgnoreCase(method) && (uri.contains(SWAGGER_UI) || uri.contains(FAVICON) || uri.contains(API_DOCS)));
+                (HTTP_GET.equalsIgnoreCase(method) && (uri.contains(SWAGGER_UI) || uri.contains(ACTUATOR) || uri.contains(FAVICON) || uri.contains(API_DOCS)));
     }
 
     private boolean isAuthorized(HttpServletRequest request) {
