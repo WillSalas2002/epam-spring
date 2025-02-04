@@ -17,7 +17,6 @@ import com.epam.spring.service.base.TrainerSpecificOperationsService;
 import com.epam.spring.util.PasswordGenerator;
 import com.epam.spring.util.TransactionContext;
 import com.epam.spring.util.UsernameGenerator;
-import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -69,30 +68,32 @@ public class TrainerService implements TrainerSpecificOperationsService {
 
     @Override
     public UserCredentialsResponseDTO create(CreateTrainerRequestDTO createRequest) {
-        String transactionId = TransactionContext.getTransactionId();
-        log.info("Transaction ID: {}, Starting trainer creation for firstName: {}, lastName: {}",
-                transactionId, createRequest.getFirstName(), createRequest.getLastName());
+        return trainerCreationTimer.record(() -> {  // Start timing
+            String transactionId = TransactionContext.getTransactionId();
+            log.info("Transaction ID: {}, Starting trainer creation for firstName: {}, lastName: {}",
+                    transactionId, createRequest.getFirstName(), createRequest.getLastName());
 
-        log.info("Transaction ID: {}, Fetching training type with id: {}", transactionId, createRequest.getTrainingTypeId());
-        TrainingType trainingType = trainingTypeRepository.findById(createRequest.getTrainingTypeId())
-                .orElseThrow(ResourceNotFoundException::new);
+            log.info("Transaction ID: {}, Fetching training type with id: {}", transactionId, createRequest.getTrainingTypeId());
+            TrainingType trainingType = trainingTypeRepository.findById(createRequest.getTrainingTypeId())
+                    .orElseThrow(ResourceNotFoundException::new);
 
-        String uniqueUsername = usernameGenerator.generateUniqueUsername(createRequest.getFirstName(), createRequest.getLastName());
-        String password = passwordGenerator.generatePassword();
+            String uniqueUsername = usernameGenerator.generateUniqueUsername(createRequest.getFirstName(), createRequest.getLastName());
+            String password = passwordGenerator.generatePassword();
 
-        log.info("Transaction ID: {}, Generated username: {}", transactionId, uniqueUsername);
-        Trainer trainer = trainerMapper.fromCreateTrainerRequestToTrainer(createRequest, uniqueUsername, password);
-        trainer.setSpecialization(trainingType);
+            log.info("Transaction ID: {}, Generated username: {}", transactionId, uniqueUsername);
+            Trainer trainer = trainerMapper.fromCreateTrainerRequestToTrainer(createRequest, uniqueUsername, password);
+            trainer.setSpecialization(trainingType);
 
-        Trainer createTrainer = trainerRepository.save(trainer);
-        trainerCreationCounter.increment();
-        log.info("Transaction ID: {}, Successfully created trainer with username: {}", transactionId, uniqueUsername);
-        return new UserCredentialsResponseDTO(createTrainer.getUser().getUsername(), createTrainer.getUser().getPassword());
+            Trainer createdTrainer = trainerRepository.save(trainer);
+            trainerCreationCounter.increment();
+            log.info("Transaction ID: {}, Successfully created trainer with username: {}", transactionId, uniqueUsername);
+
+            return new UserCredentialsResponseDTO(createdTrainer.getUser().getUsername(), createdTrainer.getUser().getPassword());
+        });
     }
 
     @Override
     @Transactional(readOnly = true)
-    @Timed(value = "trainer.find.duration_seconds", description = "Time taken to get a trainer")
     public FetchTrainerResponseDTO getUserProfile(String username) {
         String transactionId = TransactionContext.getTransactionId();
         log.info("Transaction ID: {}, Fetching trainer with username: {}", transactionId, username);
@@ -105,7 +106,6 @@ public class TrainerService implements TrainerSpecificOperationsService {
     }
 
     @Override
-    @Timed(value = "trainer.update.duration_seconds", description = "Time taken to update a trainer")
     public UpdateTrainerResponseDTO updateProfile(UpdateTrainerRequestDTO updateRequest) {
         String transactionId = TransactionContext.getTransactionId();
         String username = updateRequest.getUsername();
@@ -123,7 +123,6 @@ public class TrainerService implements TrainerSpecificOperationsService {
 
     @Override
     @Transactional(readOnly = true)
-    @Timed(value = "trainer.by.trainee.duration_seconds", description = "Time taken to find unassigned trainers by trainee username")
     public List<TrainerResponseDTO> findUnassignedTrainersByTraineeUsername(String username) {
         String transactionId = TransactionContext.getTransactionId();
         log.info("Transaction ID: {}, Fetching unassigned trainers for trainee with username: {}", transactionId, username);
