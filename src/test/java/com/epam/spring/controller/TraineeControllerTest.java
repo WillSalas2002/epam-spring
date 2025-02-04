@@ -209,8 +209,8 @@ class TraineeControllerTest {
         UpdateTraineeTrainerRequestDTO requestDTO = new UpdateTraineeTrainerRequestDTO();
         requestDTO.setTraineeUsername("traineeUser");
         requestDTO.setTrainingIdTrainerUsernamePairs(Arrays.asList(
-                new TrainingIdTrainerUsernamePair("T001", "trainer1"),
-                new TrainingIdTrainerUsernamePair("T002", "trainer2")
+                new TrainingIdTrainerUsernamePair(1L, "trainer1"),
+                new TrainingIdTrainerUsernamePair(1L, "trainer2")
         ));
 
         List<TrainerResponseDTO> expectedResponse = Arrays.asList(

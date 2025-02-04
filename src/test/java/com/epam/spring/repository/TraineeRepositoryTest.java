@@ -1,19 +1,11 @@
 package com.epam.spring.repository;
 
-import com.epam.spring.config.TestConfig;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.User;
-import com.epam.spring.repository.implnew.TraineeRepository;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,15 +17,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {TestConfig.class})
+@DataJpaTest
 class TraineeRepositoryTest {
 
     @Autowired
     private TraineeRepository traineeRepository;
-
-    @Autowired
-    private SessionFactory sessionFactory;
 
     private Trainee trainee1;
     private Trainee trainee2;
@@ -42,16 +30,6 @@ class TraineeRepositoryTest {
     void setUp() {
         trainee1 = buildTrainee("John", "Doe");
         trainee2 = buildTrainee("Will", "Salas");
-    }
-
-    @AfterEach
-    void tearDown() {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            session.createMutationQuery("DELETE FROM Trainee").executeUpdate();
-            session.createMutationQuery("DELETE FROM User").executeUpdate();
-            transaction.commit();
-        }
     }
 
     @Test

@@ -7,7 +7,6 @@ import com.epam.spring.dto.response.trainee.FetchTraineeResponseDTO;
 import com.epam.spring.dto.response.trainee.UpdateTraineeResponseDTO;
 import com.epam.spring.dto.response.trainer.TrainerResponseDTO;
 import com.epam.spring.model.Trainee;
-import com.epam.spring.model.Training;
 import com.epam.spring.model.User;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -47,27 +46,29 @@ public class TraineeMapper {
     }
 
     public UpdateTraineeResponseDTO fromTraineeToUpdateTraineeResponse(Trainee trainee) {
+        List<TrainerResponseDTO> trainers = null;
+        if (trainee.getTrainings() != null) {
+            trainers = trainee.getTrainings()
+                    .stream()
+                    .map(tgs -> new TrainerResponseDTO(
+                                    tgs.getTrainer().getUser().getUsername(),
+                                    tgs.getTrainer().getUser().getFirstName(),
+                                    tgs.getTrainer().getUser().getLastName(),
+                                    new TrainingTypeDTO(
+                                            tgs.getTrainingType().getId(),
+                                            tgs.getTrainingType().getTrainingTypeName()
+                                    )
+                            )
+
+                    ).toList();
+        }
         UpdateTraineeResponseDTO response = UpdateTraineeResponseDTO.builder()
                 .username(trainee.getUser().getUsername())
                 .firstName(trainee.getUser().getFirstName())
                 .lastName(trainee.getUser().getLastName())
                 .isActive(trainee.getUser().isActive())
                 .address(trainee.getAddress())
-                .trainers(
-                        trainee.getTrainings()
-                                .stream()
-                                .map(tgs -> new TrainerResponseDTO(
-                                                tgs.getTrainer().getUser().getUsername(),
-                                                tgs.getTrainer().getUser().getFirstName(),
-                                                tgs.getTrainer().getUser().getLastName(),
-                                                new TrainingTypeDTO(
-                                                        tgs.getTrainingType().getId(),
-                                                        tgs.getTrainingType().getTrainingTypeName()
-                                                )
-                                        )
-
-                                ).toList()
-                )
+                .trainers(trainers)
                 .build();
         if (trainee.getDataOfBirth() != null) {
             response.setDateOfBirth(String.valueOf(trainee.getDataOfBirth()));
@@ -77,14 +78,16 @@ public class TraineeMapper {
 
     public FetchTraineeResponseDTO fromTraineeToFetchTraineeResponse(Trainee trainee) {
         User user = trainee.getUser();
-        List<Training> trainings = trainee.getTrainings();
+        List<TrainerResponseDTO> trainers = null;
 
-        List<TrainerResponseDTO> trainers = trainings.stream().map(training -> new TrainerResponseDTO(
-                training.getTrainer().getUser().getUsername(),
-                training.getTrainer().getUser().getFirstName(),
-                training.getTrainer().getUser().getLastName(),
-                new TrainingTypeDTO(training.getTrainingType().getId(), training.getTrainingType().getTrainingTypeName())
-        )).toList();
+        if (trainee.getTrainings() != null) {
+            trainers = trainee.getTrainings().stream().map(training -> new TrainerResponseDTO(
+                    training.getTrainer().getUser().getUsername(),
+                    training.getTrainer().getUser().getFirstName(),
+                    training.getTrainer().getUser().getLastName(),
+                    new TrainingTypeDTO(training.getTrainingType().getId(), training.getTrainingType().getTrainingTypeName())
+            )).toList();
+        }
 
         FetchTraineeResponseDTO response = FetchTraineeResponseDTO.builder()
                 .firstName(user.getFirstName())

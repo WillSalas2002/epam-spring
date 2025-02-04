@@ -1,6 +1,5 @@
 package com.epam.spring.service;
 
-import com.epam.spring.config.TestConfig;
 import com.epam.spring.dto.request.trainee.CreateTraineeRequestDTO;
 import com.epam.spring.dto.request.trainee.UpdateTraineeRequestDTO;
 import com.epam.spring.dto.response.UserCredentialsResponseDTO;
@@ -8,33 +7,27 @@ import com.epam.spring.dto.response.trainee.FetchTraineeResponseDTO;
 import com.epam.spring.dto.response.trainee.UpdateTraineeResponseDTO;
 import com.epam.spring.error.exception.ResourceNotFoundException;
 import com.epam.spring.service.impl.TraineeService;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {TestConfig.class})
+@SpringBootTest
+@Rollback
+@Transactional
 class TraineeServiceTest {
 
     @Autowired
     private TraineeService traineeService;
-
-    @Autowired
-    private SessionFactory sessionFactory;
 
     private final String FIRST_NAME = "John";
     private final String LAST_NAME = "Doe";
@@ -43,16 +36,6 @@ class TraineeServiceTest {
     @BeforeEach
     void setUp() {
         createTraineeRequestDTO = buildCreateTraineeRequestDTO(FIRST_NAME, LAST_NAME);
-    }
-
-    @AfterEach
-    void tearDown() {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            session.createMutationQuery("DELETE FROM Trainee").executeUpdate();
-            session.createMutationQuery("DELETE FROM User").executeUpdate();
-            transaction.commit();
-        }
     }
 
     @Test
@@ -121,7 +104,7 @@ class TraineeServiceTest {
         assertEquals(FIRST_NAME, userProfile.getFirstName());
         assertEquals(LAST_NAME, userProfile.getLastName());
         assertEquals(LocalDate.now().minusYears(15).toString(), userProfile.getDateOfBirth());
-        assertTrue(userProfile.getTrainers().isEmpty());
+        assertNull(userProfile.getTrainers());
     }
 
     @Test

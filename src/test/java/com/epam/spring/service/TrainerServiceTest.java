@@ -1,6 +1,5 @@
 package com.epam.spring.service;
 
-import com.epam.spring.config.TestConfig;
 import com.epam.spring.dto.request.trainer.CreateTrainerRequestDTO;
 import com.epam.spring.dto.request.trainer.UpdateTrainerRequestDTO;
 import com.epam.spring.dto.response.UserCredentialsResponseDTO;
@@ -8,31 +7,25 @@ import com.epam.spring.dto.response.trainer.FetchTrainerResponseDTO;
 import com.epam.spring.dto.response.trainer.UpdateTrainerResponseDTO;
 import com.epam.spring.error.exception.ResourceNotFoundException;
 import com.epam.spring.service.impl.TrainerService;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {TestConfig.class})
+@SpringBootTest
+@Rollback
+@Transactional
 class TrainerServiceTest {
 
     @Autowired
     private TrainerService trainerService;
-
-    @Autowired
-    private SessionFactory sessionFactory;
 
     private CreateTrainerRequestDTO createTrainerRequestDTO;
     private final String firstName = "John";
@@ -41,16 +34,6 @@ class TrainerServiceTest {
     @BeforeEach
     void setUp() {
         createTrainerRequestDTO = buildCreateTrainerRequest(firstName, lastName);
-    }
-
-    @AfterEach
-    void tearDown() {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            session.createMutationQuery("DELETE FROM Trainer").executeUpdate();
-            session.createMutationQuery("DELETE FROM User").executeUpdate();
-            transaction.commit();
-        }
     }
 
     @Test
@@ -66,7 +49,7 @@ class TrainerServiceTest {
         return CreateTrainerRequestDTO.builder()
                 .firstName(firstName)
                 .lastName(lastName)
-                .trainingTypeId(String.valueOf(1))
+                .trainingTypeId(1L)
                 .build();
     }
 
@@ -97,7 +80,7 @@ class TrainerServiceTest {
         assertEquals(updatedFirstName, updateTrainerResponseDTO.getFirstName());
         assertEquals(updateLastName, updateTrainerResponseDTO.getLastName());
         assertEquals(Boolean.TRUE, updateTrainerResponseDTO.getActive());
-        assertTrue(updateTrainerResponseDTO.getTrainees().isEmpty());
+        assertNull(updateTrainerResponseDTO.getTrainees());
     }
 
     @Test

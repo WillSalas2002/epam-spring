@@ -1,24 +1,14 @@
 package com.epam.spring.repository;
 
-import com.epam.spring.config.TestConfig;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
 import com.epam.spring.model.TrainingType;
 import com.epam.spring.model.User;
-import com.epam.spring.repository.implnew.TraineeRepository;
-import com.epam.spring.repository.implnew.TrainerRepository;
-import com.epam.spring.repository.implnew.TrainingRepository;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,8 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {TestConfig.class})
+@DataJpaTest
 class TrainingRepositoryTest {
 
     @Autowired
@@ -38,28 +27,18 @@ class TrainingRepositoryTest {
     private TrainerRepository trainerRepository;
     @Autowired
     private TraineeRepository traineeRepository;
-    @Autowired
-    private SessionFactory sessionFactory;
 
     private Trainer trainer;
     private Trainee trainee;
+    @Autowired
+    private TrainingTypeRepository trainingTypeRepository;
 
     @BeforeEach
     void setUp() {
+        TrainingType trainingType = trainingTypeRepository.findById(1L).get();
         trainer = buildTrainer("Will", "Salas");
+        trainer.setSpecialization(trainingType);
         trainee = buildTrainee("Adam", "Simpson");
-    }
-
-    @AfterEach
-    void tearDown() {
-        try(Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            session.createMutationQuery("DELETE FROM Training").executeUpdate();
-            session.createMutationQuery("DELETE FROM Trainer").executeUpdate();
-            session.createMutationQuery("DELETE FROM Trainee").executeUpdate();
-            session.createMutationQuery("DELETE FROM User").executeUpdate();
-            transaction.commit();
-        }
     }
 
     @Test
@@ -83,7 +62,9 @@ class TrainingRepositoryTest {
     public void testFindTraineeTrainings() {
         Trainee createdTrainee = traineeRepository.save(trainee);
         Trainer createdTrainer = trainerRepository.save(trainer);
-        Trainer createdTrainer2 = trainerRepository.save(buildTrainer("Kim", "Young"));
+        Trainer trainer2 = buildTrainer("Kim", "Young");
+        trainer2.setSpecialization(trainingTypeRepository.findById(2L).get());
+        Trainer createdTrainer2 = trainerRepository.save(trainer2);
         TrainingType trainingType1 = new TrainingType();
         trainingType1.setId(1L);
         TrainingType trainingType2 = new TrainingType();
@@ -159,7 +140,6 @@ class TrainingRepositoryTest {
     private static TrainingType buildTrainingType() {
         return TrainingType.builder()
                 .id(1L)
-                .trainingTypeName("Cardio")
                 .build();
     }
 

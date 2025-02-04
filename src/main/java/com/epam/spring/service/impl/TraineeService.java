@@ -91,7 +91,9 @@ public class TraineeService implements TraineeSpecificOperationsService {
     public void deleteByUsername(String username) {
         log.info("Transaction ID: {}, Deleting trainee with username: {}",
                 TransactionContext.getTransactionId(), username);
-        traineeRepository.deleteByUsername(username);
+        Trainee trainee = traineeRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException(username));
+        traineeRepository.delete(trainee);
     }
 
     @Override
