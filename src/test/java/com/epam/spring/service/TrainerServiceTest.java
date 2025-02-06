@@ -1,11 +1,14 @@
 package com.epam.spring.service;
 
+import com.epam.spring.dto.request.trainee.CreateTraineeRequestDTO;
 import com.epam.spring.dto.request.trainer.CreateTrainerRequestDTO;
 import com.epam.spring.dto.request.trainer.UpdateTrainerRequestDTO;
 import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.dto.response.trainer.FetchTrainerResponseDTO;
+import com.epam.spring.dto.response.trainer.TrainerResponseDTO;
 import com.epam.spring.dto.response.trainer.UpdateTrainerResponseDTO;
 import com.epam.spring.error.exception.ResourceNotFoundException;
+import com.epam.spring.service.impl.TraineeService;
 import com.epam.spring.service.impl.TrainerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -30,6 +35,8 @@ class TrainerServiceTest {
     private CreateTrainerRequestDTO createTrainerRequestDTO;
     private final String firstName = "John";
     private final String lastName = "Doe";
+    @Autowired
+    private TraineeService traineeService;
 
     @BeforeEach
     void setUp() {
@@ -98,5 +105,17 @@ class TrainerServiceTest {
         assertNotNull(userProfile);
         assertEquals(firstName, userProfile.getFirstName());
         assertEquals(lastName, userProfile.getLastName());
+    }
+
+    @Test
+    void findUnassignedTrainersByTraineeUsername() {
+        UserCredentialsResponseDTO createdTrainer = trainerService.create(createTrainerRequestDTO);
+        UserCredentialsResponseDTO createdTrainee = traineeService.create(new CreateTraineeRequestDTO("TraineeF", "TraineeL", null, null));
+
+        List<TrainerResponseDTO> unassignedTrainers = trainerService.findUnassignedTrainersByTraineeUsername(createdTrainee.getUsername());
+
+        assertNotNull(unassignedTrainers);
+        assertEquals(1, unassignedTrainers.size());
+        assertEquals(createdTrainer.getUsername(), unassignedTrainers.get(0).getUsername());
     }
 }
