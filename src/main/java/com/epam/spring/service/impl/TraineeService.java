@@ -22,6 +22,7 @@ import com.epam.spring.util.TransactionContext;
 import com.epam.spring.util.UsernameGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +39,7 @@ public class TraineeService implements TraineeSpecificOperationsService {
     private final TraineeRepository traineeRepository;
     private final PasswordGenerator passwordGenerator;
     private final TrainerRepository trainerRepository;
+    private final PasswordEncoder passwordEncoder;
     private final TraineeMapper traineeMapper;
 
     @Override
@@ -50,7 +52,7 @@ public class TraineeService implements TraineeSpecificOperationsService {
         String password = passwordGenerator.generatePassword();
 
         log.info("Transaction ID: {}, Generated username: {}", transactionId, uniqueUsername);
-        Trainee trainee = traineeMapper.fromCreateTraineeRequestToTrainee(createRequest, uniqueUsername, password);
+        Trainee trainee = traineeMapper.fromCreateTraineeRequestToTrainee(createRequest, uniqueUsername, passwordEncoder.encode(password));
 
         traineeRepository.save(trainee);
         log.info("Transaction ID: {}, Successfully saved trainee with username: {}", transactionId, uniqueUsername);

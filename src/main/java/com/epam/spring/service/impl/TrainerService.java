@@ -21,6 +21,7 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,9 +38,8 @@ public class TrainerService implements TrainerSpecificOperationsService {
     private final PasswordGenerator passwordGenerator;
     private final TrainerMapper trainerMapper;
     private final TraineeRepository traineeRepository;
-    private final MeterRegistry meterRegistry;
+    private final PasswordEncoder passwordEncoder;
 
-    // Metrics
     private final Counter trainerCreationCounter;
     private final Timer trainerCreationTimer;
 
@@ -49,6 +49,7 @@ public class TrainerService implements TrainerSpecificOperationsService {
                           PasswordGenerator passwordGenerator,
                           TrainerMapper trainerMapper,
                           TraineeRepository traineeRepository,
+                          PasswordEncoder passwordEncoder,
                           MeterRegistry meterRegistry) {
         this.usernameGenerator = usernameGenerator;
         this.trainerRepository = trainerRepository;
@@ -56,7 +57,7 @@ public class TrainerService implements TrainerSpecificOperationsService {
         this.passwordGenerator = passwordGenerator;
         this.trainerMapper = trainerMapper;
         this.traineeRepository = traineeRepository;
-        this.meterRegistry = meterRegistry;
+        this.passwordEncoder = passwordEncoder;
 
         this.trainerCreationCounter = Counter.builder("trainer_creation_total")
                 .description("Total number of trainer creations")
@@ -81,14 +82,14 @@ public class TrainerService implements TrainerSpecificOperationsService {
             String password = passwordGenerator.generatePassword();
 
             log.info("Transaction ID: {}, Generated username: {}", transactionId, uniqueUsername);
-            Trainer trainer = trainerMapper.fromCreateTrainerRequestToTrainer(createRequest, uniqueUsername, password);
+            Trainer trainer = trainerMapper.fromCreateTrainerRequestToTrainer(createRequest, uniqueUsername, passwordEncoder.encode(password));
             trainer.setSpecialization(trainingType);
 
-            Trainer createdTrainer = trainerRepository.save(trainer);
+            trainerRepository.save(trainer);
             trainerCreationCounter.increment();
             log.info("Transaction ID: {}, Successfully created trainer with username: {}", transactionId, uniqueUsername);
 
-            return new UserCredentialsResponseDTO(createdTrainer.getUser().getUsername(), createdTrainer.getUser().getPassword());
+            return new UserCredentialsResponseDTO(uniqueUsername, password);
         });
     }
 
