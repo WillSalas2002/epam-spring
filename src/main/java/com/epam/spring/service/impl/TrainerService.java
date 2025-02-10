@@ -8,11 +8,16 @@ import com.epam.spring.dto.response.trainer.TrainerResponseDTO;
 import com.epam.spring.dto.response.trainer.UpdateTrainerResponseDTO;
 import com.epam.spring.error.exception.ResourceNotFoundException;
 import com.epam.spring.mapper.TrainerMapper;
+import com.epam.spring.model.Token;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.TrainingType;
+import com.epam.spring.model.User;
+import com.epam.spring.repository.TokenRepository;
 import com.epam.spring.repository.TraineeRepository;
 import com.epam.spring.repository.TrainerRepository;
 import com.epam.spring.repository.TrainingTypeRepository;
+import com.epam.spring.service.JwtService;
+import com.epam.spring.service.MyUserPrincipal;
 import com.epam.spring.service.base.TrainerSpecificOperationsService;
 import com.epam.spring.util.PasswordGenerator;
 import com.epam.spring.util.TransactionContext;
@@ -32,24 +37,28 @@ import java.util.List;
 @Transactional
 public class TrainerService implements TrainerSpecificOperationsService {
 
+    private final TokenRepository tokenRepository;
     private final UsernameGenerator usernameGenerator;
     private final TrainerRepository trainerRepository;
+    private final TraineeRepository traineeRepository;
     private final TrainingTypeRepository trainingTypeRepository;
+    private final JwtService jwtService;
     private final PasswordGenerator passwordGenerator;
     private final TrainerMapper trainerMapper;
-    private final TraineeRepository traineeRepository;
     private final PasswordEncoder passwordEncoder;
 
     private final Counter trainerCreationCounter;
     private final Timer trainerCreationTimer;
 
     public TrainerService(UsernameGenerator usernameGenerator,
+                          TokenRepository tokenRepository,
                           TrainerRepository trainerRepository,
-                          TrainingTypeRepository trainingTypeRepository,
-                          PasswordGenerator passwordGenerator,
-                          TrainerMapper trainerMapper,
                           TraineeRepository traineeRepository,
+                          TrainingTypeRepository trainingTypeRepository,
+                          TrainerMapper trainerMapper,
+                          PasswordGenerator passwordGenerator,
                           PasswordEncoder passwordEncoder,
+                          JwtService jwtService,
                           MeterRegistry meterRegistry) {
         this.usernameGenerator = usernameGenerator;
         this.trainerRepository = trainerRepository;
@@ -57,7 +66,9 @@ public class TrainerService implements TrainerSpecificOperationsService {
         this.passwordGenerator = passwordGenerator;
         this.trainerMapper = trainerMapper;
         this.traineeRepository = traineeRepository;
+        this.tokenRepository = tokenRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
 
         this.trainerCreationCounter = Counter.builder("trainer_creation_total")
                 .description("Total number of trainer creations")
@@ -69,7 +80,7 @@ public class TrainerService implements TrainerSpecificOperationsService {
 
     @Override
     public UserCredentialsResponseDTO create(CreateTrainerRequestDTO createRequest) {
-        return trainerCreationTimer.record(() -> {  // Start timing
+        return trainerCreationTimer.record(() -> {
             String transactionId = TransactionContext.getTransactionId();
             log.info("Transaction ID: {}, Starting trainer creation for firstName: {}, lastName: {}",
                     transactionId, createRequest.getFirstName(), createRequest.getLastName());
@@ -85,12 +96,24 @@ public class TrainerService implements TrainerSpecificOperationsService {
             Trainer trainer = trainerMapper.fromCreateTrainerRequestToTrainer(createRequest, uniqueUsername, passwordEncoder.encode(password));
             trainer.setSpecialization(trainingType);
 
-            trainerRepository.save(trainer);
+            Trainer savedTrainer = trainerRepository.save(trainer);
+            User user = savedTrainer.getUser();
+            String generatedToken = jwtService.generateToken(new MyUserPrincipal(user));
+            saveToken(generatedToken, user);
             trainerCreationCounter.increment();
             log.info("Transaction ID: {}, Successfully created trainer with username: {}", transactionId, uniqueUsername);
 
             return new UserCredentialsResponseDTO(uniqueUsername, password);
         });
+    }
+
+    private void saveToken(String token, User user) {
+        tokenRepository.save(Token.builder()
+                .token(token)
+                .expired(false)
+                .revoked(false)
+                .user(user)
+                .build());
     }
 
     @Override

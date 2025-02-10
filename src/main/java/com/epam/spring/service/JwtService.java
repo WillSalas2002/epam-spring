@@ -1,7 +1,5 @@
-package com.epam.spring.util;
+package com.epam.spring.service;
 
-import com.epam.spring.dto.response.JwtAuthenticationResponse;
-import com.epam.spring.service.MyUserPrincipal;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -18,7 +16,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Component
-public class JwtUtil {
+public class JwtService {
 
     @Value("${token.signing.key}")
     private String jwtSigningKey;
@@ -42,12 +40,12 @@ public class JwtUtil {
      * @param userDetails данные пользователя
      * @return токен
      */
-    public JwtAuthenticationResponse generateToken(UserDetails userDetails) {
+    public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         if (userDetails instanceof MyUserPrincipal customUserDetails) {
             claims.put("username", customUserDetails.getUsername());
         }
-        return new JwtAuthenticationResponse(generateToken(claims, userDetails));
+        return generateToken(claims, userDetails);
     }
 
     /**

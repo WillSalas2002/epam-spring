@@ -11,11 +11,16 @@ import com.epam.spring.dto.response.trainee.UpdateTraineeResponseDTO;
 import com.epam.spring.dto.response.trainer.TrainerResponseDTO;
 import com.epam.spring.error.exception.ResourceNotFoundException;
 import com.epam.spring.mapper.TraineeMapper;
+import com.epam.spring.model.Token;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
+import com.epam.spring.model.User;
+import com.epam.spring.repository.TokenRepository;
 import com.epam.spring.repository.TraineeRepository;
 import com.epam.spring.repository.TrainerRepository;
+import com.epam.spring.service.JwtService;
+import com.epam.spring.service.MyUserPrincipal;
 import com.epam.spring.service.base.TraineeSpecificOperationsService;
 import com.epam.spring.util.PasswordGenerator;
 import com.epam.spring.util.TransactionContext;
@@ -39,8 +44,10 @@ public class TraineeService implements TraineeSpecificOperationsService {
     private final TraineeRepository traineeRepository;
     private final PasswordGenerator passwordGenerator;
     private final TrainerRepository trainerRepository;
+    private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final TraineeMapper traineeMapper;
+    private final JwtService jwtService;
 
     @Override
     public UserCredentialsResponseDTO create(CreateTraineeRequestDTO createRequest) {
@@ -54,10 +61,22 @@ public class TraineeService implements TraineeSpecificOperationsService {
         log.info("Transaction ID: {}, Generated username: {}", transactionId, uniqueUsername);
         Trainee trainee = traineeMapper.fromCreateTraineeRequestToTrainee(createRequest, uniqueUsername, passwordEncoder.encode(password));
 
-        traineeRepository.save(trainee);
+        Trainee trainer = traineeRepository.save(trainee);
+        User user = trainer.getUser();
+        String generatedToken = jwtService.generateToken(new MyUserPrincipal(user));
+        saveToken(generatedToken, user);
         log.info("Transaction ID: {}, Successfully saved trainee with username: {}", transactionId, uniqueUsername);
 
         return new UserCredentialsResponseDTO(uniqueUsername, password);
+    }
+
+    private void saveToken(String token, User user) {
+        tokenRepository.save(Token.builder()
+                .token(token)
+                .expired(false)
+                .revoked(false)
+                .user(user)
+                .build());
     }
 
     @Override
