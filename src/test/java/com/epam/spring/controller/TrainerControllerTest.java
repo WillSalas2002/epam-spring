@@ -98,7 +98,7 @@ class TrainerControllerTest {
 
     @Test
     public void testUpdateProfile() throws Exception {
-        UpdateTrainerRequestDTO request = new UpdateTrainerRequestDTO("trainerUser", "John", "Doe", "1L", true);
+        UpdateTrainerRequestDTO request = new UpdateTrainerRequestDTO("trainerUser", "John", "Doe", "1", true);
         UpdateTrainerResponseDTO expectedResponse = new UpdateTrainerResponseDTO("trainerUser", "John", "Doe", new TrainingTypeDTO(1L, "Fitness"), true, new ArrayList<>());
 
         when(trainerService.updateProfile(any())).thenReturn(expectedResponse);

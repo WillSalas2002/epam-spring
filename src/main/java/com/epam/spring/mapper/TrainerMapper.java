@@ -28,7 +28,6 @@ public class TrainerMapper {
                         .password(password)
                         .isActive(Boolean.FALSE)
                         .build())
-                .specialization(TrainingType.builder().id(Long.valueOf(createRequest.getTrainingTypeId())).build())
                 .build();
     }
 
@@ -55,28 +54,35 @@ public class TrainerMapper {
     }
 
     public UpdateTrainerResponseDTO fromTrainerToUpdatedTrainerResponse(Trainer trainer) {
+        List<TraineeResponseDTO> trainees = null;
+        if (trainer.getTrainings() != null) {
+            trainees = trainer.getTrainings().stream()
+                    .map(training -> new TraineeResponseDTO(
+                            training.getTrainee().getUser().getUsername(),
+                            training.getTrainee().getUser().getFirstName(),
+                            training.getTrainee().getUser().getFirstName()
+                    )).toList();
+        }
         return UpdateTrainerResponseDTO.builder()
                 .firstName(trainer.getUser().getFirstName())
                 .lastName(trainer.getUser().getLastName())
                 .username(trainer.getUser().getUsername())
                 .active(trainer.getUser().isActive())
                 .specialization(new TrainingTypeDTO(trainer.getSpecialization().getId(), trainer.getSpecialization().getTrainingTypeName()))
-                .trainees(trainer.getTrainings().stream()
-                        .map(training -> new TraineeResponseDTO(
-                                training.getTrainee().getUser().getUsername(),
-                                training.getTrainee().getUser().getFirstName(),
-                                training.getTrainee().getUser().getFirstName()
-                        )).toList())
+                .trainees(trainees)
                 .build();
     }
 
     public FetchTrainerResponseDTO fromTrainerToFetchTrainerResponse(Trainer trainer) {
-        List<TraineeResponseDTO> trainees = trainer.getTrainings().stream()
-                .map(training -> new TraineeResponseDTO(
-                        training.getTrainee().getUser().getUsername(),
-                        training.getTrainee().getUser().getFirstName(),
-                        training.getTrainee().getUser().getLastName()
-                )).toList();
+        List<TraineeResponseDTO> trainees = null;
+        if (trainer.getTrainings() != null) {
+            trainees = trainer.getTrainings().stream()
+                    .map(training -> new TraineeResponseDTO(
+                            training.getTrainee().getUser().getUsername(),
+                            training.getTrainee().getUser().getFirstName(),
+                            training.getTrainee().getUser().getLastName()
+                    )).toList();
+        }
         return FetchTrainerResponseDTO.builder()
                 .firstName(trainer.getUser().getFirstName())
                 .lastName(trainer.getUser().getLastName())

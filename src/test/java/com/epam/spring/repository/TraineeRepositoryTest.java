@@ -1,19 +1,11 @@
 package com.epam.spring.repository;
 
-import com.epam.spring.config.TestConfig;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.User;
-import com.epam.spring.repository.impl.TraineeRepository;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,15 +17,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {TestConfig.class})
+@DataJpaTest
 class TraineeRepositoryTest {
 
     @Autowired
     private TraineeRepository traineeRepository;
-
-    @Autowired
-    private SessionFactory sessionFactory;
 
     private Trainee trainee1;
     private Trainee trainee2;
@@ -44,19 +32,9 @@ class TraineeRepositoryTest {
         trainee2 = buildTrainee("Will", "Salas");
     }
 
-    @AfterEach
-    void tearDown() {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            session.createMutationQuery("DELETE FROM Trainee").executeUpdate();
-            session.createMutationQuery("DELETE FROM User").executeUpdate();
-            transaction.commit();
-        }
-    }
-
     @Test
     void testCreate() {
-        Trainee createdTrainee = traineeRepository.create(trainee1);
+        Trainee createdTrainee = traineeRepository.save(trainee1);
 
         assertNotNull(createdTrainee.getId());
         assertEquals(trainee1.getUser().getFirstName(), createdTrainee.getUser().getFirstName());
@@ -65,8 +43,8 @@ class TraineeRepositoryTest {
 
     @Test
     void testFindAll() {
-        traineeRepository.create(trainee1);
-        traineeRepository.create(trainee2);
+        traineeRepository.save(trainee1);
+        traineeRepository.save(trainee2);
 
         List<Trainee> trainees = traineeRepository.findAll();
 
@@ -77,7 +55,7 @@ class TraineeRepositoryTest {
 
     @Test
     void testFindById() {
-        Trainee createdTrainee = traineeRepository.create(trainee1);
+        Trainee createdTrainee = traineeRepository.save(trainee1);
 
         Optional<Trainee> traineeByIdOptional = traineeRepository.findById(createdTrainee.getId());
 
@@ -101,12 +79,12 @@ class TraineeRepositoryTest {
         String expectedLastName = "Name";
         String expectedAddress = "New Address";
 
-        Trainee createdTrainee = traineeRepository.create(trainee1);
+        Trainee createdTrainee = traineeRepository.save(trainee1);
 
         createdTrainee.getUser().setFirstName(expectedFirstName);
         createdTrainee.getUser().setLastName(expectedLastName);
         createdTrainee.setAddress(expectedAddress);
-        Trainee updatedTrainee = traineeRepository.update(createdTrainee);
+        Trainee updatedTrainee = traineeRepository.save(createdTrainee);
 
         assertEquals(createdTrainee.getId(), updatedTrainee.getId());
         assertEquals(expectedFirstName, updatedTrainee.getUser().getFirstName());
@@ -116,7 +94,7 @@ class TraineeRepositoryTest {
 
     @Test
     void testDelete() {
-        Trainee createdTrainee = traineeRepository.create(trainee1);
+        Trainee createdTrainee = traineeRepository.save(trainee1);
 
         traineeRepository.delete(createdTrainee);
 
@@ -131,12 +109,12 @@ class TraineeRepositoryTest {
 
     @Test
     void testMultipleOperations() {
-        Trainee createdTrainee1 = traineeRepository.create(trainee1);
+        Trainee createdTrainee1 = traineeRepository.save(trainee1);
 
         createdTrainee1.setAddress("New Address");
-        Trainee updatedTrainee1 = traineeRepository.update(createdTrainee1);
+        Trainee updatedTrainee1 = traineeRepository.save(createdTrainee1);
 
-        traineeRepository.create(trainee2);
+        traineeRepository.save(trainee2);
 
         List<Trainee> trainees = traineeRepository.findAll();
         Optional<Trainee> foundTraineeOptional = traineeRepository.findById(createdTrainee1.getId());

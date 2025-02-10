@@ -10,5 +10,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ResourceNotFoundException extends RuntimeException {
-    private String message;
+    private String username;
 }

@@ -1,6 +1,5 @@
 package com.epam.spring.service;
 
-import com.epam.spring.config.TestConfig;
 import com.epam.spring.dto.request.trainee.CreateTraineeRequestDTO;
 import com.epam.spring.dto.request.trainer.CreateTrainerRequestDTO;
 import com.epam.spring.dto.request.training.CreateTrainingRequestDTO;
@@ -11,30 +10,25 @@ import com.epam.spring.dto.response.training.FetchUserTrainingsResponseDTO;
 import com.epam.spring.service.impl.TraineeService;
 import com.epam.spring.service.impl.TrainerService;
 import com.epam.spring.service.impl.TrainingService;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {TestConfig.class})
+@SpringBootTest
+@Rollback
+@Transactional
 class TrainingServiceTest {
 
     @Autowired
     private TrainingService trainingService;
-    @Autowired
-    private SessionFactory sessionFactory;
     @Autowired
     private TraineeService traineeService;
     @Autowired
@@ -46,19 +40,7 @@ class TrainingServiceTest {
     @BeforeEach
     void setUp() {
         createTraineeRequest = buildCreateTraineeRequestDTO("Trainee", "Trainee");
-        createTrainerRequest = buildCreateTrainerRequest("Trainer", "Trainer", "1");
-    }
-
-    @AfterEach
-    void tearDown() {
-        try(Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            session.createMutationQuery("DELETE FROM Training").executeUpdate();
-            session.createMutationQuery("DELETE FROM Trainer").executeUpdate();
-            session.createMutationQuery("DELETE FROM Trainee").executeUpdate();
-            session.createMutationQuery("DELETE FROM User").executeUpdate();
-            transaction.commit();
-        }
+        createTrainerRequest = buildCreateTrainerRequest("Trainer", "Trainer", 1L);
     }
 
     @Test
@@ -68,7 +50,7 @@ class TrainingServiceTest {
 
         CreateTrainingRequestDTO trainingRequest1 = buildTrainingRequest(traineeResponse.getUsername(), trainerResponse.getUsername());
 
-        CreateTrainerRequestDTO trainerRequest2 = buildCreateTrainerRequest("Trainer2", "Trainer2", "2");
+        CreateTrainerRequestDTO trainerRequest2 = buildCreateTrainerRequest("Trainer2", "Trainer2", 2L);
         UserCredentialsResponseDTO trainerResponse2 = trainerService.create(trainerRequest2);
         CreateTrainingRequestDTO trainingRequest2 = buildTrainingRequest(traineeResponse.getUsername(), trainerResponse2.getUsername());
 
@@ -104,7 +86,7 @@ class TrainingServiceTest {
                 .build();
     }
 
-    private static CreateTrainerRequestDTO buildCreateTrainerRequest(String firstName, String lastName, String trainingTypeId) {
+    private static CreateTrainerRequestDTO buildCreateTrainerRequest(String firstName, String lastName, Long trainingTypeId) {
         return CreateTrainerRequestDTO.builder()
                 .firstName(firstName)
                 .lastName(lastName)

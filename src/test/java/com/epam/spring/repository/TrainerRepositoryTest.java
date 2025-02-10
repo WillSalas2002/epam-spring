@@ -1,20 +1,12 @@
 package com.epam.spring.repository;
 
-import com.epam.spring.config.TestConfig;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.TrainingType;
 import com.epam.spring.model.User;
-import com.epam.spring.repository.impl.TrainerRepository;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,38 +16,29 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {TestConfig.class})
+@DataJpaTest
 class TrainerRepositoryTest {
 
     @Autowired
     private TrainerRepository trainerRepository;
 
-    @Autowired
-    private SessionFactory sessionFactory;
-
     private Trainer trainer1;
     private Trainer trainer2;
+    @Autowired
+    private TrainingTypeRepository trainingTypeRepository;
 
     @BeforeEach
     void setUp() {
+        TrainingType trainingType = trainingTypeRepository.findById(1L).get();
         trainer1 = buildTrainer("John", "Doe");
+        trainer1.setSpecialization(trainingType);
         trainer2 = buildTrainer("Will", "Salas");
-    }
-
-    @AfterEach
-    void tearDown() {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            session.createMutationQuery("DELETE FROM Trainer").executeUpdate();
-            session.createMutationQuery("DELETE FROM User").executeUpdate();
-            transaction.commit();
-        }
+        trainer2.setSpecialization(trainingType);
     }
 
     @Test
     void testCreate() {
-        Trainer createdTrainer = trainerRepository.create(trainer1);
+        Trainer createdTrainer = trainerRepository.save(trainer1);
 
         assertNotNull(createdTrainer.getId());
         assertNotNull(createdTrainer.getUser().getId());
@@ -65,8 +48,8 @@ class TrainerRepositoryTest {
 
     @Test
     void testFindAll() {
-        trainerRepository.create(trainer1);
-        trainerRepository.create(trainer2);
+        trainerRepository.save(trainer1);
+        trainerRepository.save(trainer2);
 
         List<Trainer> trainers = trainerRepository.findAll();
 
@@ -77,7 +60,7 @@ class TrainerRepositoryTest {
 
     @Test
     void testFindById() {
-        Trainer createdTrainer = trainerRepository.create(trainer1);
+        Trainer createdTrainer = trainerRepository.save(trainer1);
 
         Optional<Trainer> foundTrainerOptional = trainerRepository.findById(createdTrainer.getId());
 
@@ -94,11 +77,11 @@ class TrainerRepositoryTest {
 
     @Test
     void testUpdate() {
-        Trainer createdTrainer = trainerRepository.create(trainer1);
+        Trainer createdTrainer = trainerRepository.save(trainer1);
 
         createdTrainer.getUser().setFirstName("Updated");
         createdTrainer.getUser().setLastName("Name");
-        Trainer updatedTrainer = trainerRepository.update(createdTrainer);
+        Trainer updatedTrainer = trainerRepository.save(createdTrainer);
 
         assertEquals(createdTrainer.getUser().getId(), updatedTrainer.getUser().getId());
         assertEquals("Updated", updatedTrainer.getUser().getFirstName());
@@ -107,7 +90,7 @@ class TrainerRepositoryTest {
 
     @Test
     void testDelete() {
-        Trainer createdTrainer = trainerRepository.create(trainer1);
+        Trainer createdTrainer = trainerRepository.save(trainer1);
 
         trainerRepository.delete(createdTrainer);
 
@@ -121,13 +104,13 @@ class TrainerRepositoryTest {
 
     @Test
     void testMultipleOperations() {
-        Trainer createdTrainer1 = trainerRepository.create(trainer1);
+        Trainer createdTrainer1 = trainerRepository.save(trainer1);
 
         String expectedName = "Adam";
         createdTrainer1.getUser().setFirstName(expectedName);
-        Trainer updatedTrainer1 = trainerRepository.update(createdTrainer1);
+        Trainer updatedTrainer1 = trainerRepository.save(createdTrainer1);
 
-        trainerRepository.create(trainer2);
+        trainerRepository.save(trainer2);
 
         List<Trainer> trainers = trainerRepository.findAll();
         Optional<Trainer> foundTrainerOptional = trainerRepository.findById(createdTrainer1.getId());
@@ -151,14 +134,6 @@ class TrainerRepositoryTest {
                         .isActive(true)
                         .build()
                 )
-                .specialization(buildTrainingType())
-                .build();
-    }
-
-    private static TrainingType buildTrainingType() {
-        return TrainingType.builder()
-                .id(1L)
-                .trainingTypeName("Cardio")
                 .build();
     }
 }

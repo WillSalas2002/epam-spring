@@ -9,18 +9,20 @@ import com.epam.spring.mapper.TrainingMapper;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
-import com.epam.spring.repository.impl.TraineeRepository;
-import com.epam.spring.repository.impl.TrainerRepository;
-import com.epam.spring.repository.impl.TrainingRepository;
+import com.epam.spring.repository.TraineeRepository;
+import com.epam.spring.repository.TrainerRepository;
+import com.epam.spring.repository.TrainingRepository;
 import com.epam.spring.service.base.TrainingSpecificOperationsService;
+import com.epam.spring.util.TransactionContext;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
+@Transactional
 @AllArgsConstructor
 @Service
 public class TrainingService implements TrainingSpecificOperationsService {
@@ -34,43 +36,60 @@ public class TrainingService implements TrainingSpecificOperationsService {
     public void create(CreateTrainingRequestDTO createTrainingRequest) {
         String traineeUsername = createTrainingRequest.getTraineeUsername();
         String trainerUsername = createTrainingRequest.getTrainerUsername();
+        String transactionId = TransactionContext.getTransactionId();
+        log.info("Transaction ID: {}, Starting creation of training for trainee: {}, trainer: {}",
+                transactionId, traineeUsername, trainerUsername);
 
-        Trainee trainee = traineeRepository.findByUsername(traineeUsername).orElseThrow(ResourceNotFoundException::new);
-        Trainer trainer = trainerRepository.findByUsername(trainerUsername).orElseThrow(ResourceNotFoundException::new);
+        Trainee trainee = traineeRepository.findByUsername(traineeUsername).orElseThrow(() -> new ResourceNotFoundException(traineeUsername));
+        Trainer trainer = trainerRepository.findByUsername(trainerUsername).orElseThrow(() -> new ResourceNotFoundException(trainerUsername));
+        Training training = trainingMapper.fromCreateTrainingRequestToTraining(createTrainingRequest, trainee, trainer);
 
-        Training training = Training.builder()
-                .trainee(trainee)
-                .trainer(trainer)
-                .name(createTrainingRequest.getTrainingName())
-                .trainingType(trainer.getSpecialization())
-                .duration(Integer.valueOf(createTrainingRequest.getDuration()))
-                .date(LocalDate.parse(createTrainingRequest.getTrainingDate()))
-                .build();
-        trainingRepository.create(training);
+        trainingRepository.save(training);
+        log.info("Transaction ID: {}, Successfully created training with id: {}", transactionId, training.getId());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<FetchUserTrainingsResponseDTO> findTraineeTrainings(FetchTraineeTrainingsRequestDTO fetchTraineeTrainingsRequest) {
-        traineeRepository.findByUsername(fetchTraineeTrainingsRequest.getTraineeUsername()).orElseThrow(ResourceNotFoundException::new);
+        String transactionId = TransactionContext.getTransactionId();
+        String traineeUsername = fetchTraineeTrainingsRequest.getTraineeUsername();
+        log.info("Transaction ID: {}, Fetching trainings for trainee: {}",
+                transactionId, traineeUsername);
+
+        traineeRepository.findByUsername(traineeUsername)
+                .orElseThrow(() -> new ResourceNotFoundException(traineeUsername));
+
         List<Training> traineeTrainings = trainingRepository.findTraineeTrainings(
-                fetchTraineeTrainingsRequest.getTraineeUsername(),
+                traineeUsername,
                 fetchTraineeTrainingsRequest.getFromDate(),
                 fetchTraineeTrainingsRequest.getToDate(),
                 fetchTraineeTrainingsRequest.getTrainerUsername(),
                 fetchTraineeTrainingsRequest.getTrainingTypeName()
         );
+        log.info("Transaction ID: {}, Successfully fetched trainings for trainee: {}, size: {}",
+                transactionId, traineeUsername, traineeTrainings.size());
         return trainingMapper.fromUserListToFetchUserTrainingsResponseList(traineeTrainings);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<FetchUserTrainingsResponseDTO> findTrainerTrainings(FetchTrainerTrainingsRequestDTO fetchTrainerTrainingsRequest) {
-        trainerRepository.findByUsername(fetchTrainerTrainingsRequest.getTrainerUsername()).orElseThrow(ResourceNotFoundException::new);
+        String transactionId = TransactionContext.getTransactionId();
+        String trainerUsername = fetchTrainerTrainingsRequest.getTrainerUsername();
+        log.info("Transaction ID: {}, Fetching trainings for trainer: {}",
+                transactionId, trainerUsername);
+
+        trainerRepository.findByUsername(fetchTrainerTrainingsRequest.getTrainerUsername())
+                .orElseThrow(() -> new ResourceNotFoundException(trainerUsername));
+
         List<Training> trainerTrainings = trainingRepository.findTrainerTrainings(
-                fetchTrainerTrainingsRequest.getTrainerUsername(),
+                trainerUsername,
                 fetchTrainerTrainingsRequest.getFromDate(),
                 fetchTrainerTrainingsRequest.getToDate(),
                 fetchTrainerTrainingsRequest.getTraineeUsername()
         );
+        log.info("Transaction ID: {}, Successfully fetched trainings for trainer: {}, size: {}",
+                transactionId, trainerUsername, trainerTrainings.size());
         return trainingMapper.fromUserListToFetchUserTrainingsResponseList(trainerTrainings);
     }
 }
