@@ -1,7 +1,7 @@
 package com.epam.spring.config;
 
 import com.epam.spring.filter.JwtAuthenticationFilter;
-import com.epam.spring.service.CustomUserDetailsService;
+import com.epam.spring.service.auth.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

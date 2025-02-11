@@ -1,7 +1,7 @@
 package com.epam.spring.filter;
 
 import com.epam.spring.repository.TokenRepository;
-import com.epam.spring.service.JwtService;
+import com.epam.spring.service.auth.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

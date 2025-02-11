@@ -1,4 +1,4 @@
-package com.epam.spring.service;
+package com.epam.spring.service.auth;
 
 import com.epam.spring.model.User;
 import com.epam.spring.repository.UserRepository;

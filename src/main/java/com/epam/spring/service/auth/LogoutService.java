@@ -1,5 +1,6 @@
-package com.epam.spring.service;
+package com.epam.spring.service.auth;
 
+import com.epam.spring.model.Token;
 import com.epam.spring.repository.TokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,7 +26,7 @@ public class LogoutService implements LogoutHandler {
             return;
         }
         jwt = authHeader.substring(BEARER_PREFIX.length());
-        var storedToken = tokenRepository.findByToken(jwt).orElse(null);
+        Token storedToken = tokenRepository.findByToken(jwt).orElse(null);
         if (storedToken != null) {
             storedToken.setExpired(true);
             storedToken.setRevoked(true);

@@ -1,4 +1,4 @@
-package com.epam.spring.service;
+package com.epam.spring.service.auth;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

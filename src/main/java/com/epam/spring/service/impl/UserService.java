@@ -11,9 +11,9 @@ import com.epam.spring.model.Token;
 import com.epam.spring.model.User;
 import com.epam.spring.repository.TokenRepository;
 import com.epam.spring.repository.UserRepository;
-import com.epam.spring.service.JwtService;
-import com.epam.spring.service.LoginAttemptService;
-import com.epam.spring.service.MyUserPrincipal;
+import com.epam.spring.service.auth.JwtService;
+import com.epam.spring.service.auth.LoginAttemptService;
+import com.epam.spring.service.auth.MyUserPrincipal;
 import com.epam.spring.util.TransactionContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -70,15 +70,6 @@ public class UserService {
             loginAttemptService.loginFailed(username);
             throw new IncorrectCredentialsException();
         }
-
-        /*
-        String username = userCredentialsRequest.getUsername();
-        String transactionId = TransactionContext.getTransactionId();
-        log.info("Transaction ID: {}, Logging in user: {}",
-                transactionId, username);
-        User user = findUserOrThrowException(userCredentialsRequest.getUsername());
-        checkPassword(userCredentialsRequest.getPassword(), user);
-         */
     }
 
     private void saveToken(String token, User user) {
