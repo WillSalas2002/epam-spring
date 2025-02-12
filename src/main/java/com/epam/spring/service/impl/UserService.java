@@ -21,10 +21,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -38,15 +37,17 @@ public class UserService {
     private final TokenRepository tokenRepository;
     private final LoginAttemptService loginAttemptService;
     private final UserDetailsService userDetailsService;
+    private final PasswordEncoder passwordEncoder;
 
     public UserCredentialsResponseDTO changeCredentials(CredentialChangeRequestDTO credentialChangeRequest) {
         String username = credentialChangeRequest.getUsername();
         String transactionId = TransactionContext.getTransactionId();
         log.info("Transaction ID: {}, Changing credentials for user: {}",
                 transactionId, username);
-        User user = findUserOrThrowException(username);
-        checkPassword(credentialChangeRequest.getOldPassword(), user);
-        user.setPassword(credentialChangeRequest.getNewPassword());
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, credentialChangeRequest.getOldPassword()));
+        MyUserPrincipal userPrincipal = (MyUserPrincipal) userDetailsService.loadUserByUsername(username);
+        User user = userPrincipal.getUser();
+        user.setPassword(passwordEncoder.encode(credentialChangeRequest.getNewPassword()));
         userRepository.save(user);
         log.info("Transaction ID: {}, Successfully changed credentials for user: {}",
                 transactionId, username);
@@ -96,20 +97,6 @@ public class UserService {
         User user = findUserOrThrowException(username);
         user.setActive(!user.isActive());
         userRepository.save(user);
-    }
-
-    @Transactional(readOnly = true)
-    public void authenticate(String username, String password) {
-        User user = findUserOrThrowException(username);
-        checkPassword(password, user);
-    }
-
-    private static void checkPassword(String password, User user) {
-        if (!Objects.equals(user.getPassword(), password)) {
-            log.info("Transaction ID: {}, Incorrect password, user: {}",
-                    TransactionContext.generateTransactionId(), password);
-            throw new IncorrectCredentialsException("Incorrect password");
-        }
     }
 
     private User findUserOrThrowException(String username) {

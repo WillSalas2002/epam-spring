@@ -19,6 +19,7 @@ import com.epam.spring.model.User;
 import com.epam.spring.repository.TokenRepository;
 import com.epam.spring.repository.TraineeRepository;
 import com.epam.spring.repository.TrainerRepository;
+import com.epam.spring.repository.UserRepository;
 import com.epam.spring.service.auth.JwtService;
 import com.epam.spring.service.auth.MyUserPrincipal;
 import com.epam.spring.service.base.TraineeSpecificOperationsService;
@@ -48,6 +49,7 @@ public class TraineeService implements TraineeSpecificOperationsService {
     private final PasswordEncoder passwordEncoder;
     private final TraineeMapper traineeMapper;
     private final JwtService jwtService;
+    private final UserRepository userRepository;
 
     @Override
     public UserCredentialsResponseDTO create(CreateTraineeRequestDTO createRequest) {
@@ -114,6 +116,7 @@ public class TraineeService implements TraineeSpecificOperationsService {
                 TransactionContext.getTransactionId(), username);
         Trainee trainee = traineeRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException(username));
+        userRepository.delete(trainee.getUser());
         traineeRepository.delete(trainee);
     }
 
