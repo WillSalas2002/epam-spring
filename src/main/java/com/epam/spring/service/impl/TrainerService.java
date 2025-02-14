@@ -137,7 +137,10 @@ public class TrainerService implements TrainerSpecificOperationsService {
 
         Trainer trainer = trainerRepository.findByUsername(username)
                 .orElseThrow(ResourceNotFoundException::new);
+        TrainingType trainingType = trainingTypeRepository.findById(Long.valueOf(updateRequest.getSpecializationId()))
+                .orElseThrow(ResourceNotFoundException::new);
         trainerMapper.fromUpdateTrainerRequestToTrainer(trainer, updateRequest);
+        trainer.setSpecialization(trainingType);
 
         Trainer updatedTrainer = trainerRepository.save(trainer);
         log.info("Transaction ID: {}, Successfully updated trainer with username: {}", transactionId, username);
