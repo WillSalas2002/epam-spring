@@ -2,6 +2,7 @@ package com.epam.spring.controller;
 
 import com.epam.spring.dto.request.user.CredentialChangeRequestDTO;
 import com.epam.spring.dto.request.user.UserCredentialsRequestDTO;
+import com.epam.spring.dto.response.JwtAuthenticationResponse;
 import com.epam.spring.service.impl.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +36,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Void> login(@Valid @RequestBody UserCredentialsRequestDTO request) {
-        userService.login(request);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<JwtAuthenticationResponse> login(@Valid @RequestBody UserCredentialsRequestDTO request) {
+        return ResponseEntity.ok(userService.login(request));
     }
 }

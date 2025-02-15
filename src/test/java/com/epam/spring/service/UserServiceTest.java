@@ -12,13 +12,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -52,7 +53,7 @@ class UserServiceTest {
 
         UserCredentialsResponseDTO userCredentialsResponse = userService.changeCredentials(credentialChangeRequest);
 
-        assertEquals("1111111111", userCredentialsResponse.getPassword());
+        assertTrue(BCrypt.checkpw("1111111111", userCredentialsResponse.getPassword()));
     }
 
     @Test
@@ -63,7 +64,7 @@ class UserServiceTest {
                 "incorrect password",
                 "1111111111");
 
-        assertThrows(IncorrectCredentialsException.class, () -> userService.changeCredentials(credentialChangeRequest), "Incorrect old password");
+        assertThrows(BadCredentialsException.class, () -> userService.changeCredentials(credentialChangeRequest), "Incorrect old password");
     }
 
     @Test
@@ -95,13 +96,6 @@ class UserServiceTest {
         FetchTraineeResponseDTO userProfile = traineeService.getUserProfile(userCredentialsResponseDTO.getUsername());
 
         assertTrue(userProfile.isActive());
-    }
-
-    @Test
-    void testAuthenticate() {
-        UserCredentialsResponseDTO userCredentialsResponseDTO = traineeService.create(createTraineeRequestDTO);
-
-        assertDoesNotThrow(() -> userService.authenticate(userCredentialsResponseDTO.getUsername(), userCredentialsResponseDTO.getPassword()));
     }
 
     private static CreateTraineeRequestDTO buildCreateTraineeRequestDTO(String firstName, String lastName) {

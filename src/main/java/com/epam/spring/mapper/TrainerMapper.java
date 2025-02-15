@@ -8,7 +8,6 @@ import com.epam.spring.dto.response.trainer.FetchTrainerResponseDTO;
 import com.epam.spring.dto.response.trainer.TrainerResponseDTO;
 import com.epam.spring.dto.response.trainer.UpdateTrainerResponseDTO;
 import com.epam.spring.model.Trainer;
-import com.epam.spring.model.TrainingType;
 import com.epam.spring.model.User;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -36,9 +35,6 @@ public class TrainerMapper {
         user.setFirstName(updateRequest.getFirstName());
         user.setLastName(updateRequest.getLastName());
         user.setActive(updateRequest.getActive());
-        TrainingType specialization = new TrainingType();
-        specialization.setId(Long.valueOf(updateRequest.getSpecializationId()));
-        trainer.setSpecialization(specialization);
     }
 
     public List<TrainerResponseDTO> fromTrainerListToTrainerResponseDTOList(List<Trainer> trainers) {
