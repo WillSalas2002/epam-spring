@@ -11,17 +11,16 @@ import com.epam.spring.dto.response.trainee.UpdateTraineeResponseDTO;
 import com.epam.spring.dto.response.trainer.TrainerResponseDTO;
 import com.epam.spring.error.exception.ResourceNotFoundException;
 import com.epam.spring.mapper.TraineeMapper;
-import com.epam.spring.model.Token;
 import com.epam.spring.model.Trainee;
 import com.epam.spring.model.Trainer;
 import com.epam.spring.model.Training;
 import com.epam.spring.model.User;
-import com.epam.spring.repository.TokenRepository;
 import com.epam.spring.repository.TraineeRepository;
 import com.epam.spring.repository.TrainerRepository;
 import com.epam.spring.repository.UserRepository;
 import com.epam.spring.service.auth.JwtService;
 import com.epam.spring.service.auth.MyUserPrincipal;
+import com.epam.spring.service.auth.TokenService;
 import com.epam.spring.service.base.TraineeSpecificOperationsService;
 import com.epam.spring.util.PasswordGenerator;
 import com.epam.spring.util.TransactionContext;
@@ -45,8 +44,8 @@ public class TraineeService implements TraineeSpecificOperationsService {
     private final TraineeRepository traineeRepository;
     private final PasswordGenerator passwordGenerator;
     private final TrainerRepository trainerRepository;
-    private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TokenService tokenService;
     private final TraineeMapper traineeMapper;
     private final JwtService jwtService;
     private final UserRepository userRepository;
@@ -66,19 +65,10 @@ public class TraineeService implements TraineeSpecificOperationsService {
         Trainee trainer = traineeRepository.save(trainee);
         User user = trainer.getUser();
         String generatedToken = jwtService.generateToken(new MyUserPrincipal(user));
-        saveToken(generatedToken, user);
+        tokenService.updateUserToken(user.getUsername(), generatedToken);
         log.info("Transaction ID: {}, Successfully saved trainee with username: {}", transactionId, uniqueUsername);
 
         return new UserCredentialsResponseDTO(uniqueUsername, password);
-    }
-
-    private void saveToken(String token, User user) {
-        tokenRepository.save(Token.builder()
-                .token(token)
-                .expired(false)
-                .revoked(false)
-                .user(user)
-                .build());
     }
 
     @Override
