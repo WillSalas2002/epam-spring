@@ -1,7 +1,5 @@
 package com.epam.spring.service.auth;
 
-import com.epam.spring.model.Token;
-import com.epam.spring.repository.TokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +12,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class LogoutService implements LogoutHandler {
 
-    private final TokenRepository tokenRepository;
+    private final TokenService tokenService;
     public static final String BEARER_PREFIX = "Bearer ";
     public static final String AUTH_HEADER_NAME = "Authorization";
 
@@ -26,12 +24,7 @@ public class LogoutService implements LogoutHandler {
             return;
         }
         jwt = authHeader.substring(BEARER_PREFIX.length());
-        Token storedToken = tokenRepository.findByToken(jwt).orElse(null);
-        if (storedToken != null) {
-            storedToken.setExpired(true);
-            storedToken.setRevoked(true);
-            tokenRepository.save(storedToken);
-            SecurityContextHolder.clearContext();
-        }
+        tokenService.addTokenToBlackList(jwt);
+        SecurityContextHolder.clearContext();
     }
 }

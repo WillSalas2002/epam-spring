@@ -1,7 +1,7 @@
 package com.epam.spring.filter;
 
-import com.epam.spring.repository.TokenRepository;
 import com.epam.spring.service.auth.JwtService;
+import com.epam.spring.service.auth.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,7 +23,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final TokenRepository tokenRepository;
+    private final TokenService tokenService;
     private final UserDetailsService userDetailsService;
     public static final String BEARER_PREFIX = "Bearer ";
     public static final String AUTH_HEADER_NAME = "Authorization";
@@ -43,10 +43,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String username = jwtService.extractUsername(token);
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            boolean isTokenValid = tokenRepository.findByToken(token)
-                    .map(t -> !t.isExpired() && !t.isRevoked())
-                    .orElse(false);
-            if (jwtService.isTokenValid(token, userDetails) && isTokenValid) {
+            boolean isTokenBlackListed = tokenService.isTokenBlackListed(token);
+            if (!isTokenBlackListed && jwtService.isTokenValid(token, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
