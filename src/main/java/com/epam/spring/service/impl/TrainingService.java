@@ -4,6 +4,8 @@ import com.epam.spring.dto.request.training.CreateTrainingRequestDTO;
 import com.epam.spring.dto.request.training.FetchTraineeTrainingsRequestDTO;
 import com.epam.spring.dto.request.training.FetchTrainerTrainingsRequestDTO;
 import com.epam.spring.dto.response.training.FetchUserTrainingsResponseDTO;
+import com.epam.spring.entity.TrainingRequest;
+import com.epam.spring.enums.ActionType;
 import com.epam.spring.error.exception.ResourceNotFoundException;
 import com.epam.spring.mapper.TrainingMapper;
 import com.epam.spring.model.Trainee;
@@ -16,8 +18,11 @@ import com.epam.spring.service.base.TrainingSpecificOperationsService;
 import com.epam.spring.util.TransactionContext;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
@@ -31,6 +36,7 @@ public class TrainingService implements TrainingSpecificOperationsService {
     private final TrainerRepository trainerRepository;
     private final TraineeRepository traineeRepository;
     private final TrainingMapper trainingMapper;
+    private final RestTemplate restTemplate;
 
     @Override
     public void create(CreateTrainingRequestDTO createTrainingRequest) {
@@ -43,7 +49,18 @@ public class TrainingService implements TrainingSpecificOperationsService {
         Trainee trainee = traineeRepository.findByUsername(traineeUsername).orElseThrow(() -> new ResourceNotFoundException(traineeUsername));
         Trainer trainer = trainerRepository.findByUsername(trainerUsername).orElseThrow(() -> new ResourceNotFoundException(trainerUsername));
         Training training = trainingMapper.fromCreateTrainingRequestToTraining(createTrainingRequest, trainee, trainer);
+        TrainingRequest trainingRequest = TrainingRequest.builder()
+                .actionType(ActionType.ADD)
+                .username(trainer.getUser().getUsername())
+                .firstName(trainer.getUser().getFirstName())
+                .lastName(trainer.getUser().getLastName())
+                .date(training.getDate().atStartOfDay())
+                .duration(training.getDuration())
+                .isActive(trainer.getUser().isActive())
+                .build();
 
+        HttpEntity<TrainingRequest> request = new HttpEntity<>(trainingRequest);
+        restTemplate.exchange("http://localhost:8081/api/v1/trainings", HttpMethod.POST, request, Void.class);
         trainingRepository.save(training);
         log.info("Transaction ID: {}, Successfully created training with id: {}", transactionId, training.getId());
     }
