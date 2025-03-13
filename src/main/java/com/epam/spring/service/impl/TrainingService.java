@@ -60,7 +60,7 @@ public class TrainingService implements TrainingSpecificOperationsService {
                 .build();
 
         HttpEntity<TrainingRequest> request = new HttpEntity<>(trainingRequest);
-        restTemplate.exchange("http://localhost:8081/api/v1/trainings", HttpMethod.POST, request, Void.class);
+        restTemplate.exchange("http://training-ms/api/v1/trainings", HttpMethod.POST, request, Void.class);
         trainingRepository.save(training);
         log.info("Transaction ID: {}, Successfully created training with id: {}", transactionId, training.getId());
     }
