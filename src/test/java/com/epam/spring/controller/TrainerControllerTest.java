@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 
@@ -50,7 +51,7 @@ class TrainerControllerTest {
         trainerService = mock(TrainerService.class);
         trainingService = mock(TrainingService.class);
         objectMapper = new ObjectMapper();
-        TrainerController trainerController = new TrainerController(trainerService, trainingService);
+        TrainerController trainerController = new TrainerController(trainerService, trainingService, new RestTemplate());
 
         mockMvc = MockMvcBuilders.standaloneSetup(trainerController).build();
     }

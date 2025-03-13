@@ -7,6 +7,7 @@ import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.dto.response.trainer.FetchTrainerResponseDTO;
 import com.epam.spring.dto.response.trainer.UpdateTrainerResponseDTO;
 import com.epam.spring.dto.response.training.FetchUserTrainingsResponseDTO;
+import com.epam.spring.entity.TrainerMonthlySummary;
 import com.epam.spring.service.impl.TrainerService;
 import com.epam.spring.service.impl.TrainingService;
 import jakarta.validation.Valid;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
@@ -31,6 +33,7 @@ public class TrainerController {
 
     private final TrainerService trainerService;
     private final TrainingService trainingService;
+    private final RestTemplate restTemplate;
 
     @PostMapping
     public ResponseEntity<UserCredentialsResponseDTO> register(@Valid @RequestBody CreateTrainerRequestDTO request) {
@@ -50,5 +53,10 @@ public class TrainerController {
     @GetMapping("/trainings")
     public ResponseEntity<List<FetchUserTrainingsResponseDTO>> getTrainerTraining(@Valid @RequestBody FetchTrainerTrainingsRequestDTO request) {
         return ResponseEntity.ok(trainingService.findTrainerTrainings(request));
+    }
+
+    @GetMapping("/summary/{username}")
+    public ResponseEntity<TrainerMonthlySummary> getTrainerMonthlySummary(@PathVariable("username") String username) {
+        return ResponseEntity.ok(restTemplate.getForObject("http://training-ms/api/v1/trainers/summary/" + username, TrainerMonthlySummary.class));
     }
 }
