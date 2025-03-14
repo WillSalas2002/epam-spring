@@ -49,20 +49,17 @@ public class TrainingService implements TrainingSpecificOperationsService {
         Trainee trainee = traineeRepository.findByUsername(traineeUsername).orElseThrow(() -> new ResourceNotFoundException(traineeUsername));
         Trainer trainer = trainerRepository.findByUsername(trainerUsername).orElseThrow(() -> new ResourceNotFoundException(trainerUsername));
         Training training = trainingMapper.fromCreateTrainingRequestToTraining(createTrainingRequest, trainee, trainer);
-        TrainingRequest trainingRequest = TrainingRequest.builder()
-                .actionType(ActionType.ADD)
-                .username(trainer.getUser().getUsername())
-                .firstName(trainer.getUser().getFirstName())
-                .lastName(trainer.getUser().getLastName())
-                .date(training.getDate().atStartOfDay())
-                .duration(training.getDuration())
-                .isActive(trainer.getUser().isActive())
-                .build();
 
-        HttpEntity<TrainingRequest> request = new HttpEntity<>(trainingRequest);
-        restTemplate.exchange("http://training-ms/api/v1/trainings", HttpMethod.POST, request, Void.class);
+        TrainingRequest trainingRequest = buildTrainingRequest(trainer, training);
+        sendSavingRequestToTrainingMS(trainingRequest);
+
         trainingRepository.save(training);
         log.info("Transaction ID: {}, Successfully created training with id: {}", transactionId, training.getId());
+    }
+
+    private void sendSavingRequestToTrainingMS(TrainingRequest trainingRequest) {
+        HttpEntity<TrainingRequest> request = new HttpEntity<>(trainingRequest);
+        restTemplate.exchange("http://training-ms/api/v1/trainings", HttpMethod.POST, request, Void.class);
     }
 
     @Override
@@ -108,5 +105,17 @@ public class TrainingService implements TrainingSpecificOperationsService {
         log.info("Transaction ID: {}, Successfully fetched trainings for trainer: {}, size: {}",
                 transactionId, trainerUsername, trainerTrainings.size());
         return trainingMapper.fromUserListToFetchUserTrainingsResponseList(trainerTrainings);
+    }
+
+    private static TrainingRequest buildTrainingRequest(Trainer trainer, Training training) {
+        return TrainingRequest.builder()
+                .actionType(ActionType.ADD)
+                .username(trainer.getUser().getUsername())
+                .firstName(trainer.getUser().getFirstName())
+                .lastName(trainer.getUser().getLastName())
+                .date(training.getDate().atStartOfDay())
+                .duration(training.getDuration())
+                .isActive(trainer.getUser().isActive())
+                .build();
     }
 }

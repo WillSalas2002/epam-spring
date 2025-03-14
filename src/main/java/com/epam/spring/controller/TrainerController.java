@@ -10,6 +10,7 @@ import com.epam.spring.dto.response.training.FetchUserTrainingsResponseDTO;
 import com.epam.spring.entity.TrainerMonthlySummary;
 import com.epam.spring.service.impl.TrainerService;
 import com.epam.spring.service.impl.TrainingService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,7 @@ import java.util.List;
 @RequestMapping(value = "/api/v1/trainers", produces = MediaType.APPLICATION_JSON_VALUE)
 public class TrainerController {
 
+    public static final String TRAINING_MS = "training-ms";
     private final TrainerService trainerService;
     private final TrainingService trainingService;
     private final RestTemplate restTemplate;
@@ -55,8 +57,16 @@ public class TrainerController {
         return ResponseEntity.ok(trainingService.findTrainerTrainings(request));
     }
 
-    @GetMapping("/summary/{username}")
+    @GetMapping("/{username}/summary")
+    @CircuitBreaker(name = TRAINING_MS, fallbackMethod = "fallbackForTrainingMS")
     public ResponseEntity<TrainerMonthlySummary> getTrainerMonthlySummary(@PathVariable("username") String username) {
-        return ResponseEntity.ok(restTemplate.getForObject("http://training-ms/api/v1/trainers/summary/" + username, TrainerMonthlySummary.class));
+        final String TRAINING_MS_URL_TEMPLATE = "http://training-ms/api/v1/trainers/%s/summary";
+        String url = String.format(TRAINING_MS_URL_TEMPLATE, username);
+        return ResponseEntity.ok(restTemplate.getForObject(url, TrainerMonthlySummary.class));
+    }
+
+    public ResponseEntity<String> fallbackForTrainingMS(Throwable ex) {
+        System.out.println("Fallback triggered due to: " + ex.getMessage());
+        return ResponseEntity.ok("Training-MS is unavailable, please try again later!");
     }
 }

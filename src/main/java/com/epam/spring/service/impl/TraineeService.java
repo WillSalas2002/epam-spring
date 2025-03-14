@@ -9,6 +9,8 @@ import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.dto.response.trainee.FetchTraineeResponseDTO;
 import com.epam.spring.dto.response.trainee.UpdateTraineeResponseDTO;
 import com.epam.spring.dto.response.trainer.TrainerResponseDTO;
+import com.epam.spring.entity.TrainingRequest;
+import com.epam.spring.enums.ActionType;
 import com.epam.spring.error.exception.ResourceNotFoundException;
 import com.epam.spring.mapper.TraineeMapper;
 import com.epam.spring.model.Trainee;
@@ -25,11 +27,15 @@ import com.epam.spring.service.base.TraineeSpecificOperationsService;
 import com.epam.spring.util.PasswordGenerator;
 import com.epam.spring.util.TransactionContext;
 import com.epam.spring.util.UsernameGenerator;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -40,6 +46,7 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class TraineeService implements TraineeSpecificOperationsService {
 
+    public static final String URL_TRAINING_MS = "http://training-ms/api/v1/trainings";
     private final UsernameGenerator usernameGenerator;
     private final TraineeRepository traineeRepository;
     private final PasswordGenerator passwordGenerator;
@@ -49,6 +56,7 @@ public class TraineeService implements TraineeSpecificOperationsService {
     private final TraineeMapper traineeMapper;
     private final JwtService jwtService;
     private final UserRepository userRepository;
+    private final RestTemplate restTemplate;
 
     @Override
     public UserCredentialsResponseDTO create(CreateTraineeRequestDTO createRequest) {
@@ -102,12 +110,33 @@ public class TraineeService implements TraineeSpecificOperationsService {
 
     @Override
     public void deleteByUsername(String username) {
-        log.info("Transaction ID: {}, Deleting trainee with username: {}",
-                TransactionContext.getTransactionId(), username);
-        Trainee trainee = traineeRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException(username));
+        log.info("Transaction ID: {}, Deleting trainee with username: {}", TransactionContext.getTransactionId(), username);
+        Trainee trainee = traineeRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException(username));
+
+        sendDeleteRequestToTrainingMS(trainee);
+
         userRepository.delete(trainee.getUser());
         traineeRepository.delete(trainee);
+    }
+
+    private void sendDeleteRequestToTrainingMS(Trainee trainee) {
+        for (Training training : trainee.getTrainings()) {
+            Trainer trainer = training.getTrainer();
+            TrainingRequest trainingRequest = buildTrainingRequest(training, trainer);
+            sendDeleteRequestToTrainingMS(trainingRequest);
+        }
+    }
+
+    @CircuitBreaker(name = "training-ms", fallbackMethod = "fallbackForTrainingMS")
+    private void sendDeleteRequestToTrainingMS(TrainingRequest trainingRequest) {
+        HttpEntity<TrainingRequest> request = new HttpEntity<>(trainingRequest);
+        restTemplate.exchange(URL_TRAINING_MS, HttpMethod.POST, request, Void.class);
+    }
+
+    private void fallbackForTrainingMS(Training training, Throwable ex) {
+        log.warn("Transaction ID: {}, training-ms failed to proceed request with trainer: {}",
+                TransactionContext.getTransactionId(), training.getTrainer().getUser().getUsername());
+        // TODO: Optionally, store failed requests for retry later (e.g., Kafka, database)
     }
 
     @Override
@@ -140,5 +169,17 @@ public class TraineeService implements TraineeSpecificOperationsService {
                 t.getTrainer().getUser().getLastName(),
                 new TrainingTypeDTO(t.getTrainingType().getId(), t.getTrainingType().getTrainingTypeName())
         )).toList();
+    }
+
+    private static TrainingRequest buildTrainingRequest(Training training, Trainer trainer) {
+        return TrainingRequest.builder()
+                .actionType(ActionType.DELETE)
+                .username(trainer.getUser().getUsername())
+                .firstName(trainer.getUser().getFirstName())
+                .lastName(trainer.getUser().getLastName())
+                .date(training.getDate().atStartOfDay())
+                .duration(training.getDuration())
+                .isActive(trainer.getUser().isActive())
+                .build();
     }
 }
