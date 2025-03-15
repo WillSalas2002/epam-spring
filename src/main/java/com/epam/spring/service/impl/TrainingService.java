@@ -50,10 +50,10 @@ public class TrainingService implements TrainingSpecificOperationsService {
         Trainer trainer = trainerRepository.findByUsername(trainerUsername).orElseThrow(() -> new ResourceNotFoundException(trainerUsername));
         Training training = trainingMapper.fromCreateTrainingRequestToTraining(createTrainingRequest, trainee, trainer);
 
+        trainingRepository.save(training);
+
         TrainingRequest trainingRequest = buildTrainingRequest(trainer, training);
         sendSavingRequestToTrainingMS(trainingRequest);
-
-        trainingRepository.save(training);
         log.info("Transaction ID: {}, Successfully created training with id: {}", transactionId, training.getId());
     }
 

@@ -37,6 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -121,9 +122,11 @@ public class TraineeService implements TraineeSpecificOperationsService {
 
     private void sendDeleteRequestToTrainingMS(Trainee trainee) {
         for (Training training : trainee.getTrainings()) {
-            Trainer trainer = training.getTrainer();
-            TrainingRequest trainingRequest = buildTrainingRequest(training, trainer);
-            sendDeleteRequestToTrainingMS(trainingRequest);
+            if (training.getDate().isAfter(LocalDate.now())) {
+                Trainer trainer = training.getTrainer();
+                TrainingRequest trainingRequest = buildTrainingRequest(training, trainer);
+                sendDeleteRequestToTrainingMS(trainingRequest);
+            }
         }
     }
 
