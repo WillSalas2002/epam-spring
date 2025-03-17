@@ -1,5 +1,6 @@
 package com.epam.spring.service.impl;
 
+import com.epam.spring.client.TrainingMSClient;
 import com.epam.spring.dto.request.training.CreateTrainingRequestDTO;
 import com.epam.spring.dto.request.training.FetchTraineeTrainingsRequestDTO;
 import com.epam.spring.dto.request.training.FetchTrainerTrainingsRequestDTO;
@@ -18,11 +19,8 @@ import com.epam.spring.service.base.TrainingSpecificOperationsService;
 import com.epam.spring.util.TransactionContext;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
@@ -36,7 +34,7 @@ public class TrainingService implements TrainingSpecificOperationsService {
     private final TrainerRepository trainerRepository;
     private final TraineeRepository traineeRepository;
     private final TrainingMapper trainingMapper;
-    private final RestTemplate restTemplate;
+    private final TrainingMSClient trainingMSClient;
 
     @Override
     public void create(CreateTrainingRequestDTO createTrainingRequest) {
@@ -53,13 +51,8 @@ public class TrainingService implements TrainingSpecificOperationsService {
         trainingRepository.save(training);
 
         TrainingRequest trainingRequest = buildTrainingRequest(trainer, training);
-        sendSavingRequestToTrainingMS(trainingRequest);
+        trainingMSClient.sendSavingOrDeletingRequest(trainingRequest);
         log.info("Transaction ID: {}, Successfully created training with id: {}", transactionId, training.getId());
-    }
-
-    private void sendSavingRequestToTrainingMS(TrainingRequest trainingRequest) {
-        HttpEntity<TrainingRequest> request = new HttpEntity<>(trainingRequest);
-        restTemplate.exchange("http://training-ms/api/v1/trainings", HttpMethod.POST, request, Void.class);
     }
 
     @Override

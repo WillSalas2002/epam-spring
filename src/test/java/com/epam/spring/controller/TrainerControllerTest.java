@@ -1,5 +1,6 @@
 package com.epam.spring.controller;
 
+import com.epam.spring.client.TrainingMSClient;
 import com.epam.spring.dto.request.trainer.CreateTrainerRequestDTO;
 import com.epam.spring.dto.request.trainer.UpdateTrainerRequestDTO;
 import com.epam.spring.dto.response.TrainingTypeDTO;
@@ -18,7 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 
@@ -40,6 +40,7 @@ class TrainerControllerTest {
     private ObjectMapper objectMapper;
     private TrainerService trainerService;
     private TrainingService trainingService;
+    private TrainingMSClient trainingMSClient;
 
     @Captor
     private ArgumentCaptor<CreateTrainerRequestDTO> createTrainerCaptor;
@@ -50,8 +51,9 @@ class TrainerControllerTest {
     void setup() {
         trainerService = mock(TrainerService.class);
         trainingService = mock(TrainingService.class);
+        trainingMSClient = mock(TrainingMSClient.class);
         objectMapper = new ObjectMapper();
-        TrainerController trainerController = new TrainerController(trainerService, trainingService, new RestTemplate());
+        TrainerController trainerController = new TrainerController(trainerService, trainingService, trainingMSClient);
 
         mockMvc = MockMvcBuilders.standaloneSetup(trainerController).build();
     }
