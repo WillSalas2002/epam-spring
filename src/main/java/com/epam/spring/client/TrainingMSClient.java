@@ -9,8 +9,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
@@ -32,18 +35,24 @@ public class TrainingMSClient {
     }
 
     @CircuitBreaker(name = "training-ms", fallbackMethod = "fallbackForGettingSummary")
-    public TrainerMonthlySummary getTrainerMonthlySummary(@PathVariable("username") String username) {
+    public ResponseEntity<TrainerMonthlySummary> getTrainerMonthlySummary(@PathVariable("username") String username) {
         log.info("Transaction ID: {}, sending request to training-ms for getting summary for a trainer: {}", TransactionContext.getTransactionId(), username);
-        String url = String.format(URL_TEMPLATE_TRAINER_SUMMARY, username);
         trainerService.getUserProfile(username);
-        return restTemplate.getForObject(url, TrainerMonthlySummary.class);
+        return getSummaryForTrainer(username);
     }
 
-    private TrainerMonthlySummary fallbackForGettingSummary(String username, Throwable ex) {
+    @CircuitBreaker(name = "training-ms", fallbackMethod = "fallbackForGettingSummary")
+    private ResponseEntity<TrainerMonthlySummary> getSummaryForTrainer(String username) {
+        String url = String.format(URL_TEMPLATE_TRAINER_SUMMARY, username);
+        return ResponseEntity.ok(restTemplate.getForObject(url, TrainerMonthlySummary.class));
+    }
+
+    private ResponseEntity<TrainerMonthlySummary> fallbackForGettingSummary(String username, Exception ex) {
         log.error("Transaction ID: {}, fallback triggered when trying to get summary for trainer: {}, due to: {}", TransactionContext.getTransactionId(), username, ex.getMessage());
-        return new TrainerMonthlySummary();
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new TrainerMonthlySummary());
     }
 
+    @ResponseStatus(value = HttpStatus.SERVICE_UNAVAILABLE)
     private void fallbackForSavingOrDeleting(TrainingRequest trainingRequest, Throwable ex) {
         log.error("Transaction ID: {}, fallback triggered due to: {}", TransactionContext.getTransactionId(), ex.getMessage());
     }

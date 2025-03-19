@@ -57,11 +57,6 @@ public class TrainerController {
 
     @GetMapping("/{username}/summary")
     public ResponseEntity<TrainerMonthlySummary> getTrainerMonthlySummary(@PathVariable("username") String username) {
-        return ResponseEntity.ok(trainingMSClient.getTrainerMonthlySummary(username));
-    }
-
-    public ResponseEntity<String> fallbackForTrainingMS(Throwable ex) {
-        System.out.println("Fallback triggered due to: " + ex.getMessage());
-        return ResponseEntity.ok("Training-MS is unavailable, please try again later!");
+        return trainingMSClient.getTrainerMonthlySummary(username);
     }
 }
