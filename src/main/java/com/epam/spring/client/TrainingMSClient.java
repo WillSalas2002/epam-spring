@@ -1,12 +1,14 @@
 package com.epam.spring.client;
 
 import com.epam.spring.entity.TrainingRequest;
+import com.epam.spring.service.auth.JwtService;
 import com.epam.spring.util.TransactionContext;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -22,11 +24,17 @@ public class TrainingMSClient {
     private String trainingMSURL;
 
     private final RestTemplate restTemplate;
+    private final JwtService jwtService;
 
     @CircuitBreaker(name = "training-ms", fallbackMethod = "fallbackForSavingOrDeleting")
     public void sendSavingOrDeletingRequest(TrainingRequest trainingRequest) {
+
+        String jwtToken = jwtService.generateTokenForSecondMicroservice();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtToken);
+        HttpEntity<TrainingRequest> request = new HttpEntity<>(trainingRequest, headers);
+
         log.info("Transaction ID: {}, sending request to training-ms: {}", TransactionContext.getTransactionId(), trainingRequest);
-        HttpEntity<TrainingRequest> request = new HttpEntity<>(trainingRequest);
         restTemplate.exchange(trainingMSURL, HttpMethod.POST, request, Void.class);
     }
 

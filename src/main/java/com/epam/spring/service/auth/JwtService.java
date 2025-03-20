@@ -24,6 +24,9 @@ public class JwtService {
     @Value("${token.expiration.time}")
     private long expirationTime;
 
+    @Value("${token.second.signing.key}")
+    private String singingKeyFor2ndMicroservice;
+
     /**
      * Извлечение имени пользователя из токена
      *
@@ -86,7 +89,16 @@ public class JwtService {
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256).compact();
+                .signWith(getSigningKey(jwtSigningKey), SignatureAlgorithm.HS256).compact();
+    }
+
+    public String generateTokenForSecondMicroservice() {
+        return Jwts.builder()
+                .setSubject("training-ms")
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 3600000))
+                .signWith(getSigningKey(singingKeyFor2ndMicroservice), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     /**
@@ -117,7 +129,7 @@ public class JwtService {
      */
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
+                .setSigningKey(getSigningKey(jwtSigningKey))
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
@@ -128,7 +140,7 @@ public class JwtService {
      *
      * @return ключ
      */
-    private Key getSigningKey() {
+    private Key getSigningKey(String jwtSigningKey) {
         byte[] keyBytes = Base64.getDecoder().decode(jwtSigningKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
