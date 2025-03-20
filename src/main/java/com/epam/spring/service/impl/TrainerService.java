@@ -106,6 +106,7 @@ public class TrainerService implements TrainerSpecificOperationsService {
         });
     }
 
+    //TODO: need to return UNIQUE values.
     @Override
     @Transactional(readOnly = true)
     public FetchTrainerResponseDTO getUserProfile(String username) {

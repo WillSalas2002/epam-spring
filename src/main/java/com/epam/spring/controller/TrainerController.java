@@ -33,7 +33,6 @@ public class TrainerController {
 
     private final TrainerService trainerService;
     private final TrainingService trainingService;
-    private final TrainingMSClient trainingMSClient;
 
     @PostMapping
     public ResponseEntity<UserCredentialsResponseDTO> register(@Valid @RequestBody CreateTrainerRequestDTO request) {
@@ -53,10 +52,5 @@ public class TrainerController {
     @GetMapping("/trainings")
     public ResponseEntity<List<FetchUserTrainingsResponseDTO>> getTrainerTraining(@Valid @RequestBody FetchTrainerTrainingsRequestDTO request) {
         return ResponseEntity.ok(trainingService.findTrainerTrainings(request));
-    }
-
-    @GetMapping("/{username}/summary")
-    public ResponseEntity<TrainerMonthlySummary> getTrainerMonthlySummary(@PathVariable("username") String username) {
-        return trainingMSClient.getTrainerMonthlySummary(username);
     }
 }
