@@ -1,6 +1,5 @@
 package com.epam.spring.controller;
 
-import com.epam.spring.client.TrainingMSClient;
 import com.epam.spring.dto.request.trainer.CreateTrainerRequestDTO;
 import com.epam.spring.dto.request.trainer.UpdateTrainerRequestDTO;
 import com.epam.spring.dto.request.training.FetchTrainerTrainingsRequestDTO;
@@ -8,7 +7,6 @@ import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.dto.response.trainer.FetchTrainerResponseDTO;
 import com.epam.spring.dto.response.trainer.UpdateTrainerResponseDTO;
 import com.epam.spring.dto.response.training.FetchUserTrainingsResponseDTO;
-import com.epam.spring.entity.TrainerMonthlySummary;
 import com.epam.spring.service.impl.TrainerService;
 import com.epam.spring.service.impl.TrainingService;
 import jakarta.validation.Valid;

@@ -1,6 +1,5 @@
 package com.epam.spring.controller;
 
-import com.epam.spring.client.TrainingMSClient;
 import com.epam.spring.dto.request.trainer.CreateTrainerRequestDTO;
 import com.epam.spring.dto.request.trainer.UpdateTrainerRequestDTO;
 import com.epam.spring.dto.response.TrainingTypeDTO;
@@ -40,7 +39,6 @@ class TrainerControllerTest {
     private ObjectMapper objectMapper;
     private TrainerService trainerService;
     private TrainingService trainingService;
-    private TrainingMSClient trainingMSClient;
 
     @Captor
     private ArgumentCaptor<CreateTrainerRequestDTO> createTrainerCaptor;
@@ -51,9 +49,8 @@ class TrainerControllerTest {
     void setup() {
         trainerService = mock(TrainerService.class);
         trainingService = mock(TrainingService.class);
-        trainingMSClient = mock(TrainingMSClient.class);
         objectMapper = new ObjectMapper();
-        TrainerController trainerController = new TrainerController(trainerService, trainingService, trainingMSClient);
+        TrainerController trainerController = new TrainerController(trainerService, trainingService);
 
         mockMvc = MockMvcBuilders.standaloneSetup(trainerController).build();
     }
