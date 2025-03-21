@@ -21,6 +21,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -31,6 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public static final String AUTH_HEADER_NAME = "Authorization";
     public static final String MESSAGE_INVALID_TOKEN = "Invalid token";
     public static final String MESSAGE_TOKEN_NOT_PROVIDED = "JWT token not provided.";
+    public static final String[] ALLOWED_ENDPOINTS = {"/api/v1/users/login", "/api/v1/trainers", "/api/v1/trainees", "/swagger-ui/**", "/api-docs/**"};
 
     private final JwtService jwtService;
     private final TokenService tokenService;
@@ -43,6 +45,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain chain
     ) throws ServletException, IOException {
 
+        if (Arrays.asList(ALLOWED_ENDPOINTS).contains(request.getRequestURI())) {
+            chain.doFilter(request, response);
+            return;
+        }
         String authHeader = request.getHeader(AUTH_HEADER_NAME);
         if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
             sendErrorResponse(response, MESSAGE_TOKEN_NOT_PROVIDED);

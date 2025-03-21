@@ -96,7 +96,6 @@ public class JwtService {
         return Jwts.builder()
                 .setSubject("training-ms")
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 3600000))
                 .signWith(getSigningKey(singingKeyFor2ndMicroservice), SignatureAlgorithm.HS256)
                 .compact();
     }
