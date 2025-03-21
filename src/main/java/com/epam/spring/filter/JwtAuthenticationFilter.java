@@ -30,6 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public static final String BEARER_PREFIX = "Bearer ";
     public static final String AUTH_HEADER_NAME = "Authorization";
     public static final String MESSAGE_INVALID_TOKEN = "Invalid token";
+    public static final String MESSAGE_TOKEN_NOT_PROVIDED = "JWT token not provided.";
 
     private final JwtService jwtService;
     private final TokenService tokenService;
@@ -44,7 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader(AUTH_HEADER_NAME);
         if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
-            chain.doFilter(request, response);
+            sendErrorResponse(response, MESSAGE_TOKEN_NOT_PROVIDED);
             return;
         }
         String token = authHeader.substring(BEARER_PREFIX.length());
@@ -63,22 +64,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
+            chain.doFilter(request, response);
         } catch (RuntimeException e) {
-            ErrorResponseDTO errorResponse = buildErrorResponse();
-            String jsonResponse = objectMapper.writeValueAsString(errorResponse);
-
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.getWriter().write(jsonResponse);
-            return;
+            sendErrorResponse(response, MESSAGE_INVALID_TOKEN);
         }
-        chain.doFilter(request, response);
     }
 
-    private static ErrorResponseDTO buildErrorResponse() {
+    private void sendErrorResponse(HttpServletResponse response, String message) throws IOException {
+        ErrorResponseDTO errorResponse = buildErrorResponse(message);
+        String jsonResponse = objectMapper.writeValueAsString(errorResponse);
+
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.getWriter().write(jsonResponse);
+    }
+
+    private static ErrorResponseDTO buildErrorResponse(String message) {
         ErrorResponseDTO errorResponse = new ErrorResponseDTO();
         errorResponse.setTitle(HttpStatus.UNAUTHORIZED.toString());
         errorResponse.setTimestamp(LocalDateTime.now());
-        errorResponse.setDetailsList(List.of(MESSAGE_INVALID_TOKEN));
+        errorResponse.setDetailsList(List.of(message));
         return errorResponse;
     }
 }
