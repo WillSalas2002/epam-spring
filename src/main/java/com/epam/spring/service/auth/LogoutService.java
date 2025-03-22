@@ -13,8 +13,8 @@ import org.springframework.stereotype.Service;
 public class LogoutService implements LogoutHandler {
 
     private final TokenService tokenService;
-    public static final String BEARER_PREFIX = "Bearer ";
-    public static final String AUTH_HEADER_NAME = "Authorization";
+    private static final String BEARER_PREFIX = "Bearer ";
+    private static final String AUTH_HEADER_NAME = "Authorization";
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {

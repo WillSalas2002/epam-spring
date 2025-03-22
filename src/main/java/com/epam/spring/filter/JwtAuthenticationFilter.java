@@ -32,7 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public static final String AUTH_HEADER_NAME = "Authorization";
     public static final String MESSAGE_INVALID_TOKEN = "Invalid token";
     public static final String MESSAGE_TOKEN_NOT_PROVIDED = "JWT token not provided.";
-    public static final String[] ALLOWED_ENDPOINTS = {"/api/v1/users/login", "/api/v1/trainers", "/api/v1/trainees", "/swagger-ui/**", "/api-docs/**"};
+    public static final String[] ALLOWED_ENDPOINTS = {"/api/v1/users/login", "/api/v1/trainers", "/api/v1/trainees", "/swagger-ui/index.html", "/api-docs/swagger-config"};
 
     private final JwtService jwtService;
     private final TokenService tokenService;

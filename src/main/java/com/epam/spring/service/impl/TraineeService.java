@@ -117,11 +117,14 @@ public class TraineeService implements TraineeSpecificOperationsService {
     }
 
     private void sendDeleteRequestToTrainingMS(Trainee trainee) {
-        for (Training training : trainee.getTrainings()) {
-            if (training.getDate().isAfter(LocalDate.now())) {
-                Trainer trainer = training.getTrainer();
-                TrainingRequest trainingRequest = buildTrainingRequest(training, trainer);
-                trainingMSClient.sendSavingOrDeletingRequest(trainingRequest);
+        List<Training> trainings = trainee.getTrainings();
+        if (trainings != null && !trainings.isEmpty()) {
+            for (Training training : trainings) {
+                if (training.getDate().isAfter(LocalDate.now())) {
+                    Trainer trainer = training.getTrainer();
+                    TrainingRequest trainingRequest = buildTrainingRequest(training, trainer);
+                    trainingMSClient.sendSavingOrDeletingRequest(trainingRequest);
+                }
             }
         }
     }

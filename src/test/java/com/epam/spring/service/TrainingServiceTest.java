@@ -48,11 +48,11 @@ class TrainingServiceTest {
         UserCredentialsResponseDTO traineeResponse = traineeService.create(createTraineeRequest);
         UserCredentialsResponseDTO trainerResponse = trainerService.create(createTrainerRequest);
 
-        CreateTrainingRequestDTO trainingRequest1 = buildTrainingRequest(traineeResponse.getUsername(), trainerResponse.getUsername());
+        CreateTrainingRequestDTO trainingRequest1 = buildTrainingRequest(traineeResponse.getUsername(), trainerResponse.getUsername(), LocalDate.now().minusDays(2));
 
         CreateTrainerRequestDTO trainerRequest2 = buildCreateTrainerRequest("Trainer2", "Trainer2", 2L);
         UserCredentialsResponseDTO trainerResponse2 = trainerService.create(trainerRequest2);
-        CreateTrainingRequestDTO trainingRequest2 = buildTrainingRequest(traineeResponse.getUsername(), trainerResponse2.getUsername());
+        CreateTrainingRequestDTO trainingRequest2 = buildTrainingRequest(traineeResponse.getUsername(), trainerResponse2.getUsername(), LocalDate.now());
 
         trainingService.create(trainingRequest1);
         trainingService.create(trainingRequest2);
@@ -67,12 +67,12 @@ class TrainingServiceTest {
         assertEquals(1, trainerTrainings.size());
     }
 
-    private CreateTrainingRequestDTO buildTrainingRequest(String traineeUsername, String trainerUsername) {
+    private CreateTrainingRequestDTO buildTrainingRequest(String traineeUsername, String trainerUsername, LocalDate date) {
         return CreateTrainingRequestDTO.builder()
                 .traineeUsername(traineeUsername)
                 .trainerUsername(trainerUsername)
                 .trainingName("Cardio")
-                .trainingDate(LocalDate.now().plusDays(1).toString())
+                .trainingDate(date.toString())
                 .duration(String.valueOf(90))
                 .build();
     }
