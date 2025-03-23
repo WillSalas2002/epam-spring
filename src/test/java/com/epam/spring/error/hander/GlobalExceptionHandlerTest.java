@@ -3,11 +3,8 @@ package com.epam.spring.error.hander;
 import com.epam.spring.dto.response.ErrorResponseDTO;
 import com.epam.spring.error.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.context.request.WebRequest;
 
 import java.util.Objects;
 
@@ -19,12 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class GlobalExceptionHandlerTest {
 
     private final GlobalExceptionHandler exceptionHandler = new GlobalExceptionHandler();
-
-    @Mock
-    private WebRequest webRequest;
-
-    @Mock
-    private BindingResult bindingResult;
 
     @Test
     void shouldHandleUnknownExceptions() {
@@ -61,6 +52,6 @@ class GlobalExceptionHandlerTest {
 
         assertEquals(response.getStatusCode(), HttpStatus.CONFLICT);
         assertNotNull(response.getBody());
-        assertTrue(Objects.requireNonNull(response.getBody()).getDetailsList().contains("This resource already exists in database."));
+        assertTrue(Objects.requireNonNull(response.getBody()).getDetailsList().contains("This trainee already has another training scheduled at this time."));
     }
 }

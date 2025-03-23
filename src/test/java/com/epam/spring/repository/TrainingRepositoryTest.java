@@ -47,7 +47,7 @@ class TrainingRepositoryTest {
         Trainer createdTrainer = trainerRepository.save(trainer);
         TrainingType trainingType = createdTrainer.getSpecialization();
 
-        Training training = buildTraining(createdTrainee, createdTrainer, trainingType);
+        Training training = buildTraining(createdTrainee, createdTrainer, trainingType, LocalDate.now());
 
         Training createdTraining = trainingRepository.save(training);
         Optional<Training> trainingByIdOptional = trainingRepository.findById(createdTraining.getId());
@@ -70,8 +70,8 @@ class TrainingRepositoryTest {
         TrainingType trainingType2 = new TrainingType();
         trainingType2.setId(2L);
 
-        Training training1 = buildTraining(createdTrainee, createdTrainer, trainingType1);
-        Training training2 = buildTraining(createdTrainee, createdTrainer2, trainingType2);
+        Training training1 = buildTraining(createdTrainee, createdTrainer, trainingType1, LocalDate.now());
+        Training training2 = buildTraining(createdTrainee, createdTrainer2, trainingType2, LocalDate.now().minusDays(2));
 
         trainingRepository.save(training1);
         trainingRepository.save(training2);
@@ -94,8 +94,8 @@ class TrainingRepositoryTest {
         TrainingType trainingType2 = new TrainingType();
         trainingType2.setId(2L);
 
-        Training training1 = buildTraining(createdTrainee1, createdTrainer, trainingType1);
-        Training training2 = buildTraining(createdTrainee2, createdTrainer, trainingType2);
+        Training training1 = buildTraining(createdTrainee1, createdTrainer, trainingType1, LocalDate.now());
+        Training training2 = buildTraining(createdTrainee2, createdTrainer, trainingType2, LocalDate.now().minusDays(2));
 
         trainingRepository.save(training1);
         trainingRepository.save(training2);
@@ -143,13 +143,13 @@ class TrainingRepositoryTest {
                 .build();
     }
 
-    private static Training buildTraining(Trainee trainee, Trainer trainer, TrainingType trainingType) {
+    private static Training buildTraining(Trainee trainee, Trainer trainer, TrainingType trainingType, LocalDate date) {
         return Training.builder()
                 .trainee(trainee)
                 .trainer(trainer)
                 .name("Hard Cardio")
                 .trainingType(trainingType)
-                .date(LocalDate.now().plusDays(2))
+                .date(date)
                 .duration(90)
                 .build();
     }

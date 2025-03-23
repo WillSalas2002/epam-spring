@@ -4,11 +4,12 @@ import com.epam.spring.dto.response.ErrorResponseDTO;
 import com.epam.spring.error.exception.IncorrectCredentialsException;
 import com.epam.spring.error.exception.LoginAttemptException;
 import com.epam.spring.error.exception.ResourceNotFoundException;
-import com.epam.spring.error.exception.UniqueConstraintException;
 import com.epam.spring.util.TransactionContext;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -31,8 +32,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private final static String MESSAGE_RESOURCE_NOT_FOUND = "Resource not found.";
     private final static String MESSAGE_INTERNAL_SERVER_ERROR = "Internal error occurred, please try again later.";
     private final static String MESSAGE_INCORRECT_CREDENTIALS = "Incorrect credentials.";
-    private final static String MESSAGE_UNIQUE_CONSTRAINT = "This resource already exists in database.";
+    private final static String MESSAGE_UNIQUE_CONSTRAINT = "This trainee already has another training scheduled at this time.";
     private final static String MESSAGE_TOO_MANY_UNSUCCESSFUL_ATTEMPTS = "User is blocked due to too many failed attempts. Try again later";
+    private final static String MESSAGE_TOKEN_EXPIRED = "JWT token has expired. Please log in again.";
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleUnknownExceptions() {
@@ -85,7 +87,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(UniqueConstraintException.class)
+    @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponseDTO> handleUniqueConstraint() {
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 LocalDateTime.now(),
@@ -103,5 +105,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 List.of(MESSAGE_TOO_MANY_UNSUCCESSFUL_ATTEMPTS)
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.TOO_MANY_REQUESTS);
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ErrorResponseDTO> handleTokenExpired() {
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+                LocalDateTime.now(),
+                HttpStatus.UNAUTHORIZED.toString(),
+                List.of(MESSAGE_TOKEN_EXPIRED)
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 }

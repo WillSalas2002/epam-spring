@@ -22,7 +22,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @ToString(callSuper = true, exclude = {"trainee", "trainer", "trainingType"})
 @Entity
-@Table(name = "trainings", uniqueConstraints = {@UniqueConstraint(columnNames = {"trainee_id", "trainer_id"})})
+@Table(name = "trainings", uniqueConstraints = {@UniqueConstraint(columnNames = {"trainee_id", "date"})})
 public class Training extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -1,5 +1,6 @@
 package com.epam.spring.service.impl;
 
+import com.epam.spring.client.TrainingMSClient;
 import com.epam.spring.dto.request.trainee.CreateTraineeRequestDTO;
 import com.epam.spring.dto.request.trainee.TrainingIdTrainerUsernamePair;
 import com.epam.spring.dto.request.trainee.UpdateTraineeRequestDTO;
@@ -9,6 +10,8 @@ import com.epam.spring.dto.response.UserCredentialsResponseDTO;
 import com.epam.spring.dto.response.trainee.FetchTraineeResponseDTO;
 import com.epam.spring.dto.response.trainee.UpdateTraineeResponseDTO;
 import com.epam.spring.dto.response.trainer.TrainerResponseDTO;
+import com.epam.spring.entity.TrainingRequest;
+import com.epam.spring.enums.ActionType;
 import com.epam.spring.error.exception.ResourceNotFoundException;
 import com.epam.spring.mapper.TraineeMapper;
 import com.epam.spring.model.Trainee;
@@ -31,6 +34,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -49,6 +53,7 @@ public class TraineeService implements TraineeSpecificOperationsService {
     private final TraineeMapper traineeMapper;
     private final JwtService jwtService;
     private final UserRepository userRepository;
+    private final TrainingMSClient trainingMSClient;
 
     @Override
     public UserCredentialsResponseDTO create(CreateTraineeRequestDTO createRequest) {
@@ -102,12 +107,26 @@ public class TraineeService implements TraineeSpecificOperationsService {
 
     @Override
     public void deleteByUsername(String username) {
-        log.info("Transaction ID: {}, Deleting trainee with username: {}",
-                TransactionContext.getTransactionId(), username);
-        Trainee trainee = traineeRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException(username));
+        log.info("Transaction ID: {}, Deleting trainee with username: {}", TransactionContext.getTransactionId(), username);
+        Trainee trainee = traineeRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException(username));
+
+        sendDeleteRequestToTrainingMS(trainee);
+
         userRepository.delete(trainee.getUser());
         traineeRepository.delete(trainee);
+    }
+
+    private void sendDeleteRequestToTrainingMS(Trainee trainee) {
+        List<Training> trainings = trainee.getTrainings();
+        if (trainings != null && !trainings.isEmpty()) {
+            for (Training training : trainings) {
+                if (training.getDate().isAfter(LocalDate.now())) {
+                    Trainer trainer = training.getTrainer();
+                    TrainingRequest trainingRequest = buildTrainingRequest(training, trainer);
+                    trainingMSClient.sendSavingOrDeletingRequest(trainingRequest);
+                }
+            }
+        }
     }
 
     @Override
@@ -140,5 +159,17 @@ public class TraineeService implements TraineeSpecificOperationsService {
                 t.getTrainer().getUser().getLastName(),
                 new TrainingTypeDTO(t.getTrainingType().getId(), t.getTrainingType().getTrainingTypeName())
         )).toList();
+    }
+
+    private static TrainingRequest buildTrainingRequest(Training training, Trainer trainer) {
+        return TrainingRequest.builder()
+                .actionType(ActionType.DELETE)
+                .username(trainer.getUser().getUsername())
+                .firstName(trainer.getUser().getFirstName())
+                .lastName(trainer.getUser().getLastName())
+                .date(training.getDate().atStartOfDay())
+                .duration(training.getDuration())
+                .isActive(trainer.getUser().isActive())
+                .build();
     }
 }

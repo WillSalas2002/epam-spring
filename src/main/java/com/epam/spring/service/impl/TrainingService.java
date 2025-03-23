@@ -1,9 +1,12 @@
 package com.epam.spring.service.impl;
 
+import com.epam.spring.client.TrainingMSClient;
 import com.epam.spring.dto.request.training.CreateTrainingRequestDTO;
 import com.epam.spring.dto.request.training.FetchTraineeTrainingsRequestDTO;
 import com.epam.spring.dto.request.training.FetchTrainerTrainingsRequestDTO;
 import com.epam.spring.dto.response.training.FetchUserTrainingsResponseDTO;
+import com.epam.spring.entity.TrainingRequest;
+import com.epam.spring.enums.ActionType;
 import com.epam.spring.error.exception.ResourceNotFoundException;
 import com.epam.spring.mapper.TrainingMapper;
 import com.epam.spring.model.Trainee;
@@ -31,6 +34,7 @@ public class TrainingService implements TrainingSpecificOperationsService {
     private final TrainerRepository trainerRepository;
     private final TraineeRepository traineeRepository;
     private final TrainingMapper trainingMapper;
+    private final TrainingMSClient trainingMSClient;
 
     @Override
     public void create(CreateTrainingRequestDTO createTrainingRequest) {
@@ -45,6 +49,9 @@ public class TrainingService implements TrainingSpecificOperationsService {
         Training training = trainingMapper.fromCreateTrainingRequestToTraining(createTrainingRequest, trainee, trainer);
 
         trainingRepository.save(training);
+
+        TrainingRequest trainingRequest = buildTrainingRequest(trainer, training);
+        trainingMSClient.sendSavingOrDeletingRequest(trainingRequest);
         log.info("Transaction ID: {}, Successfully created training with id: {}", transactionId, training.getId());
     }
 
@@ -91,5 +98,17 @@ public class TrainingService implements TrainingSpecificOperationsService {
         log.info("Transaction ID: {}, Successfully fetched trainings for trainer: {}, size: {}",
                 transactionId, trainerUsername, trainerTrainings.size());
         return trainingMapper.fromUserListToFetchUserTrainingsResponseList(trainerTrainings);
+    }
+
+    private static TrainingRequest buildTrainingRequest(Trainer trainer, Training training) {
+        return TrainingRequest.builder()
+                .actionType(ActionType.ADD)
+                .username(trainer.getUser().getUsername())
+                .firstName(trainer.getUser().getFirstName())
+                .lastName(trainer.getUser().getLastName())
+                .date(training.getDate().atStartOfDay())
+                .duration(training.getDuration())
+                .isActive(trainer.getUser().isActive())
+                .build();
     }
 }
