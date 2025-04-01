@@ -18,7 +18,7 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class TrainingMSClient {
+public class TrainingMSRestClient implements CustomClient {
 
     @Value("${training-ms.url}")
     private String trainingMSURL;

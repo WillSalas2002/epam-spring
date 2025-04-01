@@ -1,6 +1,6 @@
 package com.epam.spring.service.impl;
 
-import com.epam.spring.client.TrainingMSClient;
+import com.epam.spring.client.TrainingMSRestClient;
 import com.epam.spring.dto.request.trainee.CreateTraineeRequestDTO;
 import com.epam.spring.dto.request.trainee.TrainingIdTrainerUsernamePair;
 import com.epam.spring.dto.request.trainee.UpdateTraineeRequestDTO;
@@ -53,7 +53,7 @@ public class TraineeService implements TraineeSpecificOperationsService {
     private final TraineeMapper traineeMapper;
     private final JwtService jwtService;
     private final UserRepository userRepository;
-    private final TrainingMSClient trainingMSClient;
+    private final TrainingMSRestClient trainingMSRestClient;
 
     @Override
     public UserCredentialsResponseDTO create(CreateTraineeRequestDTO createRequest) {
@@ -123,7 +123,7 @@ public class TraineeService implements TraineeSpecificOperationsService {
                 if (training.getDate().isAfter(LocalDate.now())) {
                     Trainer trainer = training.getTrainer();
                     TrainingRequest trainingRequest = buildTrainingRequest(training, trainer);
-                    trainingMSClient.sendSavingOrDeletingRequest(trainingRequest);
+                    trainingMSRestClient.sendSavingOrDeletingRequest(trainingRequest);
                 }
             }
         }
