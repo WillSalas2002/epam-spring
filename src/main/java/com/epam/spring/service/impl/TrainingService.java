@@ -1,6 +1,6 @@
 package com.epam.spring.service.impl;
 
-import com.epam.spring.client.TrainingMSActiveMQClient;
+import com.epam.spring.client.TrainingMQProducer;
 import com.epam.spring.dto.request.training.CreateTrainingRequestDTO;
 import com.epam.spring.dto.request.training.FetchTraineeTrainingsRequestDTO;
 import com.epam.spring.dto.request.training.FetchTrainerTrainingsRequestDTO;
@@ -34,8 +34,7 @@ public class TrainingService implements TrainingSpecificOperationsService {
     private final TrainerRepository trainerRepository;
     private final TraineeRepository traineeRepository;
     private final TrainingMapper trainingMapper;
-//    private final TrainingMSRestClient trainingMSRestClient;
-    private final TrainingMSActiveMQClient trainingMSActiveMQClient;
+    private final TrainingMQProducer trainingMQProducer;
 
     @Override
     public void create(CreateTrainingRequestDTO createTrainingRequest) {
@@ -52,7 +51,7 @@ public class TrainingService implements TrainingSpecificOperationsService {
         trainingRepository.save(training);
 
         TrainingRequest trainingRequest = buildTrainingRequest(trainer, training);
-        trainingMSActiveMQClient.sendSavingOrDeletingRequest(trainingRequest);
+        trainingMQProducer.sendSavingOrDeletingRequest(trainingRequest);
         log.info("Transaction ID: {}, Successfully created training with id: {}", transactionId, training.getId());
     }
 
