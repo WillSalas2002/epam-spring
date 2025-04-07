@@ -51,7 +51,7 @@ public class TrainingService implements TrainingSpecificOperationsService {
         trainingRepository.save(training);
 
         TrainingRequest trainingRequest = buildTrainingRequest(trainer, training);
-        trainingMQProducer.sendSavingOrDeletingRequest(trainingRequest);
+        trainingMQProducer.sendMessageToTrainingQueue(trainingRequest);
         log.info("Transaction ID: {}, Successfully created training with id: {}", transactionId, training.getId());
     }
 

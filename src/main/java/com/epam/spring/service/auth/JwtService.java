@@ -92,7 +92,7 @@ public class JwtService {
                 .signWith(getSigningKey(jwtSigningKey), SignatureAlgorithm.HS256).compact();
     }
 
-    public String generateTokenForSecondMicroservice() {
+    public String generateTokenForTrainingMS() {
         return Jwts.builder()
                 .setSubject("training-ms")
                 .setIssuedAt(new Date())

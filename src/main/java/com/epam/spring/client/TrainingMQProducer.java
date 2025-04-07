@@ -14,24 +14,30 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class TrainingMQProducer implements CustomClient {
+public class TrainingMQProducer {
+
+    public static final String TRAINING_TYPE_ID_PROPERTY_NAME = "training";
+    public static final String TRAINING_TYPE_ID_PROPERTY_VALUE = "com.epam.training.dto.TrainingRequest";
+    public static final String BEARER_PREFIX = "Bearer ";
+    public static final String AUTH_HEADER_NAME = "Authorization";
 
     private final Queue trainingQueue;
     private final JwtService jwtService;
     private final JmsTemplate jmsTemplate;
     private final ObjectMapper objectMapper;
 
-    public void sendSavingOrDeletingRequest(TrainingRequest trainingRequest) {
+    public void sendMessageToTrainingQueue(TrainingRequest trainingRequest) {
         try {
-            String jwtToken = jwtService.generateTokenForSecondMicroservice();
+            String jwtToken = jwtService.generateTokenForTrainingMS();
 
             String messageBody = objectMapper.writeValueAsString(trainingRequest);
 
-            log.info("Transaction ID: {}, sending request to training-ms via ActiveMQ: {}",
+            log.info("Transaction ID: {}, sending message to training-ms via ActiveMQ: {}",
                     TransactionContext.getTransactionId(), messageBody);
 
             jmsTemplate.convertAndSend(trainingQueue, messageBody, message -> {
-                message.setStringProperty("Authorization", "Bearer " + jwtToken);
+                message.setStringProperty(AUTH_HEADER_NAME, BEARER_PREFIX + jwtToken);
+                message.setStringProperty(TRAINING_TYPE_ID_PROPERTY_NAME, TRAINING_TYPE_ID_PROPERTY_VALUE);
                 return message;
             });
 

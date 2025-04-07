@@ -1,6 +1,6 @@
 package com.epam.spring.service.impl;
 
-import com.epam.spring.client.TrainingMSRestClient;
+import com.epam.spring.client.TrainingMQProducer;
 import com.epam.spring.dto.request.trainee.CreateTraineeRequestDTO;
 import com.epam.spring.dto.request.trainee.TrainingIdTrainerUsernamePair;
 import com.epam.spring.dto.request.trainee.UpdateTraineeRequestDTO;
@@ -53,7 +53,7 @@ public class TraineeService implements TraineeSpecificOperationsService {
     private final TraineeMapper traineeMapper;
     private final JwtService jwtService;
     private final UserRepository userRepository;
-    private final TrainingMSRestClient trainingMSRestClient;
+    private final TrainingMQProducer trainingMQProducer;
 
     @Override
     public UserCredentialsResponseDTO create(CreateTraineeRequestDTO createRequest) {
@@ -110,20 +110,20 @@ public class TraineeService implements TraineeSpecificOperationsService {
         log.info("Transaction ID: {}, Deleting trainee with username: {}", TransactionContext.getTransactionId(), username);
         Trainee trainee = traineeRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException(username));
 
-        sendDeleteRequestToTrainingMS(trainee);
+        sendDeleteMessageToQueue(trainee);
 
         userRepository.delete(trainee.getUser());
         traineeRepository.delete(trainee);
     }
 
-    private void sendDeleteRequestToTrainingMS(Trainee trainee) {
+    private void sendDeleteMessageToQueue(Trainee trainee) {
         List<Training> trainings = trainee.getTrainings();
         if (trainings != null && !trainings.isEmpty()) {
             for (Training training : trainings) {
                 if (training.getDate().isAfter(LocalDate.now())) {
                     Trainer trainer = training.getTrainer();
                     TrainingRequest trainingRequest = buildTrainingRequest(training, trainer);
-                    trainingMSRestClient.sendSavingOrDeletingRequest(trainingRequest);
+                    trainingMQProducer.sendMessageToTrainingQueue(trainingRequest);
                 }
             }
         }
