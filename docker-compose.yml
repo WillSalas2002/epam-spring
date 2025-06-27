@@ -1,0 +1,63 @@
+
+services:
+  main:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: main-ms
+    ports:
+      - '8081:8081'
+    networks:
+      - gym-app-network
+    depends_on:
+      - postgres
+      - activeMQ
+
+  report:
+    build:
+      context:  C:\Users\IlkhamJumatov\IdeaProjects\epam-learn\training-ms\
+      dockerfile: Dockerfile
+    image: report-ms
+    ports:
+      - '8082:8082'
+    networks:
+      - gym-app-network
+    depends_on:
+      - mongodb
+      - activeMQ
+
+  activeMQ:
+    image: "apache/activemq-artemis:2.41.0-alpine"
+    environment:
+      - ARTEMIS_USER=artemis
+      - ARTEMIS_PASSWORD=artemis
+    ports:
+      - '61616:61616'
+      - '8161:8161'
+    networks:
+      - gym-app-network
+
+  postgres:
+    image: "postgres:13.3"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - '5433:5432'
+    networks:
+      - gym-app-network
+
+  mongodb:
+    image: "mongo:8.0.10"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin
+      - MONGO_INITDB_DATABASE=mongodb
+    ports:
+      - '27017:27017'
+    networks:
+      - gym-app-network
+
+networks:
+  gym-app-network:

@@ -117,6 +117,7 @@ public class TraineeService implements TraineeSpecificOperationsService {
     }
 
     private void sendDeleteMessageToQueue(Trainee trainee) {
+        log.info("Sending delete message to the queue for trainee {}", trainee.getUser().getUsername());
         List<Training> trainings = trainee.getTrainings();
         if (trainings != null && !trainings.isEmpty()) {
             for (Training training : trainings) {
